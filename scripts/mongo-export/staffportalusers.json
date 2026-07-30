@@ -1,0 +1,70 @@
+[{
+    "_id": {
+      "$oid": "69e666da5aaf32a5a8bcc95d"
+    },
+    "externalId": "staff-demo-doctor",
+    "login": "doctor",
+    "passwordHash": "$2b$10$kql75kPaWKTztN4oJFB32OLewtTz5WfPw.O6earOGvU.Y9dE3a5uq",
+    "fullName": "Dr. Azimov Jahongir",
+    "role": "shifokor",
+    "department": "Endokrinologiya",
+    "isActive": true,
+    "createdAt": "2026-04-20T17:48:10.115Z",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e666da5aaf32a5a8bcc95e"
+    },
+    "externalId": "staff-demo-lab",
+    "login": "laborant",
+    "passwordHash": "$2b$10$TFZpoQu9T05FKAJlQf1I5.rlHjrG9S4SkK785y7u0/ND9TOieLvlC",
+    "fullName": "Tursunova Dilnoza",
+    "role": "laboratory",
+    "department": "Laboratoriya",
+    "isActive": true,
+    "createdAt": "2026-04-20T17:48:10.115Z",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e666da5aaf32a5a8bcc95f"
+    },
+    "externalId": "staff-demo-nurse",
+    "login": "hamshira",
+    "passwordHash": "$2b$10$fxpZMITUEizwblX7hCgg9uTHoyNKKlFEPHOwYthLq3zyiiLmmcixe",
+    "fullName": "Karimova Madina",
+    "role": "nurse",
+    "department": "Protsedura kabineti",
+    "isActive": true,
+    "createdAt": "2026-04-20T17:48:10.115Z",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e666da5aaf32a5a8bcc960"
+    },
+    "externalId": "staff-demo-head-nurse",
+    "login": "boshhamshira",
+    "passwordHash": "$2b$10$roR7cmw/S33XwYljz7PptuLcaJFIKExMUrQzeSCPSgmxGZxScBfPG",
+    "fullName": "Ismoilova Nilufar",
+    "role": "head_nurse",
+    "department": "Hamshiralik",
+    "isActive": true,
+    "createdAt": "2026-04-20T17:48:10.115Z",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e666da5aaf32a5a8bcc961"
+    },
+    "externalId": "staff-demo-kabinet",
+    "login": "kabinet",
+    "passwordHash": "$2b$10$3ceJT72QLcuBFDEzKB7VauUXLgXg2NrHm.GFR9S1g5v5E5ARYLhVC",
+    "fullName": "Sodiqova Lola",
+    "role": "kabinet",
+    "department": "Qabul",
+    "isActive": true,
+    "createdAt": "2026-04-20T17:48:10.115Z",
+    "__v": 0
+  }]

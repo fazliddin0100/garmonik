@@ -1,0 +1,4951 @@
+[{
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68adc"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "patients",
+    "payload": [
+      {
+        "id": "12617747",
+        "fullName": "Chariyeva Oysha Arabovna",
+        "gender": "Женский",
+        "birthDate": "17.04.1963",
+        "diseaseType": "Metabolik sindrom / gipertoniya",
+        "address": "MUSTAKILLIK",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AD7695782",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Кашкадарьинская",
+        "district": "г. Карши",
+        "contact": "99 748-51-21",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65582-0043",
+          "65560-0011"
+        ]
+      },
+      {
+        "id": "12617776",
+        "fullName": "Safarova Nigora Baxodirovna",
+        "gender": "Женский",
+        "birthDate": "26.05.1994",
+        "diseaseType": "Osteoporoz",
+        "address": "RABOTI BOLO 87",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AD9183721",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "Бухарский",
+        "contact": "90 299-30-20",
+        "population": "Да"
+      },
+      {
+        "id": "12618363",
+        "fullName": "Quldoshev Baxodir Maxmudovich",
+        "gender": "Мужской",
+        "birthDate": "04.03.1973",
+        "diseaseType": "Semirish (obesitet)",
+        "address": "OLTIN DALA MFY",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AE5719564",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Кашкадарьинская",
+        "district": "Чиракчинский",
+        "contact": "93 603-09-70",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65583-0031",
+          "65570-0025",
+          "65524-0021"
+        ]
+      },
+      {
+        "id": "12618536",
+        "fullName": "Norboyeva Nazira Ibragimovna",
+        "gender": "Женский",
+        "birthDate": "08.05.1961",
+        "diseaseType": "Polikistik over sindromi (PCOS)",
+        "address": "GOZAL-3",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AB9082139",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Кашкадарьинская",
+        "district": "г. Карши",
+        "contact": "97 556-70-10",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65556-0015",
+          "65152-0017",
+          "65576-0035"
+        ]
+      },
+      {
+        "id": "12618573",
+        "fullName": "Ochilova Habiba Murodjonovna",
+        "gender": "Женский",
+        "birthDate": "01.01.2018",
+        "diseaseType": "Hashimoto tireoiditi",
+        "address": "BOGI AMIR-31",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Бухара",
+        "contact": "91 419-10-10",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65573-0032",
+          "65567-0020"
+        ]
+      },
+      {
+        "id": "12618926",
+        "fullName": "Xojiqurbonov Jahongir Shermatovich",
+        "gender": "Мужской",
+        "birthDate": "28.10.2012",
+        "diseaseType": "Gipotireoz",
+        "address": "CHORBAKR",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "Бухарский",
+        "contact": "91 404-50-55",
+        "population": "Да"
+      },
+      {
+        "id": "12619021",
+        "fullName": "Nazarov Murod Zoyirovich",
+        "gender": "Мужской",
+        "birthDate": "28.05.1965",
+        "diseaseType": "Tireotoksikoz (Graves)",
+        "address": "ISTIQLOL MFY",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AE5641526",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "Бухарский",
+        "contact": "88 065-65-28",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65581-0038",
+          "65204-0014",
+          "65192-0022"
+        ]
+      },
+      {
+        "id": "12619545",
+        "fullName": "Dolboyeva Xursan Shamurotovna",
+        "gender": "Женский",
+        "birthDate": "11.05.1965",
+        "diseaseType": "Diabet mellitus 2 turi",
+        "address": "YANGIOBOD 140",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AD4341496",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Сурхандарьинская",
+        "district": "Джаркурганский",
+        "contact": "99 208-81-65",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65549-0019",
+          "65524-0021",
+          "65244-0086"
+        ]
+      },
+      {
+        "id": "12619576",
+        "fullName": "Boshmonova Dilrabo Isomiddinovna",
+        "gender": "Женский",
+        "birthDate": "03.08.1978",
+        "diseaseType": "Profilaktik tekshiruv",
+        "address": "BERUNIY-33 38-XONA",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AB7152551",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Самаркандская",
+        "district": "Самаркандский",
+        "contact": "90 199-98-96",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65582-0006",
+          "65576-0035"
+        ]
+      },
+      {
+        "id": "12619618",
+        "fullName": "Ergasheva Vazira Baxtiyorovna",
+        "gender": "Женский",
+        "birthDate": "21.10.1990",
+        "diseaseType": "Bolalar endokrinologiyasi",
+        "address": "SULTON JORAYEV 36",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AE1038679",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Бухара",
+        "contact": "91 441-66-69",
+        "population": "Да"
+      },
+      {
+        "id": "12620013",
+        "fullName": "Islomova Nazira Bafoyevna",
+        "gender": "Женский",
+        "birthDate": "28.08.1958",
+        "diseaseType": "Diabetik nevropatiya",
+        "address": "SHARK-1",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AE2243071",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "Бухарский",
+        "contact": "91 400-10-20",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65181-0019",
+          "65564-0013",
+          "65221-0008"
+        ]
+      },
+      {
+        "id": "12620082",
+        "fullName": "Rashidova Roziya Hikmatovna",
+        "gender": "Женский",
+        "birthDate": "10.03.1954",
+        "diseaseType": "Metabolik sindrom / gipertoniya",
+        "address": "6-MIKRAYON",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Бухара",
+        "contact": "93 479-81-41",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65119-050",
+          "65192-0022",
+          "65561-0012"
+        ]
+      },
+      {
+        "id": "12620252",
+        "fullName": "Ochilova Manzura Nurulloyevna",
+        "gender": "Женский",
+        "birthDate": "25.06.1953",
+        "diseaseType": "Osteoporoz",
+        "address": "A.somiy 4/9 a Kv 8",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Бухара",
+        "contact": "91 977-54-00",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65583-0044",
+          "65244-0086"
+        ]
+      },
+      {
+        "id": "12620561",
+        "fullName": "Baybutayev Umidjon Shavkatovich",
+        "gender": "Мужской",
+        "birthDate": "18.02.1983",
+        "diseaseType": "Semirish (obesitet)",
+        "address": "PIRIDASKIR",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AD2300771",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Бухара",
+        "contact": "90 710-70-00",
+        "population": "Да"
+      },
+      {
+        "id": "12620577",
+        "fullName": "Nematova Flora Baxtiyor kizi",
+        "gender": "Женский",
+        "birthDate": "19.05.1997",
+        "diseaseType": "Polikistik over sindromi (PCOS)",
+        "address": "JOME 8/3",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AE1271825",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Бухара",
+        "contact": "91 977-75-77",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65580-0004",
+          "65574-0033",
+          "65263-0003"
+        ]
+      },
+      {
+        "id": "12621184",
+        "fullName": "Mamajonov Karimberdi Nazirjonovich",
+        "gender": "Мужской",
+        "birthDate": "14.12.1961",
+        "diseaseType": "Hashimoto tireoiditi",
+        "address": "",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AD7064596",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Андижанская",
+        "district": "Шахриханский",
+        "contact": "773831781",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65569-0024",
+          "65221-0008",
+          "65555-0030"
+        ]
+      },
+      {
+        "id": "12621246",
+        "fullName": "Artikova Mohira Rashidovna",
+        "gender": "Женский",
+        "birthDate": "30.05.1969",
+        "diseaseType": "Gipotireoz",
+        "address": "ESKI SHAHAR",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AD3143405",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Бухара",
+        "contact": "90 299-49-00",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65306-0016",
+          "65561-0012"
+        ]
+      },
+      {
+        "id": "12621714",
+        "fullName": "Roziyeva Olima Amrullayevna",
+        "gender": "Женский",
+        "birthDate": "15.02.1962",
+        "diseaseType": "Tireotoksikoz (Graves)",
+        "address": "olinxoja 73/1",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Бухара",
+        "contact": "33 321-14-18",
+        "population": "Да"
+      },
+      {
+        "id": "12621935",
+        "fullName": "Hamroyeva Umida Hotam qizi",
+        "gender": "Женский",
+        "birthDate": "05.10.1998",
+        "diseaseType": "Diabet mellitus 2 turi",
+        "address": "Mustaqillik ko'chasi",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Бухара",
+        "contact": "33 321-14-18",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65560-0011",
+          "65240-0088",
+          "65596-0021"
+        ]
+      },
+      {
+        "id": "12622079",
+        "fullName": "Xafizova Umida Zoirovna",
+        "gender": "Женский",
+        "birthDate": "19.09.1988",
+        "diseaseType": "Profilaktik tekshiruv",
+        "address": "OBID UBAYDOV 63",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "Бухарский",
+        "contact": "97 300-02-33",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65529-0001",
+          "65263-0003",
+          "65247-0089"
+        ]
+      },
+      {
+        "id": "12622306",
+        "fullName": "Holiqov Sohib Sultonovich",
+        "gender": "Мужской",
+        "birthDate": "03.04.1977",
+        "diseaseType": "Bolalar endokrinologiyasi",
+        "address": "tog 2/4",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AD9586444",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Навоийская",
+        "district": "Учкудукский",
+        "contact": "93 319-77-57",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65570-0025",
+          "65555-0030"
+        ]
+      },
+      {
+        "id": "12622442",
+        "fullName": "Muhiddinova Charos Jamshid qizi",
+        "gender": "Женский",
+        "birthDate": "09.05.2010",
+        "diseaseType": "Diabetik nevropatiya",
+        "address": "SHARQ 243",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "Гиждуванский",
+        "contact": "90 513-73-93",
+        "population": "Да"
+      },
+      {
+        "id": "12622549",
+        "fullName": "Haydarova Sharora Sharof qizi",
+        "gender": "Женский",
+        "birthDate": "05.04.2006",
+        "diseaseType": "Metabolik sindrom / gipertoniya",
+        "address": "YANGI HAYOT 5 UY",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AD1559141",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Каган",
+        "contact": "97 864-07-70",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65567-0020",
+          "65564-0017",
+          "65583-0031"
+        ]
+      },
+      {
+        "id": "12623491",
+        "fullName": "Babajov Baxrom Yusupovich",
+        "gender": "Мужской",
+        "birthDate": "11.06.1964",
+        "diseaseType": "Osteoporoz",
+        "address": "SHUHRAT 10-UY",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AE2447765",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Республика Каракалпакстан",
+        "district": "Берунийский",
+        "contact": "97 569-30-40",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65127-052",
+          "65596-0021",
+          "65556-0015"
+        ]
+      },
+      {
+        "id": "12624540",
+        "fullName": "Rajabova Gulbaxor Boltayevna",
+        "gender": "Женский",
+        "birthDate": "21.04.1974",
+        "diseaseType": "Semirish (obesitet)",
+        "address": "geofizika",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Каган",
+        "contact": "91 400-33-16",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65204-0014",
+          "65247-0089"
+        ]
+      },
+      {
+        "id": "12624832",
+        "fullName": "Astanova Dildora Davronjonovna",
+        "gender": "Женский",
+        "birthDate": "30.10.1991",
+        "diseaseType": "Polikistik over sindromi (PCOS)",
+        "address": "TOKIMACHI BOZOR",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AB5430107",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Бухара",
+        "contact": "91 411-35-29",
+        "population": "Да"
+      },
+      {
+        "id": "12624913",
+        "fullName": "Haydarova Feruza Ravshanovna",
+        "gender": "Женский",
+        "birthDate": "07.08.1988",
+        "diseaseType": "Hashimoto tireoiditi",
+        "address": "SARMIJON",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AD6648487",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "Гиждуванский",
+        "contact": "91 412-35-56",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65576-0035",
+          "65554-0029",
+          "65581-0038"
+        ]
+      },
+      {
+        "id": "12625025",
+        "fullName": "Murtazayeva Zaynab Atoyevna",
+        "gender": "Женский",
+        "birthDate": "27.03.1970",
+        "diseaseType": "Gipotireoz",
+        "address": "HALILI",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "FA7647826",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "Жандарский",
+        "contact": "93 470-98-81",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65266-0013",
+          "65583-0031",
+          "65549-0019"
+        ]
+      },
+      {
+        "id": "12625045",
+        "fullName": "Xayitova Maxsuda Abdullayevna",
+        "gender": "Женский",
+        "birthDate": "01.01.2018",
+        "diseaseType": "Tireotoksikoz (Graves)",
+        "address": "GALA OSIYO",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "AB7513438",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "Бухарский",
+        "contact": "88 181-04-81",
+        "population": "Да",
+        "previousPaidServiceKeys": [
+          "65564-0013",
+          "65556-0015"
+        ]
+      },
+      {
+        "id": "12625223",
+        "fullName": "Ortiqova Gulnoza Toymurodovna",
+        "gender": "Женский",
+        "birthDate": "24.05.1993",
+        "diseaseType": "Diabet mellitus 2 turi",
+        "address": "",
+        "documentType": "Паспорт Узбекистана",
+        "documentNumber": "",
+        "jshshir": "",
+        "country": "УЗБЕКИСТАН",
+        "region": "Бухарская",
+        "district": "г. Каган",
+        "contact": "88 219-23-33",
+        "population": "Да",
+        "orderedLaboratoryKeys": [
+          "65263-0003",
+          "65506-0002",
+          "65557-0007",
+          "65564-0013",
+          "65564-0017",
+          "cat:biokimyoviy:alb",
+          "cat:biokimyoviy:alt",
+          "cat:biokimyoviy:ast",
+          "cat:biokimyoviy:bil_u",
+          "cat:biokimyoviy:cr",
+          "cat:biokimyoviy:glu",
+          "cat:biokimyoviy:tp",
+          "cat:biokimyoviy:urea",
+          "cat:lipidlar:hdl",
+          "cat:lipidlar:ldl",
+          "cat:lipidlar:tg",
+          "cat:lipidlar:chol",
+          "cat:qalqonsimon:ft4",
+          "cat:qalqonsimon:tsh",
+          "cat:qon_umumiy:bas",
+          "cat:qon_umumiy:eos",
+          "cat:qon_umumiy:esr",
+          "cat:qon_umumiy:hct",
+          "cat:qon_umumiy:hgb",
+          "cat:qon_umumiy:lym",
+          "cat:qon_umumiy:mcv",
+          "cat:qon_umumiy:mon",
+          "cat:qon_umumiy:neu",
+          "cat:qon_umumiy:plt",
+          "cat:qon_umumiy:rbc",
+          "cat:qon_umumiy:wbc",
+          "cat:siydik_umumiy:glu_u"
+        ]
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.144Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-24T03:42:45.737Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68add"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "departments",
+    "payload": [
+      {
+        "id": "dep-grp-qabul",
+        "title": "Qabul (registratura)",
+        "description": "",
+        "items": [
+          {
+            "id": "dep-grp-qabul-sub-1",
+            "title": "Bemorlarni ro'yxatga olish",
+            "note": ""
+          },
+          {
+            "id": "dep-grp-qabul-sub-2",
+            "title": "Navbatni boshqarish",
+            "note": ""
+          },
+          {
+            "id": "dep-grp-qabul-sub-3",
+            "title": "Shifokor qabulila bemorlarni yozish",
+            "note": ""
+          },
+          {
+            "id": "dep-grp-qabul-sub-1776833467045",
+            "title": "ghghag sha shga hgas",
+            "note": "akjs kajska"
+          }
+        ]
+      },
+      {
+        "id": "dep-grp-kabinet",
+        "title": "Endokrinolog shifokorlar ishlaydigan kabinetlar",
+        "description": "",
+        "items": [
+          {
+            "id": "dep-grp-kabinet-sub-1",
+            "title": "Konsultatsiya va ko‘rik uchun",
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "dep-grp-lab",
+        "title": "Laboratoriya",
+        "description": "",
+        "items": [
+          {
+            "id": "dep-grp-lab-sub-1",
+            "title": "Qon tahlillari (gormonlar: insulin, TSH, T3, T4 va boshqalar)",
+            "note": ""
+          },
+          {
+            "id": "dep-grp-lab-sub-2",
+            "title": "Biokimyoviy tekshiruvlar",
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "dep-grp-diag",
+        "title": "Diagnostika xonasi",
+        "description": "",
+        "items": [
+          {
+            "id": "dep-grp-diag-sub-1",
+            "title": "UZI (ultratovush tekshiruvi, ayniqsa qalqonsimon bez uchun)",
+            "note": ""
+          },
+          {
+            "id": "dep-grp-diag-sub-2",
+            "title": "EKG (zarurat bo‘lsa)",
+            "note": ""
+          },
+          {
+            "id": "dep-grp-diag-sub-3",
+            "title": "Boshqa instrumental tekshiruvlar",
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "dep-grp-proc",
+        "title": "Protsedura xonasi",
+        "description": "",
+        "items": [
+          {
+            "id": "dep-grp-proc-sub-1",
+            "title": "Qon olish",
+            "note": ""
+          },
+          {
+            "id": "dep-grp-proc-sub-2",
+            "title": "Inyeksiya va tomchilatib davolash",
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "dep-grp-stat",
+        "title": "Statsionar bo‘lim (agar mavjud bo‘lsa)",
+        "description": "",
+        "items": [
+          {
+            "id": "dep-grp-stat-sub-1",
+            "title": "Yotib davolanish uchun palatalar",
+            "note": ""
+          },
+          {
+            "id": "dep-grp-stat-sub-2",
+            "title": "Og‘ir holatdagi bemorlar uchun",
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "dep-grp-day",
+        "title": "Kunduzgi statsionar (day care)",
+        "description": "",
+        "items": [
+          {
+            "id": "dep-grp-day-sub-1",
+            "title": "Qisqa muddatli davolanish (masalan, infuziya terapiyasi)",
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "dep-grp-nurse",
+        "title": "Hamshiralar posti",
+        "description": "",
+        "items": [
+          {
+            "id": "dep-grp-nurse-sub-1",
+            "title": "Bemorlarni kuzatish va xizmat ko‘rsatish",
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "dep-grp-pharm",
+        "title": "Dori vositalari xonasi / mini-apteka",
+        "description": "",
+        "items": [
+          {
+            "id": "dep-grp-pharm-sub-1",
+            "title": "Dori saqlash va tarqatish",
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "dep-grp-admin",
+        "title": "Ma’muriy bo‘lim",
+        "description": "",
+        "items": [
+          {
+            "id": "dep-grp-admin-sub-1",
+            "title": "Boshqaruv, hujjatlar yuritish",
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.148Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-22T04:51:07.134Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ade"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "rooms",
+    "payload": [
+      {
+        "id": "14811",
+        "name": "1-palata",
+        "kind": "Comfort palata · Statsionar bo'limi",
+        "capacity": 2,
+        "occupied": 1
+      },
+      {
+        "id": "14816",
+        "name": "2-palata",
+        "kind": "Comfort palata · Statsionar bo'limi",
+        "capacity": 3,
+        "occupied": 0
+      },
+      {
+        "id": "14817",
+        "name": "3-palata",
+        "kind": "Standard palata · Statsionar bo'limi",
+        "capacity": 4,
+        "occupied": 0
+      },
+      {
+        "id": "14818",
+        "name": "4-palata",
+        "kind": "Comfort palata · Statsionar bo'limi",
+        "capacity": 3,
+        "occupied": 0
+      },
+      {
+        "id": "14820",
+        "name": "5-palata",
+        "kind": "Comfort palata · Statsionar bo'limi",
+        "capacity": 3,
+        "occupied": 0
+      },
+      {
+        "id": "14821",
+        "name": "6-palata",
+        "kind": "Standard palata · Statsionar bo'limi",
+        "capacity": 4,
+        "occupied": 0
+      },
+      {
+        "id": "14822",
+        "name": "7-palata",
+        "kind": "Standard palata · Statsionar bo'limi",
+        "capacity": 4,
+        "occupied": 0
+      },
+      {
+        "id": "14823",
+        "name": "8-palata",
+        "kind": "Comfort palata · Statsionar bo'limi",
+        "capacity": 3,
+        "occupied": 0
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.150Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T18:09:04.326Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68adf"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "service-types",
+    "payload": [
+      {
+        "id": "svc-65094",
+        "serviceId": "65094",
+        "code": "018",
+        "group": "Elektrokardiografiya (EKG)",
+        "name": "EKG",
+        "rowNum": 1
+      },
+      {
+        "id": "svc-65104",
+        "serviceId": "65104",
+        "code": "044",
+        "group": "Elektrokardiografiya (EKG)",
+        "name": "Holter monitoring",
+        "rowNum": 2
+      },
+      {
+        "id": "svc-65210",
+        "serviceId": "65210",
+        "code": "120",
+        "group": "Fizioterapiya",
+        "name": "Elektroforez (qo‘l)",
+        "rowNum": 3
+      },
+      {
+        "id": "svc-65211",
+        "serviceId": "65211",
+        "code": "121",
+        "group": "Fizioterapiya",
+        "name": "Elektroforez (oyoq)",
+        "rowNum": 4
+      },
+      {
+        "id": "svc-65212",
+        "serviceId": "65212",
+        "code": "122",
+        "group": "Fizioterapiya",
+        "name": "Elektroforez (bel)",
+        "rowNum": 5
+      },
+      {
+        "id": "svc-66001",
+        "serviceId": "66001",
+        "code": "200",
+        "group": "Koyka",
+        "name": "Standart palata",
+        "rowNum": 6
+      },
+      {
+        "id": "svc-66002",
+        "serviceId": "66002",
+        "code": "201",
+        "group": "Koyka",
+        "name": "Comfort palata",
+        "rowNum": 7
+      },
+      {
+        "id": "svc-66003",
+        "serviceId": "66003",
+        "code": "202",
+        "group": "Koyka",
+        "name": "Premium palata",
+        "rowNum": 8
+      },
+      {
+        "id": "svc-67001",
+        "serviceId": "67001",
+        "code": "301",
+        "group": "Laboratoriya",
+        "name": "Qon olish",
+        "rowNum": 9
+      },
+      {
+        "id": "svc-67002",
+        "serviceId": "67002",
+        "code": "302",
+        "group": "Laboratoriya",
+        "name": "Umumiy qon tahlili",
+        "rowNum": 10
+      },
+      {
+        "id": "svc-67003",
+        "serviceId": "67003",
+        "code": "303",
+        "group": "Laboratoriya",
+        "name": "Biokimyoviy qon tahlili",
+        "rowNum": 11
+      },
+      {
+        "id": "svc-67004",
+        "serviceId": "67004",
+        "code": "304",
+        "group": "Laboratoriya",
+        "name": "Insulin (qonda)",
+        "rowNum": 12
+      },
+      {
+        "id": "svc-67005",
+        "serviceId": "67005",
+        "code": "305",
+        "group": "Laboratoriya",
+        "name": "TSH",
+        "rowNum": 13
+      },
+      {
+        "id": "svc-67006",
+        "serviceId": "67006",
+        "code": "306",
+        "group": "Laboratoriya",
+        "name": "T3",
+        "rowNum": 14
+      },
+      {
+        "id": "svc-67007",
+        "serviceId": "67007",
+        "code": "307",
+        "group": "Laboratoriya",
+        "name": "T4",
+        "rowNum": 15
+      },
+      {
+        "id": "svc-68001",
+        "serviceId": "68001",
+        "code": "401",
+        "group": "Pullik xizmatlar",
+        "name": "Konditsioner / televizor",
+        "rowNum": 16
+      },
+      {
+        "id": "svc-68002",
+        "serviceId": "68002",
+        "code": "402",
+        "group": "Pullik xizmatlar",
+        "name": "VIP xizmat",
+        "rowNum": 17
+      },
+      {
+        "id": "svc-69001",
+        "serviceId": "69001",
+        "code": "501",
+        "group": "Shifokor ko'rigi",
+        "name": "Endokrinolog ko'rigi (birinchi)",
+        "rowNum": 18
+      },
+      {
+        "id": "svc-69002",
+        "serviceId": "69002",
+        "code": "502",
+        "group": "Shifokor ko'rigi",
+        "name": "Endokrinolog ko'rigi (takroriy)",
+        "rowNum": 19
+      },
+      {
+        "id": "svc-69003",
+        "serviceId": "69003",
+        "code": "503",
+        "group": "Shifokor ko'rigi",
+        "name": "Kardiolog ko'rigi",
+        "rowNum": 20
+      },
+      {
+        "id": "svc-69004",
+        "serviceId": "69004",
+        "code": "504",
+        "group": "Shifokor ko'rigi",
+        "name": "Terapevt ko'rigi",
+        "rowNum": 21
+      },
+      {
+        "id": "svc-70001",
+        "serviceId": "70001",
+        "code": "601",
+        "group": "UZI",
+        "name": "Qalqonsimon bez UZI",
+        "rowNum": 22
+      },
+      {
+        "id": "svc-70002",
+        "serviceId": "70002",
+        "code": "602",
+        "group": "UZI",
+        "name": "Buyrak UZI",
+        "rowNum": 23
+      },
+      {
+        "id": "svc-70003",
+        "serviceId": "70003",
+        "code": "603",
+        "group": "UZI",
+        "name": "Jigar UZI",
+        "rowNum": 24
+      },
+      {
+        "id": "svc-70004",
+        "serviceId": "70004",
+        "code": "604",
+        "group": "UZI",
+        "name": "Umurtqa-poja shishmasi UZI",
+        "rowNum": 25
+      },
+      {
+        "id": "svc-70005",
+        "serviceId": "70005",
+        "code": "605",
+        "group": "UZI",
+        "name": "Qon tomirlari UZI (Doppler)",
+        "rowNum": 26
+      },
+      {
+        "id": "svc-67008",
+        "serviceId": "67008",
+        "code": "308",
+        "group": "Laboratoriya",
+        "name": "Glikozlangan gemoglobin (HbA1c)",
+        "rowNum": 27
+      },
+      {
+        "id": "svc-67009",
+        "serviceId": "67009",
+        "code": "309",
+        "group": "Laboratoriya",
+        "name": "Lipid profili",
+        "rowNum": 28
+      },
+      {
+        "id": "svc-69005",
+        "serviceId": "69005",
+        "code": "505",
+        "group": "Shifokor ko'rigi",
+        "name": "Nevrolog ko'rigi",
+        "rowNum": 29
+      },
+      {
+        "id": "svc-70006",
+        "serviceId": "70006",
+        "code": "606",
+        "group": "UZI",
+        "name": "Tosh pufagi UZI",
+        "rowNum": 30
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.152Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.152Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ae0"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "medical-service-groups",
+    "payload": [
+      {
+        "id": "4604",
+        "code": "001",
+        "name": "Shifokor ko'rigi",
+        "status": "Актив"
+      },
+      {
+        "id": "4651",
+        "code": "001",
+        "name": "Laboratoriya",
+        "status": "Актив"
+      },
+      {
+        "id": "4606",
+        "code": "003",
+        "name": "UZI",
+        "status": "Актив"
+      },
+      {
+        "id": "4607",
+        "code": "004",
+        "name": "Elektrokardiografiya (EKG)",
+        "status": "Актив"
+      },
+      {
+        "id": "4608",
+        "code": "005",
+        "name": "Fizioterapiya",
+        "status": "Актив"
+      },
+      {
+        "id": "4609",
+        "code": "006",
+        "name": "Koyka",
+        "status": "Актив"
+      },
+      {
+        "id": "4610",
+        "code": "007",
+        "name": "Ovqat puli",
+        "status": "Актив"
+      },
+      {
+        "id": "4611",
+        "code": "008",
+        "name": "Pullik xizmatlar",
+        "status": "Актив"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.155Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.155Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ae1"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "medical-services",
+    "payload": [
+      {
+        "id": "65552",
+        "code": "0001",
+        "name": "Tomirdan qon olish",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65063",
+        "code": "0002",
+        "name": "Umumiy qon tahlili",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65066",
+        "code": "0003",
+        "name": "Umumiy Siydik Tahlili",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65207",
+        "code": "0004",
+        "name": "Nechiporenko sinamasi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65595",
+        "code": "0005",
+        "name": "Biokimyoviy qon tahlili",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65585",
+        "code": "0006",
+        "name": "MIKROELEMENTLAR",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65557",
+        "code": "0007",
+        "name": "Leykoformula",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65556",
+        "code": "0008",
+        "name": "Lipidlar spektri",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65210",
+        "code": "0008",
+        "name": "Koulogramma",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65203",
+        "code": "0009",
+        "name": "Qon guruhi va rezus faktorni aniqlash",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65057",
+        "code": "001",
+        "name": "Endokrinolog ko'rigi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Shifokor ko'rigi",
+        "medicalServicesGroup": "Консультация",
+        "status": "Актив"
+      },
+      {
+        "id": "65397",
+        "code": "001",
+        "name": "Qon olish",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Lab",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65065",
+        "code": "0010",
+        "name": "Qalqonsimon bez gormonlari",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65560",
+        "code": "0011",
+        "name": "VITAMINLAR VA ANEMIYA IXLA (CLIA)",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65561",
+        "code": "0012",
+        "name": "GORMONLAR IXLA (CLIA)",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65566",
+        "code": "0013",
+        "name": "Kateloxaminlar",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65067",
+        "code": "0013",
+        "name": "Glukozaga tolerantlik test tahlili",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65204",
+        "code": "0014",
+        "name": "VSK",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65558",
+        "code": "0014",
+        "name": "Revmoproba",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65562",
+        "code": "0014",
+        "name": "Immunoferment tahlillar(IFA)",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65563",
+        "code": "0015",
+        "name": "IMMUNOGLOBULINLAR",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65205",
+        "code": "0016",
+        "name": "Eritrositlar cho'kish tezligi (SOE,ECHT)",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65182",
+        "code": "0017",
+        "name": "Infeksiya va parazitlar",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65564",
+        "code": "0017",
+        "name": "HOMA va CARO indeksi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65565",
+        "code": "0018",
+        "name": "IFA GEPATITLAR",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65181",
+        "code": "0019",
+        "name": "Ekspress tahlillar",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65058",
+        "code": "002",
+        "name": "Nevropotolog ko'rigi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Shifokor ko'rigi",
+        "medicalServicesGroup": "Консультация",
+        "status": "Актив"
+      },
+      {
+        "id": "65567",
+        "code": "0020",
+        "name": "ERKIN GEMOGLABIN",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65586",
+        "code": "0021",
+        "name": "TORCH INFEKSIYALARI IgM",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65184",
+        "code": "0021",
+        "name": "Torch iffeksiyalari IgG",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65192",
+        "code": "0022",
+        "name": "Autoimmun tekshiruvlar",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65569",
+        "code": "0024",
+        "name": "Immunofluoressent tahlillar",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65570",
+        "code": "0025",
+        "name": "ONKOMARKERLAR IXLA (CLIA)",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65571",
+        "code": "0026",
+        "name": "Pap Test",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65572",
+        "code": "0027",
+        "name": "Prostata suyuqligi mikroskopiyasi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65553",
+        "code": "0028",
+        "name": "Siydik bioximiyasi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65554",
+        "code": "0029",
+        "name": "Siydik orqali sutkalik oqsil yo'qtish",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65059",
+        "code": "003",
+        "name": "Nefrolog ko'rigi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Shifokor ko'rigi",
+        "medicalServicesGroup": "Консультация",
+        "status": "Актив"
+      },
+      {
+        "id": "65555",
+        "code": "0030",
+        "name": "Siydik cho'kmasi mikroskopiyasi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65587",
+        "code": "0031",
+        "name": "MAR TEST",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65573",
+        "code": "0032",
+        "name": "DNK fragmentatsiyasini aniqlash testi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65574",
+        "code": "0033",
+        "name": "GEPATIT VIRUSINI PSR (PZR) usulida tekshirish",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65575",
+        "code": "0034",
+        "name": "PSR (PZR) taxlillar (Qon plazmasi)",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65576",
+        "code": "0035",
+        "name": "PSR (PZR) taxlillar (mazok)",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65578",
+        "code": "0035",
+        "name": "PSR Virus papilloma cheloveka (VPCH) Qon zardobi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65579",
+        "code": "0037",
+        "name": "SPERMATOZOIDLARNING HAYOTIYLIGINI ANIQLASH TESTLARI",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65580",
+        "code": "0037",
+        "name": "SPERMOGRAMMA VA SPERMA BIOXIMIYASI",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65577",
+        "code": "0037",
+        "name": "PSR Virus papilloma cheloveka (VPCH) mazok",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65581",
+        "code": "0038",
+        "name": "UROGENITAL MAZOK (Erkak)",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Laboratoriya",
+        "medicalServicesGroup": "Медицинские услуги",
+        "status": "Актив"
+      },
+      {
+        "id": "65060",
+        "code": "004",
+        "name": "Kardiolog ko'rigi",
+        "roomNumber": "",
+        "doctorLevel": "",
+        "medicalServiceGroup": "Shifokor ko'rigi",
+        "medicalServicesGroup": "Консультация",
+        "status": "Актив"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.158Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.158Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ae2"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "service-prices",
+    "payload": [
+      {
+        "id": "65104",
+        "code": "044",
+        "group": "fizioterapiya",
+        "groupLabel": "Fizioterapiya (EKG)",
+        "name": "EKG-elektrokardiografiya (apparat ELI 3-kanalli)",
+        "price": 42000
+      },
+      {
+        "id": "65094",
+        "code": "034",
+        "group": "fizioterapiya",
+        "groupLabel": "Fizioterapiya",
+        "name": "Bel va orqa pog'ona umurtqasini uqolash",
+        "price": 34000
+      },
+      {
+        "id": "65090",
+        "code": "030",
+        "group": "fizioterapiya",
+        "groupLabel": "Fizioterapiya",
+        "name": "Bosh, yuz va bo'yin mushaklarini uqolash",
+        "price": 32000
+      },
+      {
+        "id": "65089",
+        "code": "029",
+        "group": "fizioterapiya",
+        "groupLabel": "Fizioterapiya",
+        "name": "Elektroforez (C C1 bilan)",
+        "price": 35000
+      },
+      {
+        "id": "65088",
+        "code": "028",
+        "group": "fizioterapiya",
+        "groupLabel": "Fizioterapiya",
+        "name": "Elektroforez (boshga)",
+        "price": 95000
+      },
+      {
+        "id": "65087",
+        "code": "026",
+        "group": "fizioterapiya",
+        "groupLabel": "Fizioterapiya",
+        "name": "Elektroforez (N4 C1 umurtqa bilan)",
+        "price": 25000
+      },
+      {
+        "id": "65082",
+        "code": "021",
+        "group": "fizioterapiya",
+        "groupLabel": "Fizioterapiya",
+        "name": "Ko'krak qafasi uqolashi",
+        "price": 37000
+      },
+      {
+        "id": "65080",
+        "code": "019",
+        "group": "fizioterapiya",
+        "groupLabel": "Fizioterapiya",
+        "name": "Qorinning old devor mushaklarini uqolash",
+        "price": 34000
+      },
+      {
+        "id": "65079",
+        "code": "018",
+        "group": "fizioterapiya",
+        "groupLabel": "Fizioterapiya",
+        "name": "Son sohasi bo'g'imlarini uqolash",
+        "price": 34000
+      },
+      {
+        "id": "65071",
+        "code": "010",
+        "group": "fizioterapiya",
+        "groupLabel": "Fizioterapiya",
+        "name": "Yelka va qo'l soxasini uqolash",
+        "price": 34000
+      },
+      {
+        "id": "65070",
+        "code": "022",
+        "group": "kardiologiya",
+        "groupLabel": "Kardiologiya",
+        "name": "Stentlash",
+        "price": 500000
+      },
+      {
+        "id": "65192",
+        "code": "0022",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Autoimmun tekshiruvlar",
+        "price": 2043000
+      },
+      {
+        "id": "65599",
+        "code": "0003",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Bakteriyal usuv tahlili",
+        "price": 869000
+      },
+      {
+        "id": "65596",
+        "code": "0021",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "COVID-19 antitan",
+        "price": 148000
+      },
+      {
+        "id": "65573",
+        "code": "0032",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "DNK fragmentatsiyasini aniqlash testi",
+        "price": 905000
+      },
+      {
+        "id": "65181",
+        "code": "0019",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Express tahlil",
+        "price": 605000
+      },
+      {
+        "id": "65306",
+        "code": "0016",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Eritrosit cho'kish tezligi (SOE, ESR)",
+        "price": 26000
+      },
+      {
+        "id": "65567",
+        "code": "0020",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "ERKAN GEMOGLOBAN",
+        "price": 78000
+      },
+      {
+        "id": "65564",
+        "code": "0013",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Glyukoza tolerantlik test tahlili",
+        "price": 477000
+      },
+      {
+        "id": "65561",
+        "code": "0012",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "GORMONLAR IXLA (CLIA)",
+        "price": 3528000
+      },
+      {
+        "id": "65564",
+        "code": "0017",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "HOMA va CARO indeksi",
+        "price": 107000
+      },
+      {
+        "id": "65556",
+        "code": "0015",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "IFA Gepatitlar",
+        "price": 308000
+      },
+      {
+        "id": "65562",
+        "code": "0014",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Immunofenotahlil (IFA)",
+        "price": 2737000
+      },
+      {
+        "id": "65569",
+        "code": "0024",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Immunoglobulinlar",
+        "price": 259000
+      },
+      {
+        "id": "65152",
+        "code": "0017",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Infeksiya va parazitlar",
+        "price": 677000
+      },
+      {
+        "id": "65266",
+        "code": "0013",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Koagulogramma",
+        "price": 63000
+      },
+      {
+        "id": "65221",
+        "code": "0008",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Leykogramma",
+        "price": 42000
+      },
+      {
+        "id": "65557",
+        "code": "0007",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Lipid profil",
+        "price": 178000
+      },
+      {
+        "id": "65583",
+        "code": "0031",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "MAR TEST",
+        "price": 306000
+      },
+      {
+        "id": "65582",
+        "code": "0006",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Mikroelementlar",
+        "price": 278000
+      },
+      {
+        "id": "65580",
+        "code": "0004",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Neonatal skrining",
+        "price": 43000
+      },
+      {
+        "id": "65570",
+        "code": "0025",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "PSA test",
+        "price": 76000
+      },
+      {
+        "id": "65576",
+        "code": "0035",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "PSR panel (inson papilloma virusi)",
+        "price": 960000
+      },
+      {
+        "id": "65574",
+        "code": "0033",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "PSR panel (qon plasmasi)",
+        "price": 671000
+      },
+      {
+        "id": "65555",
+        "code": "0030",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Siydik umumiy mikroskopiyasi",
+        "price": 26000
+      },
+      {
+        "id": "65554",
+        "code": "0029",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Siydik orqali ichak oqsili yig'ish",
+        "price": 100000
+      },
+      {
+        "id": "65549",
+        "code": "0019",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Spermatozoidlarning hayotiyligini aniqlash",
+        "price": 198000
+      },
+      {
+        "id": "65540",
+        "code": "0037",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Spermogramma va sperma bioximiyasi",
+        "price": 1244000
+      },
+      {
+        "id": "65529",
+        "code": "0001",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Temirning qon zardobidagi miqdori",
+        "price": 100000
+      },
+      {
+        "id": "65524",
+        "code": "0021",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "TORCH infeksiyalari IgM",
+        "price": 322000
+      },
+      {
+        "id": "65506",
+        "code": "0002",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Umumiy qon tahlili",
+        "price": 45000
+      },
+      {
+        "id": "65263",
+        "code": "0003",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Umumiy siydik tahlili",
+        "price": 26000
+      },
+      {
+        "id": "65582",
+        "code": "0043",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Urogenital MAZOQ",
+        "price": 56000
+      },
+      {
+        "id": "65581",
+        "code": "0038",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Urogenital MAZOQ (erkak)",
+        "price": 56000
+      },
+      {
+        "id": "65583",
+        "code": "0044",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Virusli yuklama (HIV / PROTAMIN)",
+        "price": 2600000
+      },
+      {
+        "id": "65560",
+        "code": "0011",
+        "group": "laboratoriya",
+        "groupLabel": "Laboratoriya",
+        "name": "Vitaminlar va anemiya IXLA (CLIA)",
+        "price": 743000
+      },
+      {
+        "id": "65204",
+        "code": "0014",
+        "group": "pullik-xizmat",
+        "groupLabel": "Pullik xizmatlar",
+        "name": "XVK",
+        "price": 16000
+      },
+      {
+        "id": "65244",
+        "code": "0086",
+        "group": "pullik-xizmat",
+        "groupLabel": "Pullik xizmatlar",
+        "name": "Kapelnitsa quyish",
+        "price": 40000
+      },
+      {
+        "id": "65240",
+        "code": "0088",
+        "group": "pullik-xizmat",
+        "groupLabel": "Pullik xizmatlar",
+        "name": "Musak ichiga ineksiya qilish",
+        "price": 10000
+      },
+      {
+        "id": "65247",
+        "code": "0089",
+        "group": "pullik-xizmat",
+        "groupLabel": "Pullik xizmatlar",
+        "name": "Ozonoterapiya",
+        "price": 60000
+      },
+      {
+        "id": "65245",
+        "code": "0087",
+        "group": "pullik-xizmat",
+        "groupLabel": "Pullik xizmatlar",
+        "name": "Tomir ichiga ineksiya qilish",
+        "price": 10000
+      },
+      {
+        "id": "65119",
+        "code": "050",
+        "group": "pullik-xizmat",
+        "groupLabel": "Pullik xizmatlar",
+        "name": "VIP xizmati 1",
+        "price": 250000
+      },
+      {
+        "id": "65126",
+        "code": "051",
+        "group": "pullik-xizmat",
+        "groupLabel": "Pullik xizmatlar",
+        "name": "VIP xizmati 2",
+        "price": 300000
+      },
+      {
+        "id": "65127",
+        "code": "052",
+        "group": "pullik-xizmat",
+        "groupLabel": "Pullik xizmatlar",
+        "name": "VIP xizmati 3",
+        "price": 350000
+      },
+      {
+        "id": "65057",
+        "code": "001",
+        "group": "shifokor-korigi",
+        "groupLabel": "Shifokor ko'rigi",
+        "name": "Endokrinolog ko'rigi",
+        "price": 107000
+      },
+      {
+        "id": "65061",
+        "code": "005",
+        "group": "shifokor-korigi",
+        "groupLabel": "Shifokor ko'rigi",
+        "name": "Gepatolog ko'rigi",
+        "price": 77000
+      },
+      {
+        "id": "65060",
+        "code": "004",
+        "group": "shifokor-korigi",
+        "groupLabel": "Shifokor ko'rigi",
+        "name": "Kardiolog ko'rigi",
+        "price": 77000
+      },
+      {
+        "id": "65059",
+        "code": "003",
+        "group": "shifokor-korigi",
+        "groupLabel": "Shifokor ko'rigi",
+        "name": "Nefrolog ko'rigi",
+        "price": 77000
+      },
+      {
+        "id": "65058",
+        "code": "002",
+        "group": "shifokor-korigi",
+        "groupLabel": "Shifokor ko'rigi",
+        "name": "Nevropatolog ko'rigi",
+        "price": 77000
+      },
+      {
+        "id": "65062",
+        "code": "006",
+        "group": "shifokor-korigi",
+        "groupLabel": "Shifokor ko'rigi",
+        "name": "Onkolog ko'rigi",
+        "price": 77000
+      },
+      {
+        "id": "65085",
+        "code": "025",
+        "group": "shifokor-korigi",
+        "groupLabel": "Shifokor ko'rigi",
+        "name": "Pediolog ko'rigi",
+        "price": 77000
+      },
+      {
+        "id": "65099",
+        "code": "039",
+        "group": "shifokor-korigi",
+        "groupLabel": "Shifokor ko'rigi",
+        "name": "Ayollar rahbari yosh a'zolari",
+        "price": 47000
+      },
+      {
+        "id": "65072",
+        "code": "016",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Bachadon: 4 zonali UTT",
+        "price": 57000
+      },
+      {
+        "id": "65219",
+        "code": "081",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Branxio-sefal arteriyalar duplex",
+        "price": 75000
+      },
+      {
+        "id": "65216",
+        "code": "070",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Buyrak va qovuq",
+        "price": 62000
+      },
+      {
+        "id": "65236",
+        "code": "075",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Buyrak, buyrak usti bezi, siydik pufagi va qoldiq siydik",
+        "price": 73000
+      },
+      {
+        "id": "65238",
+        "code": "080",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Endokrinologiyada UZI",
+        "price": 87000
+      },
+      {
+        "id": "65237",
+        "code": "079",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Follikulometriya",
+        "price": 40000
+      },
+      {
+        "id": "65070",
+        "code": "014",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Jigar, taloq, UTT",
+        "price": 71000
+      },
+      {
+        "id": "65240",
+        "code": "082",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Oyoq arteriyalar duplex",
+        "price": 87000
+      },
+      {
+        "id": "65243",
+        "code": "075",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Plevra bo'shlig'i",
+        "price": 51000
+      },
+      {
+        "id": "65065",
+        "code": "012",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Qalqonsimon bez UZI",
+        "price": 57000
+      },
+      {
+        "id": "65234",
+        "code": "076",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Qo'l tomirlari duplex",
+        "price": 87000
+      },
+      {
+        "id": "65241",
+        "code": "083",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Qo'l arteriyalari duplex",
+        "price": 87000
+      },
+      {
+        "id": "65090",
+        "code": "039",
+        "group": "uzi",
+        "groupLabel": "UZI",
+        "name": "Sut bezlari UZI",
+        "price": 75000
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.162Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.162Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ae3"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "partners",
+    "payload": [
+      {
+        "id": "3",
+        "name": "Республика ихтисослаштирилган физатрия ва пульмонология илмий амалий тиббиёт муассасаси",
+        "stir": "200935928",
+        "contact": "7474",
+        "status": "Актив"
+      },
+      {
+        "id": "4",
+        "name": "ssss",
+        "stir": "201190733",
+        "contact": "",
+        "status": "Актив"
+      },
+      {
+        "id": "7",
+        "name": "Ўзбекистон Республикаси Президенти администрацияси ҳузуридаги Тиббиёт бошқармаси 1-Марказий клиник шифохонаси",
+        "stir": "200541761",
+        "contact": "",
+        "status": "Актив"
+      },
+      {
+        "id": "8",
+        "name": "Ўзбекистон Республикаси Президенти Администрацияси ҳузуридаги Тиббиёт Бош бошқармасининг 2-сонли Марказий клиник шифохонаси",
+        "stir": "204566767",
+        "contact": "712687484",
+        "status": "Актив"
+      },
+      {
+        "id": "9",
+        "name": "ГУ РСНПМЦ ТиО",
+        "stir": "200555332",
+        "contact": "71 233-10-30, 71 232-20-89, 71 233-17-60",
+        "status": "Актив"
+      },
+      {
+        "id": "10",
+        "name": "MCHJ \"EXCELENT PHARM GROUP\"",
+        "stir": "304968912",
+        "contact": "93 877-33-77",
+        "status": "Актив"
+      },
+      {
+        "id": "11",
+        "name": "МЧЖ \"Узбекистон Дори-Таъминоти\"",
+        "stir": "200845636",
+        "contact": "71-228-10-31",
+        "status": "Актив"
+      },
+      {
+        "id": "12",
+        "name": "MCHJ \"APTECHKA MED\"",
+        "stir": "305141224",
+        "contact": "99 875-29-49",
+        "status": "Актив"
+      },
+      {
+        "id": "13",
+        "name": "ЧП \"CHEMICALS LINE GROUP\"",
+        "stir": "303879098",
+        "contact": "",
+        "status": "Актив"
+      },
+      {
+        "id": "14",
+        "name": "OOO \"NEW PHARMACARE\"",
+        "stir": "304960014",
+        "contact": "",
+        "status": "Актив"
+      },
+      {
+        "id": "15",
+        "name": "OOO \"IUE SKY STERILE DRESSES\"",
+        "stir": "304841564",
+        "contact": "97 776-43-38",
+        "status": "Актив"
+      },
+      {
+        "id": "16",
+        "name": "OOO \"AUROMED\"",
+        "stir": "305734482",
+        "contact": "93 720-09-69",
+        "status": "Актив"
+      },
+      {
+        "id": "17",
+        "name": "OOO \"DOUBLE PHARM\"",
+        "stir": "302339604",
+        "contact": "",
+        "status": "Актив"
+      },
+      {
+        "id": "18",
+        "name": "Министерство Здравоохранения РУз.",
+        "stir": "200935974",
+        "contact": "71 239-42-18",
+        "status": "Актив"
+      },
+      {
+        "id": "19",
+        "name": "ООО \"Quramax medikal\"",
+        "stir": "206266822",
+        "contact": "78-150-42-18",
+        "status": "Актив"
+      },
+      {
+        "id": "20",
+        "name": "MCHJ \"GLOBAL FARM MEDICAL\"",
+        "stir": "305576972",
+        "contact": "",
+        "status": "Актив"
+      },
+      {
+        "id": "21",
+        "name": "OOO \"ASHA PHARMA\"",
+        "stir": "305089312",
+        "contact": "93 389-65-41",
+        "status": "Актив"
+      },
+      {
+        "id": "22",
+        "name": "ООО \"PLUTUS PHARMACEUTICALS\"",
+        "stir": "303281844",
+        "contact": "95 169-14-24",
+        "status": "Актив"
+      },
+      {
+        "id": "23",
+        "name": "\"Selxozmash Textil \" MCHJ",
+        "stir": "300078772",
+        "contact": "97 772-86-26, 97 444-96-46",
+        "status": "Актив"
+      },
+      {
+        "id": "24",
+        "name": "ИП ООО \"Amkodor -Tashkent\"",
+        "stir": "207161074",
+        "contact": "",
+        "status": "Актив"
+      },
+      {
+        "id": "25",
+        "name": "ООО \"ДЕНИС МЕД\"",
+        "stir": "201103878",
+        "contact": "",
+        "status": "Актив"
+      },
+      {
+        "id": "26",
+        "name": "ООО \"POSITIVE HEALTHCARE\"",
+        "stir": "304663288",
+        "contact": "",
+        "status": "Актив"
+      },
+      {
+        "id": "27",
+        "name": "OOO\"O`zmedimpekc\"",
+        "stir": "200523284",
+        "contact": "71-268-25-44, 268-36-01",
+        "status": "Актив"
+      },
+      {
+        "id": "28",
+        "name": "OOO Quality Parm",
+        "stir": "207153599",
+        "contact": "1501922",
+        "status": "Актив"
+      },
+      {
+        "id": "29",
+        "name": "OOO \"AVIKON TEX\"",
+        "stir": "303365944",
+        "contact": "+998 97 770 42 03",
+        "status": "Актив"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.166Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.166Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ae4"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "contracts",
+    "payload": [
+      {
+        "id": "119484",
+        "accountNumber": "20208000205260457001",
+        "supplierName": "ВИЛОЯТ КУП ТАРМОКЛИ ТИББИЁТ",
+        "orderNo": "1",
+        "contact": "",
+        "date": "01.12.2024",
+        "endDate": "31.12.2024",
+        "amount": "0",
+        "note": "-",
+        "status": "Актив"
+      },
+      {
+        "id": "119715",
+        "accountNumber": "20208000205260457001",
+        "supplierName": "MCHJ \"APTECHKA MED\"",
+        "orderNo": "11",
+        "contact": "",
+        "date": "11.12.2024",
+        "endDate": "31.12.2024",
+        "amount": "70000",
+        "note": "-",
+        "status": "Актив"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.169Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.169Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ae5"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "pharmacy-products",
+    "payload": [
+      {
+        "id": "pharm-1",
+        "barcode": "",
+        "rowNum": 1,
+        "name": "Metformin 500 mg",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 60,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-2",
+        "barcode": "",
+        "rowNum": 2,
+        "name": "Metformin 850 mg",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 60,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-3",
+        "barcode": "",
+        "rowNum": 3,
+        "name": "Metformin 1000 mg",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 60,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-4",
+        "barcode": "",
+        "rowNum": 4,
+        "name": "Gliklazid 30 mg MR",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-5",
+        "barcode": "",
+        "rowNum": 5,
+        "name": "Gliklazid 60 mg MR",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-6",
+        "barcode": "",
+        "rowNum": 6,
+        "name": "Glimepirid 1 mg",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-7",
+        "barcode": "",
+        "rowNum": 7,
+        "name": "Glimepirid 2 mg",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-8",
+        "barcode": "",
+        "rowNum": 8,
+        "name": "Sitagliptin 100 mg",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 28,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-9",
+        "barcode": "",
+        "rowNum": 9,
+        "name": "Vildagliptin 50 mg",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 28,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-10",
+        "barcode": "",
+        "rowNum": 10,
+        "name": "Empagliflozin 10 mg",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-11",
+        "barcode": "",
+        "rowNum": 11,
+        "name": "Empagliflozin 25 mg",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-12",
+        "barcode": "",
+        "rowNum": 12,
+        "name": "Dapagliflozin 10 mg",
+        "unit": "tab.",
+        "group": "Qandli diabet",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-13",
+        "barcode": "",
+        "rowNum": 13,
+        "name": "Insulin glargin",
+        "unit": "ruchka/fl.",
+        "group": "Qandli diabet",
+        "type": "Инъекция",
+        "packageCount": 5,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-14",
+        "barcode": "",
+        "rowNum": 14,
+        "name": "Insulin detemir",
+        "unit": "ruchka/fl.",
+        "group": "Qandli diabet",
+        "type": "Инъекция",
+        "packageCount": 5,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-15",
+        "barcode": "",
+        "rowNum": 15,
+        "name": "Insulin aspart",
+        "unit": "ruchka/fl.",
+        "group": "Qandli diabet",
+        "type": "Инъекция",
+        "packageCount": 5,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-16",
+        "barcode": "",
+        "rowNum": 16,
+        "name": "Insulin lispro",
+        "unit": "ruchka/fl.",
+        "group": "Qandli diabet",
+        "type": "Инъекция",
+        "packageCount": 5,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-17",
+        "barcode": "",
+        "rowNum": 17,
+        "name": "Regular insulin",
+        "unit": "fl.",
+        "group": "Qandli diabet",
+        "type": "Инъекция",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-18",
+        "barcode": "",
+        "rowNum": 18,
+        "name": "NPH insulin",
+        "unit": "fl.",
+        "group": "Qandli diabet",
+        "type": "Инъекция",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-19",
+        "barcode": "",
+        "rowNum": 19,
+        "name": "Glukagon emergency kit",
+        "unit": "набор",
+        "group": "Shoshilinch yordam",
+        "type": "Инъекция",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "emergency"
+      },
+      {
+        "id": "pharm-20",
+        "barcode": "",
+        "rowNum": 20,
+        "name": "Glyukoza 40% 20 ml",
+        "unit": "amp.",
+        "group": "Shoshilinch yordam",
+        "type": "Инъекция",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "emergency"
+      },
+      {
+        "id": "pharm-21",
+        "barcode": "",
+        "rowNum": 21,
+        "name": "Amlodipin 5 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-22",
+        "barcode": "",
+        "rowNum": 22,
+        "name": "Amlodipin 10 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-23",
+        "barcode": "",
+        "rowNum": 23,
+        "name": "Enalapril 5 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi",
+        "type": "Таблетка",
+        "packageCount": 20,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-24",
+        "barcode": "",
+        "rowNum": 24,
+        "name": "Enalapril 10 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi",
+        "type": "Таблетка",
+        "packageCount": 20,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-25",
+        "barcode": "",
+        "rowNum": 25,
+        "name": "Kaptopril 25 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi",
+        "type": "Таблетка",
+        "packageCount": 40,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-26",
+        "barcode": "",
+        "rowNum": 26,
+        "name": "Losartan 50 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-27",
+        "barcode": "",
+        "rowNum": 27,
+        "name": "Losartan 100 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-28",
+        "barcode": "",
+        "rowNum": 28,
+        "name": "Valsartan 80 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi",
+        "type": "Таблетка",
+        "packageCount": 28,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-29",
+        "barcode": "",
+        "rowNum": 29,
+        "name": "Telmisartan 40 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-30",
+        "barcode": "",
+        "rowNum": 30,
+        "name": "Bisoprolol 2.5 mg",
+        "unit": "tab.",
+        "group": "Yurak-qon tomir",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-31",
+        "barcode": "",
+        "rowNum": 31,
+        "name": "Bisoprolol 5 mg",
+        "unit": "tab.",
+        "group": "Yurak-qon tomir",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-32",
+        "barcode": "",
+        "rowNum": 32,
+        "name": "Nebivolol 5 mg",
+        "unit": "tab.",
+        "group": "Yurak-qon tomir",
+        "type": "Таблетка",
+        "packageCount": 28,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-33",
+        "barcode": "",
+        "rowNum": 33,
+        "name": "Indapamid 1.5 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi/diuretik",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-34",
+        "barcode": "",
+        "rowNum": 34,
+        "name": "Gidroxlorotiazid 25 mg",
+        "unit": "tab.",
+        "group": "Qon bosimi/diuretik",
+        "type": "Таблетка",
+        "packageCount": 20,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-35",
+        "barcode": "",
+        "rowNum": 35,
+        "name": "Spironolakton 25 mg",
+        "unit": "tab.",
+        "group": "Diuretik",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-36",
+        "barcode": "",
+        "rowNum": 36,
+        "name": "Furosemid 40 mg",
+        "unit": "tab.",
+        "group": "Diuretik",
+        "type": "Таблетка",
+        "packageCount": 50,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-37",
+        "barcode": "",
+        "rowNum": 37,
+        "name": "Furosemid 20 mg/2 ml",
+        "unit": "amp.",
+        "group": "Diuretik",
+        "type": "Инъекция",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-38",
+        "barcode": "",
+        "rowNum": 38,
+        "name": "Aspirin cardio 75 mg",
+        "unit": "tab.",
+        "group": "Antiagregant",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-39",
+        "barcode": "",
+        "rowNum": 39,
+        "name": "Clopidogrel 75 mg",
+        "unit": "tab.",
+        "group": "Antiagregant",
+        "type": "Таблетка",
+        "packageCount": 28,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-40",
+        "barcode": "",
+        "rowNum": 40,
+        "name": "Atorvastatin 20 mg",
+        "unit": "tab.",
+        "group": "Dislipidemiya",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-41",
+        "barcode": "",
+        "rowNum": 41,
+        "name": "Rosuvastatin 10 mg",
+        "unit": "tab.",
+        "group": "Dislipidemiya",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-42",
+        "barcode": "",
+        "rowNum": 42,
+        "name": "Paratsetamol 500 mg",
+        "unit": "tab.",
+        "group": "Og'riq qoldiruvchi",
+        "type": "Таблетка",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-43",
+        "barcode": "",
+        "rowNum": 43,
+        "name": "Ibuprofen 200 mg",
+        "unit": "tab.",
+        "group": "Og'riq qoldiruvchi",
+        "type": "Таблетка",
+        "packageCount": 20,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-44",
+        "barcode": "",
+        "rowNum": 44,
+        "name": "Ibuprofen 400 mg",
+        "unit": "tab.",
+        "group": "Og'riq qoldiruvchi",
+        "type": "Таблетка",
+        "packageCount": 20,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-45",
+        "barcode": "",
+        "rowNum": 45,
+        "name": "Diklofenak 50 mg",
+        "unit": "tab.",
+        "group": "Og'riq qoldiruvchi",
+        "type": "Таблетка",
+        "packageCount": 20,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-46",
+        "barcode": "",
+        "rowNum": 46,
+        "name": "Diklofenak 75 mg/3 ml",
+        "unit": "amp.",
+        "group": "Og'riq qoldiruvchi",
+        "type": "Инъекция",
+        "packageCount": 5,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-47",
+        "barcode": "",
+        "rowNum": 47,
+        "name": "Ketorolak 10 mg",
+        "unit": "tab.",
+        "group": "Og'riq qoldiruvchi",
+        "type": "Таблетка",
+        "packageCount": 20,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-48",
+        "barcode": "",
+        "rowNum": 48,
+        "name": "Ketorolak 30 mg/ml",
+        "unit": "amp.",
+        "group": "Og'riq qoldiruvchi",
+        "type": "Инъекция",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-49",
+        "barcode": "",
+        "rowNum": 49,
+        "name": "Meloksikam 7.5 mg",
+        "unit": "tab.",
+        "group": "Og'riq qoldiruvchi",
+        "type": "Таблетка",
+        "packageCount": 20,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-50",
+        "barcode": "",
+        "rowNum": 50,
+        "name": "Meloksikam 15 mg",
+        "unit": "tab.",
+        "group": "Og'riq qoldiruvchi",
+        "type": "Таблетка",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-51",
+        "barcode": "",
+        "rowNum": 51,
+        "name": "Drotaverin 40 mg",
+        "unit": "tab.",
+        "group": "Spazmolitik",
+        "type": "Таблетка",
+        "packageCount": 20,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-52",
+        "barcode": "",
+        "rowNum": 52,
+        "name": "Drotaverin 2 ml",
+        "unit": "amp.",
+        "group": "Spazmolitik",
+        "type": "Инъекция",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-53",
+        "barcode": "",
+        "rowNum": 53,
+        "name": "Omeprazol 20 mg",
+        "unit": "kaps.",
+        "group": "Oshqozon himoyasi",
+        "type": "Капсула",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-54",
+        "barcode": "",
+        "rowNum": 54,
+        "name": "Pantoprazol 40 mg",
+        "unit": "tab.",
+        "group": "Oshqozon himoyasi",
+        "type": "Таблетка",
+        "packageCount": 28,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-55",
+        "barcode": "",
+        "rowNum": 55,
+        "name": "Pantoprazol 40 mg",
+        "unit": "fl.",
+        "group": "Oshqozon himoyasi",
+        "type": "Инъекция",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "blood_pressure"
+      },
+      {
+        "id": "pharm-56",
+        "barcode": "",
+        "rowNum": 56,
+        "name": "Magniy sulfat 25% 10 ml",
+        "unit": "amp.",
+        "group": "Shoshilinch yordam",
+        "type": "Инъекция",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "emergency"
+      },
+      {
+        "id": "pharm-57",
+        "barcode": "",
+        "rowNum": 57,
+        "name": "Kaliy xlorid 4% 10 ml",
+        "unit": "amp.",
+        "group": "Elektrolitlar",
+        "type": "Инъекция",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-58",
+        "barcode": "",
+        "rowNum": 58,
+        "name": "Kalsiy glyukonat 10% 10 ml",
+        "unit": "amp.",
+        "group": "Elektrolitlar",
+        "type": "Инъекция",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-59",
+        "barcode": "",
+        "rowNum": 59,
+        "name": "Natriy xlorid 0.9% 100 ml",
+        "unit": "fl.",
+        "group": "Infuziyalar",
+        "type": "Инфузия",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-60",
+        "barcode": "",
+        "rowNum": 60,
+        "name": "Natriy xlorid 0.9% 200 ml",
+        "unit": "fl.",
+        "group": "Infuziyalar",
+        "type": "Инфузия",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-61",
+        "barcode": "",
+        "rowNum": 61,
+        "name": "Natriy xlorid 0.9% 400/500 ml",
+        "unit": "fl.",
+        "group": "Infuziyalar",
+        "type": "Инфузия",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-62",
+        "barcode": "",
+        "rowNum": 62,
+        "name": "Glyukoza 5% 200 ml",
+        "unit": "fl.",
+        "group": "Infuziyalar",
+        "type": "Инфузия",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-63",
+        "barcode": "",
+        "rowNum": 63,
+        "name": "Glyukoza 5% 400/500 ml",
+        "unit": "fl.",
+        "group": "Infuziyalar",
+        "type": "Инфузия",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-64",
+        "barcode": "",
+        "rowNum": 64,
+        "name": "Ringer laktat 500 ml",
+        "unit": "fl.",
+        "group": "Infuziyalar",
+        "type": "Инфузия",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-65",
+        "barcode": "",
+        "rowNum": 65,
+        "name": "Natriy gidrokarbonat 4% 200 ml",
+        "unit": "fl.",
+        "group": "Infuziyalar",
+        "type": "Инфузия",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-66",
+        "barcode": "",
+        "rowNum": 66,
+        "name": "Tiamin (vitamin B1)",
+        "unit": "amp.",
+        "group": "Vitaminlar",
+        "type": "Инъекция",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-67",
+        "barcode": "",
+        "rowNum": 67,
+        "name": "Piridoksin (vitamin B6)",
+        "unit": "amp.",
+        "group": "Vitaminlar",
+        "type": "Инъекция",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-68",
+        "barcode": "",
+        "rowNum": 68,
+        "name": "Sianokobalamin (vitamin B12)",
+        "unit": "amp.",
+        "group": "Vitaminlar",
+        "type": "Инъекция",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "infusions"
+      },
+      {
+        "id": "pharm-69",
+        "barcode": "",
+        "rowNum": 69,
+        "name": "Alfa-lipoik kislota 600 mg",
+        "unit": "tab.",
+        "group": "Diabetik neyropatiya",
+        "type": "Таблетка",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-70",
+        "barcode": "",
+        "rowNum": 70,
+        "name": "Alfa-lipoik kislota infuziya",
+        "unit": "fl./amp.",
+        "group": "Diabetik neyropatiya",
+        "type": "Инъекция",
+        "packageCount": 5,
+        "status": "Актив",
+        "category": "diabetes"
+      },
+      {
+        "id": "pharm-71",
+        "barcode": "",
+        "rowNum": 71,
+        "name": "Pregabalin 75 mg",
+        "unit": "kaps.",
+        "group": "Neyropatik og'riq",
+        "type": "Капсула",
+        "packageCount": 28,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-72",
+        "barcode": "",
+        "rowNum": 72,
+        "name": "Gabapentin 300 mg",
+        "unit": "kaps.",
+        "group": "Neyropatik og'riq",
+        "type": "Капсула",
+        "packageCount": 30,
+        "status": "Актив",
+        "category": "pain"
+      },
+      {
+        "id": "pharm-73",
+        "barcode": "",
+        "rowNum": 73,
+        "name": "Levotiroksin 25 mkg",
+        "unit": "tab.",
+        "group": "Qalqonsimon bez",
+        "type": "Таблетка",
+        "packageCount": 50,
+        "status": "Актив",
+        "category": "thyroid"
+      },
+      {
+        "id": "pharm-74",
+        "barcode": "",
+        "rowNum": 74,
+        "name": "Levotiroksin 50 mkg",
+        "unit": "tab.",
+        "group": "Qalqonsimon bez",
+        "type": "Таблетка",
+        "packageCount": 50,
+        "status": "Актив",
+        "category": "thyroid"
+      },
+      {
+        "id": "pharm-75",
+        "barcode": "",
+        "rowNum": 75,
+        "name": "Levotiroksin 100 mkg",
+        "unit": "tab.",
+        "group": "Qalqonsimon bez",
+        "type": "Таблетка",
+        "packageCount": 50,
+        "status": "Актив",
+        "category": "thyroid"
+      },
+      {
+        "id": "pharm-76",
+        "barcode": "",
+        "rowNum": 76,
+        "name": "Tiamazol 5 mg",
+        "unit": "tab.",
+        "group": "Qalqonsimon bez",
+        "type": "Таблетка",
+        "packageCount": 50,
+        "status": "Актив",
+        "category": "thyroid"
+      },
+      {
+        "id": "pharm-77",
+        "barcode": "",
+        "rowNum": 77,
+        "name": "Deksametazon 4 mg/ml",
+        "unit": "amp.",
+        "group": "Gormonal/tez yordam",
+        "type": "Инъекция",
+        "packageCount": 25,
+        "status": "Актив",
+        "category": "emergency"
+      },
+      {
+        "id": "pharm-78",
+        "barcode": "",
+        "rowNum": 78,
+        "name": "Gidrokortizon 100 mg",
+        "unit": "fl.",
+        "group": "Gormonal/tez yordam",
+        "type": "Инъекция",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "emergency"
+      },
+      {
+        "id": "pharm-79",
+        "barcode": "",
+        "rowNum": 79,
+        "name": "Loratadin 10 mg",
+        "unit": "tab.",
+        "group": "Antigistamin",
+        "type": "Таблетка",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "emergency"
+      },
+      {
+        "id": "pharm-80",
+        "barcode": "",
+        "rowNum": 80,
+        "name": "Xloropiramin (Suprastin)",
+        "unit": "amp./tab.",
+        "group": "Antigistamin",
+        "type": "Инъекция/Таблетка",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "emergency"
+      },
+      {
+        "id": "pharm-81",
+        "barcode": "",
+        "rowNum": 81,
+        "name": "Spirt 70%",
+        "unit": "ml/fl.",
+        "group": "Antiseptik",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-82",
+        "barcode": "",
+        "rowNum": 82,
+        "name": "Xlorheksidin",
+        "unit": "fl.",
+        "group": "Antiseptik",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-83",
+        "barcode": "",
+        "rowNum": 83,
+        "name": "Paxta",
+        "unit": "gr",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-84",
+        "barcode": "",
+        "rowNum": 84,
+        "name": "Bint steril",
+        "unit": "dona",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-85",
+        "barcode": "",
+        "rowNum": 85,
+        "name": "Steril salfetka",
+        "unit": "dona",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 10,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-86",
+        "barcode": "",
+        "rowNum": 86,
+        "name": "Tibbiy niqob",
+        "unit": "dona",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 50,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-87",
+        "barcode": "",
+        "rowNum": 87,
+        "name": "Steril qo‘lqop",
+        "unit": "juft",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 50,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-88",
+        "barcode": "",
+        "rowNum": 88,
+        "name": "1 ml shprits",
+        "unit": "dona",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-89",
+        "barcode": "",
+        "rowNum": 89,
+        "name": "2 ml shprits",
+        "unit": "dona",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-90",
+        "barcode": "",
+        "rowNum": 90,
+        "name": "5 ml shprits",
+        "unit": "dona",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-91",
+        "barcode": "",
+        "rowNum": 91,
+        "name": "10 ml shprits",
+        "unit": "dona",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-92",
+        "barcode": "",
+        "rowNum": 92,
+        "name": "Insulin shprits",
+        "unit": "dona",
+        "group": "Qandli diabet uchun vosita",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-93",
+        "barcode": "",
+        "rowNum": 93,
+        "name": "Insulin ruchka ignasi",
+        "unit": "dona",
+        "group": "Qandli diabet uchun vosita",
+        "type": "Расходный материал",
+        "packageCount": 100,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-94",
+        "barcode": "",
+        "rowNum": 94,
+        "name": "Sistema",
+        "unit": "dona",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-95",
+        "barcode": "",
+        "rowNum": 95,
+        "name": "Angiokatetr",
+        "unit": "dona",
+        "group": "Bir martalik tibbiy vositalar",
+        "type": "Расходный материал",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-96",
+        "barcode": "",
+        "rowNum": 96,
+        "name": "Glukometr test stripi",
+        "unit": "quti",
+        "group": "Diagnostika",
+        "type": "Расходный материал",
+        "packageCount": 50,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-97",
+        "barcode": "",
+        "rowNum": 97,
+        "name": "Lanset",
+        "unit": "dona",
+        "group": "Diagnostika",
+        "type": "Расходный материал",
+        "packageCount": 100,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-98",
+        "barcode": "",
+        "rowNum": 98,
+        "name": "Glukometr",
+        "unit": "dona",
+        "group": "Tibbiy jihoz",
+        "type": "Доп.процедуры",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-99",
+        "barcode": "",
+        "rowNum": 99,
+        "name": "Tonometr",
+        "unit": "dona",
+        "group": "Tibbiy jihoz",
+        "type": "Доп.процедуры",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      },
+      {
+        "id": "pharm-100",
+        "barcode": "",
+        "rowNum": 100,
+        "name": "Termometr",
+        "unit": "dona",
+        "group": "Tibbiy jihoz",
+        "type": "Доп.процедуры",
+        "packageCount": 1,
+        "status": "Актив",
+        "category": "consumables"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.172Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.172Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ae6"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "doctors",
+    "payload": [
+      {
+        "id": "21715",
+        "code": "001",
+        "fullName": "Umurov Bobir Umarovich",
+        "roomNumber": "",
+        "specialty": "Эндокринолог",
+        "degree": "",
+        "department": "Ambulator qabul bo'limi, Statsionar bo'limi",
+        "position": "Директор",
+        "contact": "",
+        "status": "Актив",
+        "username": "Umurov Bobir Umarovich",
+        "login": "gp.umurov"
+      },
+      {
+        "id": "21716",
+        "code": "002",
+        "fullName": "Qoryogdiyev Marufjon Komiljonovich",
+        "roomNumber": "",
+        "specialty": "Невропатолог",
+        "degree": "",
+        "department": "Ambulator qabul bo'limi, Statsionar bo'limi",
+        "position": "",
+        "contact": "",
+        "status": "Актив",
+        "username": "Qoryogdiyev Marufjon Komiljonovich",
+        "login": "gp.maruf"
+      },
+      {
+        "id": "21717",
+        "code": "003",
+        "fullName": "Abdulloyev Muhriddin Ziyodilloyevich",
+        "roomNumber": "",
+        "specialty": "Гепатолог",
+        "degree": "",
+        "department": "Ambulator qabul bo'limi, Statsionar bo'limi",
+        "position": "",
+        "contact": "",
+        "status": "Актив",
+        "username": "",
+        "login": ""
+      },
+      {
+        "id": "21724",
+        "code": "004",
+        "fullName": "Ro'ziyev Farrux Muhitdinovich",
+        "roomNumber": "",
+        "specialty": "УЗИ врач",
+        "degree": "Высшей категории",
+        "department": "Ambulator qabul bo'limi, Statsionar bo'limi",
+        "position": "",
+        "contact": "",
+        "status": "Актив",
+        "username": "Ro'ziyev Farrux Muhitdinovich",
+        "login": "gp.farrux"
+      },
+      {
+        "id": "21751",
+        "code": "005",
+        "fullName": "Ramazonova Navbahor Xxx",
+        "roomNumber": "",
+        "specialty": "Лаборант",
+        "degree": "Без категории",
+        "department": "Statsionar bo'limi, Ambulator qabul bo'limi",
+        "position": "",
+        "contact": "",
+        "status": "Актив",
+        "username": "Ramazonova Navbahor Jo'raqulovna",
+        "login": "gp.ramazonova"
+      },
+      {
+        "id": "21769",
+        "code": "006",
+        "fullName": "Ramazonova Navbahor Jo'raqul qizi",
+        "roomNumber": "",
+        "specialty": "Лаборант",
+        "degree": "",
+        "department": "Statsionar bo'limi, Ambulator qabul bo'limi",
+        "position": "",
+        "contact": "",
+        "status": "Актив",
+        "username": "Ramazonova Navbahor Jo'raqulovna",
+        "login": "gp.ramazonova"
+      },
+      {
+        "id": "21770",
+        "code": "007",
+        "fullName": "Rahmatov Siroj Sodiqovich",
+        "roomNumber": "",
+        "specialty": "Кардиолог",
+        "degree": "Без категории",
+        "department": "Statsionar bo'limi, Ambulator qabul bo'limi",
+        "position": "",
+        "contact": "",
+        "status": "Актив",
+        "username": "Rahmatov Siroj Sodiqovich",
+        "login": "gp.siroj"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.175Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.175Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ae7"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "nurses",
+    "payload": [
+      {
+        "photo": "",
+        "id": "7773",
+        "code": "001",
+        "fullName": "Muhsinova Mamura Haydarovna",
+        "specialty": "Медсестра",
+        "degree": "Без категории",
+        "department": "Ambulator qabul bo'limi, Statsionar bo'limi",
+        "contact": "",
+        "login": "",
+        "status": "Актив"
+      },
+      {
+        "photo": "",
+        "id": "8149",
+        "code": "001",
+        "fullName": "Gp.gormonik Gormonik Plus",
+        "specialty": "Старшая м/с",
+        "degree": "Без категории",
+        "department": "Ambulator qabul bo'limi, Statsionar bo'limi",
+        "contact": "",
+        "login": "",
+        "status": "Актив"
+      },
+      {
+        "photo": "",
+        "id": "7774",
+        "code": "002",
+        "fullName": "Bahronova Sitora Sunnatillo qizi",
+        "specialty": "Медсестра",
+        "degree": "Без категории",
+        "department": "Ambulator qabul bo'limi, Statsionar bo'limi",
+        "contact": "",
+        "login": "",
+        "status": "Актив"
+      },
+      {
+        "photo": "",
+        "id": "7779",
+        "code": "003",
+        "fullName": "Ergasheva Feruza Iskandarovna",
+        "specialty": "Медсестра",
+        "degree": "Без категории",
+        "department": "Ambulator qabul bo'limi, Statsionar bo'limi",
+        "contact": "+998919734481",
+        "login": "gp.navruzov",
+        "status": "Актив"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.178Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.178Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ae8"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "laboratory-staff",
+    "payload": [
+      {
+        "id": "21751",
+        "code": "005",
+        "fullName": "Ramazonova Navbahor Xxx",
+        "roomNumber": "",
+        "specialty": "Лаборант",
+        "degree": "Без категории",
+        "department": "Statsionar bo'limi, Ambulator qabul bo'limi",
+        "position": "",
+        "contact": "",
+        "status": "Актив",
+        "username": "Ramazonova Navbahor Jo'raqulovna",
+        "login": "gp.ramazonova"
+      },
+      {
+        "id": "21769",
+        "code": "006",
+        "fullName": "Ramazonova Navbahor Jo'raqul qizi",
+        "roomNumber": "",
+        "specialty": "Лаборант",
+        "degree": "",
+        "department": "Statsionar bo'limi, Ambulator qabul bo'limi",
+        "position": "",
+        "contact": "",
+        "status": "Актив",
+        "username": "Ramazonova Navbahor Jo'raqulovna",
+        "login": "gp.ramazonova"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.182Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.182Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68ae9"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "reception",
+    "payload": [
+      {
+        "id": "25065",
+        "username": "gp.navruzov",
+        "shortName": "Navruzov Umar Umurovich",
+        "roleName": "Регистратура Амблутор,",
+        "lastAccess": "17.04.2026 10:46:33",
+        "email": "test@test.ru",
+        "status": "Актив",
+        "password": "Admin@123",
+        "securityPin": "1111"
+      },
+      {
+        "id": "25097",
+        "username": "gp.gormonik",
+        "shortName": "Gormonikplus",
+        "roleName": "Регистратура Амблутор,",
+        "lastAccess": "17.04.2026 10:17:49",
+        "email": "test@test.ru",
+        "status": "Актив",
+        "password": "Admin@123",
+        "securityPin": "1111"
+      },
+      {
+        "id": "25098",
+        "username": "gp.diyor",
+        "shortName": "Diyorbek Garmonik plus",
+        "roleName": "Регистратура Амблутор,",
+        "lastAccess": "12.01.2025 10:48:04",
+        "email": "test@test.ru",
+        "status": "Актив",
+        "password": "Admin@123",
+        "securityPin": "1111"
+      },
+      {
+        "id": "25099",
+        "username": "gp.nargiza",
+        "shortName": "Nargiza",
+        "roleName": "Регистратура Амблутор,",
+        "lastAccess": "17.04.2026 10:26:32",
+        "email": "test@test.ru",
+        "status": "Актив",
+        "password": "Admin@123",
+        "securityPin": "1111"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.184Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.184Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68aea"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "pharmacists",
+    "payload": [
+      {
+        "id": "23111",
+        "code": "P-001",
+        "fullName": "Ismoilova Malika Sherzod qizi",
+        "specialty": "Farmatsevt",
+        "degree": "1-toifa",
+        "department": "Ambulator qabul bo'limi",
+        "contact": "+998901112233",
+        "login": "gp.malika",
+        "status": "Актив"
+      },
+      {
+        "id": "23112",
+        "code": "P-002",
+        "fullName": "Raximov Azizbek Otabek o‘g‘li",
+        "specialty": "Katta farmatsevt",
+        "degree": "Oliy toifa",
+        "department": "Statsionar bo'limi",
+        "contact": "+998907778899",
+        "login": "gp.azizbek",
+        "status": "Актив"
+      },
+      {
+        "id": "23113",
+        "code": "P-003",
+        "fullName": "Yunusova Nargiza Alisherovna",
+        "specialty": "Retsept nazorati",
+        "degree": "2-toifa",
+        "department": "Ambulator qabul bo'limi",
+        "contact": "+998935551122",
+        "login": "gp.nargiza.ph",
+        "status": "Актив"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.186Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.186Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68aeb"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "admins",
+    "payload": [
+      {
+        "id": "1",
+        "firstName": "Administrator",
+        "lastName": "Sistema",
+        "fatherName": "Tizim",
+        "age": 35,
+        "username": "admin",
+        "roleName": "Super administrator",
+        "phone": "+998901112233",
+        "password": "—",
+        "securityPin": "1111"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.188Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.188Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68aec"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "clinic-settings",
+    "payload": {
+      "clinicName": "Gormonik Plus",
+      "legalName": "“GORMONIK PLUS” MCHJ",
+      "inn": "",
+      "phone": "+998 91 000 00 00",
+      "email": "info@gormonik.uz",
+      "address": "Buxoro viloyati, Buxoro shahri",
+      "website": "https://gormonik.uz",
+      "timezone": "Asia/Tashkent",
+      "locale": "uz",
+      "workDayOpen": "08:00",
+      "workDayClose": "20:00",
+      "workSaturdayOpen": "09:00",
+      "workSaturdayClose": "14:00",
+      "saturdayEnabled": true,
+      "slotMinutes": 10,
+      "maxAppointmentsPerDay": 120,
+      "defaultServiceCurrency": "UZS",
+      "invoicePrefix": "GM-",
+      "invoiceLegalFooter": "Tibbiy xizmatlar O‘zbekiston Respublikasi qonun hujjatlariga muvofiq ko‘rsatiladi. To‘lov naqd yoki plastik karta orqali.",
+      "smsReminder": true,
+      "smsReminderHoursBefore": 2,
+      "emailDailyDigest": false,
+      "internalPushAlerts": true,
+      "patientConsentOnRegister": true,
+      "retentionMonths": 60,
+      "apiReadEnabled": false,
+      "webhookUrl": "",
+      "sessionTimeoutMinutes": 45,
+      "twoFactorEnforced": false,
+      "auditLogEnabled": true,
+      "showPricesWithVat": false
+    },
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.192Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.192Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68aed"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "lab-catalog",
+    "payload": [
+      {
+        "id": "qon_umumiy",
+        "title": "Umumiy qon tahlili va ECHT (SOE)",
+        "items": [
+          {
+            "id": "wbc",
+            "name": "Leykotsitlar",
+            "norm": "4,0–9,0",
+            "unit": "10⁹/l"
+          },
+          {
+            "id": "neu",
+            "name": "Neutrofillar",
+            "norm": "47–72",
+            "unit": "%"
+          },
+          {
+            "id": "lym",
+            "name": "Limfotsitlar",
+            "norm": "19–37",
+            "unit": "%"
+          },
+          {
+            "id": "mon",
+            "name": "Monotsitlar",
+            "norm": "3–11",
+            "unit": "%"
+          },
+          {
+            "id": "eos",
+            "name": "Eozinofillar",
+            "norm": "0,5–5",
+            "unit": "%"
+          },
+          {
+            "id": "bas",
+            "name": "Bazofillar",
+            "norm": "0–1",
+            "unit": "%"
+          },
+          {
+            "id": "rbc",
+            "name": "Eritrotsitlar",
+            "norm": "3,9–5,5 (A); 3,7–4,7 (A)",
+            "unit": "10¹²/l"
+          },
+          {
+            "id": "hgb",
+            "name": "Gemoglobin",
+            "norm": "120–160 (A); 110–150 (A)",
+            "unit": "g/l"
+          },
+          {
+            "id": "hct",
+            "name": "Gematokrit",
+            "norm": "36–48",
+            "unit": "%"
+          },
+          {
+            "id": "mcv",
+            "name": "Eritrotsitlar o‘rtacha hajmi (MCV)",
+            "norm": "80–99",
+            "unit": "fl"
+          },
+          {
+            "id": "plt",
+            "name": "Trombotsitlar",
+            "norm": "150–400",
+            "unit": "10⁹/l"
+          },
+          {
+            "id": "esr",
+            "name": "Eritrotsitlar cho‘kish tezligi (SOE, ECHT)",
+            "norm": "2–15 (A); 2–20 (A)",
+            "unit": "mm/soat"
+          }
+        ]
+      },
+      {
+        "id": "qon_ivish",
+        "title": "VSK (qon ivish vaqti)",
+        "items": [
+          {
+            "id": "vsk_bosh",
+            "name": "Boshlanishi",
+            "norm": "—",
+            "unit": "daq"
+          },
+          {
+            "id": "vsk_tug",
+            "name": "Tugashi",
+            "norm": "5–10",
+            "unit": "daq"
+          }
+        ]
+      },
+      {
+        "id": "qon_gruppa",
+        "title": "Qon guruhi va Rezus faktor",
+        "items": [
+          {
+            "id": "abo",
+            "name": "Qon guruhi",
+            "norm": "—",
+            "unit": "—"
+          },
+          {
+            "id": "rh",
+            "name": "Rezus faktor",
+            "norm": "—",
+            "unit": "—"
+          }
+        ]
+      },
+      {
+        "id": "siydik_umumiy",
+        "title": "Umumiy siydik tahlili",
+        "items": [
+          {
+            "id": "uro",
+            "name": "Urobilinogen",
+            "norm": "0,2–1,0",
+            "unit": "mg/dl"
+          },
+          {
+            "id": "bil",
+            "name": "Bilirubin",
+            "norm": "manfiy",
+            "unit": "—"
+          },
+          {
+            "id": "ket",
+            "name": "Keton",
+            "norm": "manfiy",
+            "unit": "—"
+          },
+          {
+            "id": "cr_u",
+            "name": "Kreatinin",
+            "norm": "26–133",
+            "unit": "mg/dl"
+          },
+          {
+            "id": "bld",
+            "name": "Qon (eritrotsitlar)",
+            "norm": "0–2",
+            "unit": "/mayda"
+          },
+          {
+            "id": "pro",
+            "name": "Oqsil",
+            "norm": "manfiy",
+            "unit": "—"
+          },
+          {
+            "id": "glu_u",
+            "name": "Glyukoza",
+            "norm": "manfiy",
+            "unit": "—"
+          },
+          {
+            "id": "sg",
+            "name": "Nisbiy zichlik",
+            "norm": "1,003–1,035",
+            "unit": "—"
+          },
+          {
+            "id": "ph",
+            "name": "pH",
+            "norm": "5,0–8,0",
+            "unit": "—"
+          }
+        ]
+      },
+      {
+        "id": "nechiporenko",
+        "title": "Nechiporenko sinovasi",
+        "items": [
+          {
+            "id": "n_leu",
+            "name": "Leykotsitlar",
+            "norm": "<2000",
+            "unit": "1/ml"
+          },
+          {
+            "id": "n_ery",
+            "name": "Eritrotsitlar",
+            "norm": "<1000",
+            "unit": "1/ml"
+          },
+          {
+            "id": "n_cyl",
+            "name": "Silindrlar",
+            "norm": "0–20",
+            "unit": "1/ml"
+          }
+        ]
+      },
+      {
+        "id": "koagulogramma",
+        "title": "Koagulogramma",
+        "items": [
+          {
+            "id": "pt",
+            "name": "Protrombin vaqti",
+            "norm": "11–16",
+            "unit": "son"
+          },
+          {
+            "id": "inr",
+            "name": "MNO (INR)",
+            "norm": "0,85–1,15",
+            "unit": "—"
+          },
+          {
+            "id": "tt",
+            "name": "Trombin vaqti",
+            "norm": "14–21",
+            "unit": "son"
+          }
+        ]
+      },
+      {
+        "id": "biokimyoviy",
+        "title": "Biokimyoviy tahlillar",
+        "items": [
+          {
+            "id": "bil_u",
+            "name": "Umumiy bilirubin",
+            "norm": "3,4–20,5",
+            "unit": "mkmol/l"
+          },
+          {
+            "id": "alt",
+            "name": "ALT",
+            "norm": "7–40",
+            "unit": "unit/l"
+          },
+          {
+            "id": "ast",
+            "name": "AST",
+            "norm": "10–40",
+            "unit": "unit/l"
+          },
+          {
+            "id": "cr",
+            "name": "Kreatinin",
+            "norm": "62–115 (A); 53–97 (A)",
+            "unit": "mkmol/l"
+          },
+          {
+            "id": "urea",
+            "name": "Mochevina",
+            "norm": "2,5–8,3",
+            "unit": "mmol/l"
+          },
+          {
+            "id": "glu",
+            "name": "Glyukoza",
+            "norm": "3,3–5,5",
+            "unit": "mmol/l"
+          },
+          {
+            "id": "tp",
+            "name": "Umumiy oqsil",
+            "norm": "64–83",
+            "unit": "g/l"
+          },
+          {
+            "id": "alb",
+            "name": "Albumin",
+            "norm": "35–50",
+            "unit": "g/l"
+          }
+        ]
+      },
+      {
+        "id": "mikroelementlar",
+        "title": "Mikroelementlar",
+        "items": [
+          {
+            "id": "ca",
+            "name": "Kalsiy",
+            "norm": "2,15–2,55",
+            "unit": "mmol/l"
+          },
+          {
+            "id": "mg",
+            "name": "Magniy",
+            "norm": "0,66–1,07",
+            "unit": "mmol/l"
+          },
+          {
+            "id": "fe",
+            "name": "Temir",
+            "norm": "9–30 (A); 7–27 (A)",
+            "unit": "mkmol/l"
+          },
+          {
+            "id": "zn",
+            "name": "Sink",
+            "norm": "11–18",
+            "unit": "mkmol/l"
+          }
+        ]
+      },
+      {
+        "id": "lipidlar",
+        "title": "Lipidlar spektri",
+        "items": [
+          {
+            "id": "chol",
+            "name": "Xolesterin",
+            "norm": "<5,2",
+            "unit": "mmol/l"
+          },
+          {
+            "id": "hdl",
+            "name": "Xolesterin LPVP",
+            "norm": ">1,0 (A); >1,2 (A)",
+            "unit": "mmol/l"
+          },
+          {
+            "id": "ldl",
+            "name": "Xolesterin LPNP",
+            "norm": "<3,0",
+            "unit": "mmol/l"
+          },
+          {
+            "id": "tg",
+            "name": "Triglitseridlar",
+            "norm": "<1,7",
+            "unit": "mmol/l"
+          }
+        ]
+      },
+      {
+        "id": "revmoproba",
+        "title": "Revmoproba",
+        "items": [
+          {
+            "id": "crp",
+            "name": "C-reaktiv oqsil",
+            "norm": "<5",
+            "unit": "mg/l"
+          },
+          {
+            "id": "aso",
+            "name": "Antistreptolizin-O",
+            "norm": "<200",
+            "unit": "IU/ml"
+          },
+          {
+            "id": "rf",
+            "name": "Revmatoid omil",
+            "norm": "<14",
+            "unit": "IU/ml"
+          }
+        ]
+      },
+      {
+        "id": "qalqonsimon",
+        "title": "Qalqonsimon bez gormonlari (ELISA)",
+        "items": [
+          {
+            "id": "tsh",
+            "name": "TSH",
+            "norm": "0,4–4,0",
+            "unit": "mIU/l"
+          },
+          {
+            "id": "ft4",
+            "name": "Erkin T4",
+            "norm": "9–19",
+            "unit": "pmol/l"
+          },
+          {
+            "id": "ft3",
+            "name": "Erkin T3",
+            "norm": "2,6–5,7",
+            "unit": "pmol/l"
+          },
+          {
+            "id": "atpo",
+            "name": "Anti-TPO",
+            "norm": "<34",
+            "unit": "IU/ml"
+          }
+        ]
+      },
+      {
+        "id": "reproduktiv",
+        "title": "Reproduktiv gormonlar (ELISA)",
+        "items": [
+          {
+            "id": "fsh",
+            "name": "FSH",
+            "norm": "faza bo‘yicha",
+            "unit": "IU/l"
+          },
+          {
+            "id": "lh",
+            "name": "LH",
+            "norm": "faza bo‘yicha",
+            "unit": "IU/l"
+          },
+          {
+            "id": "prl",
+            "name": "Prolaktin",
+            "norm": "2,8–14,4 (A); 109–562 (A)",
+            "unit": "ng/ml / mIU/l"
+          },
+          {
+            "id": "e2",
+            "name": "Estradiol",
+            "norm": "faza bo‘yicha",
+            "unit": "pg/ml"
+          }
+        ]
+      },
+      {
+        "id": "torch",
+        "title": "TORCH infeksiyalari (IFA)",
+        "items": [
+          {
+            "id": "toxo",
+            "name": "Toxoplasma IgM/IgG",
+            "norm": "manfiy",
+            "unit": "—"
+          },
+          {
+            "id": "rub",
+            "name": "Rubella IgM/IgG",
+            "norm": "manfiy",
+            "unit": "—"
+          },
+          {
+            "id": "cmv",
+            "name": "CMV IgM/IgG",
+            "norm": "manfiy",
+            "unit": "—"
+          }
+        ]
+      },
+      {
+        "id": "infeksiya",
+        "title": "Infeksiya tahlillari",
+        "items": [
+          {
+            "id": "hbs",
+            "name": "Gepatit B (HBsAg)",
+            "norm": "manfiy",
+            "unit": "—"
+          },
+          {
+            "id": "hcv",
+            "name": "Gepatit C (anti-HCV)",
+            "norm": "manfiy",
+            "unit": "—"
+          },
+          {
+            "id": "hiv",
+            "name": "HIV",
+            "norm": "manfiy",
+            "unit": "—"
+          }
+        ]
+      },
+      {
+        "id": "covid",
+        "title": "COVID-19 tahlillari",
+        "items": [
+          {
+            "id": "pcr",
+            "name": "PCR SARS-CoV-2",
+            "norm": "aniqlanmagan",
+            "unit": "—"
+          },
+          {
+            "id": "ag",
+            "name": "Antigen test",
+            "norm": "manfiy",
+            "unit": "—"
+          }
+        ]
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.201Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.201Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69e667ecc2cb458c4dd68aee"
+    },
+    "clinicId": {
+      "$oid": "69e667ebc2cb458c4dd68ad9"
+    },
+    "key": "queue",
+    "payload": [
+      {
+        "id": "Q-0001",
+        "patientId": "12625223",
+        "arrivalTime": "08:00",
+        "fullName": "Ortiqova Gulnoza Toymurodovna",
+        "diseaseType": "Diabet mellitus 2 turi"
+      },
+      {
+        "id": "Q-0002",
+        "patientId": "12625045",
+        "arrivalTime": "08:10",
+        "fullName": "Xayitova Maxsuda Abdullayevna",
+        "diseaseType": "Tireotoksikoz (Graves)"
+      },
+      {
+        "id": "Q-0003",
+        "patientId": "12625025",
+        "arrivalTime": "08:20",
+        "fullName": "Murtazayeva Zaynab Atoyevna",
+        "diseaseType": "Gipotireoz"
+      },
+      {
+        "id": "Q-0004",
+        "patientId": "12624913",
+        "arrivalTime": "08:30",
+        "fullName": "Haydarova Feruza Ravshanovna",
+        "diseaseType": "Hashimoto tireoiditi"
+      },
+      {
+        "id": "Q-0005",
+        "patientId": "12624832",
+        "arrivalTime": "08:40",
+        "fullName": "Astanova Dildora Davronjonovna",
+        "diseaseType": "Polikistik over sindromi (PCOS)"
+      },
+      {
+        "id": "Q-0006",
+        "patientId": "12624540",
+        "arrivalTime": "08:50",
+        "fullName": "Rajabova Gulbaxor Boltayevna",
+        "diseaseType": "Semirish (obesitet)"
+      },
+      {
+        "id": "Q-0007",
+        "patientId": "12623491",
+        "arrivalTime": "09:00",
+        "fullName": "Babajov Baxrom Yusupovich",
+        "diseaseType": "Osteoporoz"
+      },
+      {
+        "id": "Q-0008",
+        "patientId": "12622549",
+        "arrivalTime": "09:10",
+        "fullName": "Haydarova Sharora Sharof qizi",
+        "diseaseType": "Metabolik sindrom / gipertoniya"
+      },
+      {
+        "id": "Q-0009",
+        "patientId": "12622442",
+        "arrivalTime": "09:20",
+        "fullName": "Muhiddinova Charos Jamshid qizi",
+        "diseaseType": "Diabetik nevropatiya"
+      },
+      {
+        "id": "Q-0010",
+        "patientId": "12622306",
+        "arrivalTime": "09:30",
+        "fullName": "Holiqov Sohib Sultonovich",
+        "diseaseType": "Bolalar endokrinologiyasi"
+      },
+      {
+        "id": "Q-0011",
+        "patientId": "12622079",
+        "arrivalTime": "09:40",
+        "fullName": "Xafizova Umida Zoirovna",
+        "diseaseType": "Profilaktik tekshiruv"
+      },
+      {
+        "id": "Q-0012",
+        "patientId": "12621935",
+        "arrivalTime": "09:50",
+        "fullName": "Hamroyeva Umida Hotam qizi",
+        "diseaseType": "Diabet mellitus 2 turi"
+      },
+      {
+        "id": "Q-0013",
+        "patientId": "12621714",
+        "arrivalTime": "10:00",
+        "fullName": "Roziyeva Olima Amrullayevna",
+        "diseaseType": "Tireotoksikoz (Graves)"
+      },
+      {
+        "id": "Q-0014",
+        "patientId": "12621246",
+        "arrivalTime": "10:10",
+        "fullName": "Artikova Mohira Rashidovna",
+        "diseaseType": "Gipotireoz"
+      },
+      {
+        "id": "Q-0015",
+        "patientId": "12621184",
+        "arrivalTime": "10:20",
+        "fullName": "Mamajonov Karimberdi Nazirjonovich",
+        "diseaseType": "Hashimoto tireoiditi"
+      },
+      {
+        "id": "Q-0016",
+        "patientId": "12620577",
+        "arrivalTime": "08:05",
+        "fullName": "Nematova Flora Baxtiyor kizi",
+        "diseaseType": "Polikistik over sindromi (PCOS)"
+      },
+      {
+        "id": "Q-0017",
+        "patientId": "12620561",
+        "arrivalTime": "08:15",
+        "fullName": "Baybutayev Umidjon Shavkatovich",
+        "diseaseType": "Semirish (obesitet)"
+      },
+      {
+        "id": "Q-0018",
+        "patientId": "12620252",
+        "arrivalTime": "08:25",
+        "fullName": "Ochilova Manzura Nurulloyevna",
+        "diseaseType": "Osteoporoz"
+      },
+      {
+        "id": "Q-0019",
+        "patientId": "12620082",
+        "arrivalTime": "08:35",
+        "fullName": "Rashidova Roziya Hikmatovna",
+        "diseaseType": "Metabolik sindrom / gipertoniya"
+      },
+      {
+        "id": "Q-0020",
+        "patientId": "12620013",
+        "arrivalTime": "08:45",
+        "fullName": "Islomova Nazira Bafoyevna",
+        "diseaseType": "Diabetik nevropatiya"
+      },
+      {
+        "id": "Q-0021",
+        "patientId": "12619618",
+        "arrivalTime": "08:55",
+        "fullName": "Ergasheva Vazira Baxtiyorovna",
+        "diseaseType": "Bolalar endokrinologiyasi"
+      },
+      {
+        "id": "Q-0022",
+        "patientId": "12619576",
+        "arrivalTime": "09:05",
+        "fullName": "Boshmonova Dilrabo Isomiddinovna",
+        "diseaseType": "Profilaktik tekshiruv"
+      },
+      {
+        "id": "Q-0023",
+        "patientId": "12619545",
+        "arrivalTime": "09:15",
+        "fullName": "Dolboyeva Xursan Shamurotovna",
+        "diseaseType": "Diabet mellitus 2 turi"
+      },
+      {
+        "id": "Q-0024",
+        "patientId": "12619021",
+        "arrivalTime": "09:25",
+        "fullName": "Nazarov Murod Zoyirovich",
+        "diseaseType": "Tireotoksikoz (Graves)"
+      },
+      {
+        "id": "Q-0025",
+        "patientId": "12618926",
+        "arrivalTime": "09:35",
+        "fullName": "Xojiqurbonov Jahongir Shermatovich",
+        "diseaseType": "Gipotireoz"
+      },
+      {
+        "id": "Q-0026",
+        "patientId": "12618573",
+        "arrivalTime": "09:45",
+        "fullName": "Ochilova Habiba Murodjonovna",
+        "diseaseType": "Hashimoto tireoiditi"
+      },
+      {
+        "id": "Q-0027",
+        "patientId": "12618536",
+        "arrivalTime": "09:55",
+        "fullName": "Norboyeva Nazira Ibragimovna",
+        "diseaseType": "Polikistik over sindromi (PCOS)"
+      },
+      {
+        "id": "Q-0028",
+        "patientId": "12618363",
+        "arrivalTime": "10:05",
+        "fullName": "Quldoshev Baxodir Maxmudovich",
+        "diseaseType": "Semirish (obesitet)"
+      },
+      {
+        "id": "Q-0029",
+        "patientId": "12617776",
+        "arrivalTime": "10:15",
+        "fullName": "Safarova Nigora Baxodirovna",
+        "diseaseType": "Osteoporoz"
+      },
+      {
+        "id": "Q-0030",
+        "patientId": "12617747",
+        "arrivalTime": "10:25",
+        "fullName": "Chariyeva Oysha Arabovna",
+        "diseaseType": "Metabolik sindrom / gipertoniya"
+      }
+    ],
+    "createdAt": {
+      "$date": "2026-04-20T17:52:44.206Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-20T17:52:44.206Z"
+    },
+    "__v": 0
+  }]

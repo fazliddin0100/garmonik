@@ -1,0 +1,14 @@
+# ahost: panelda yaratilgan PostgreSQL + bitta garmonik ilova (klinika + kassa)
+# Ishlatish: docker compose -f docker-compose.ahost.yml up -d --build
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      RUN_DB_SEED: "false"
+    restart: unless-stopped

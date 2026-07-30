@@ -1,0 +1,3 @@
+url = mongodb+srv://abdullayevdilshod511_db_user:V21xOZxKJl47rqYI@cluster0.tbz5ls3.mongodb.net/?appName=Cluster0 
+
+MONGODB_URI=mongodb://garmonik_db:PJ3GlJfaJPu89zI5@ac-dlz5oun-shard-00-00.tbz5ls3.mongodb.net:27017,ac-dlz5oun-shard-00-01.tbz5ls3.mongodb.net:27017,ac-dlz5oun-shard-00-02.tbz5ls3.mongodb.net:27017/garmonik_db?ssl=true&replicaSet=atlas-by6lkn-shard-0&authSource=admin&retryWrites=true&w=majority

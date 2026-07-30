@@ -1,0 +1,38 @@
+GARMONIK KASSA — Chek chop etish (har bir kompyuter uchun)
+
+=== TAVSIYA (terminal ochiq qolmaydi) ===
+
+1. Node.js LTS o'rnating: https://nodejs.org  (v18+ tavsiya)
+2. config.txt ni oching:
+     PRINTER_NAME=XP-80C
+   (Get-Printer dagi ANIQ nom, copy/копия emas)
+3. Bir marta: install-autostart.bat
+   → Kompyuter yoqilganda agent avtomatik fon rejimida ishlaydi
+
+=== TEKSHIRISH ===
+
+status-agent.bat   — agent + printer holati (Normal/Error)
+test-print.bat     — test chek chop etish
+agent.log          — xato yozuvlari
+
+=== MUAMMOLAR ===
+
+Printer "Error" holati:
+  - control printers → XP-80C navbati → Cancel All Documents
+  - USB qayta ulang, printerni o'chirib-yoqing
+  - Settings → XP-80C → Print test page
+
+"(copy 2)" yoki noto'g'ri printer:
+  - config.txt → PRINTER_NAME=XP-80C (aniq nom)
+  - Dublikat printerni Windows dan o'chiring
+
+Tarmoq printer (Ethernet, IP 192.168.x.x):
+  - USE_TCP=1
+  - TCP_HOST=192.168.x.x
+  - TCP_PORT=9100
+
+=== BOSHQA FAYLLAR ===
+
+start-background.bat      — qo'lda fon rejimida ishga tushirish
+stop-agent.bat            — agentni to'xtatish
+uninstall-autostart.bat   — avtomatik ishga tushirishni o'chirish

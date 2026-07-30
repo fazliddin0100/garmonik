@@ -1,0 +1,16 @@
+# Garmonik Kassa — printer sozlamalari (har bir kassir kompyuterida)
+#
+# Windows printer nomi — Get-Printer natijasidagi ANIQ nom (masalan XP-80C)
+# Bo'sh qoldirsangiz agent avtomatik qidiradi (copy/копия nusxalarini o'tkazib yuboradi)
+PRINTER_NAME=XP-80C
+
+# Agent porti
+AGENT_PORT=17888
+
+# Tarmoq printer (Ethernet/Wi-Fi) — USE_TCP=1 bo'lsa Windows driver o'rniga to'g'ridan-to'g'ri TCP
+USE_TCP=0
+TCP_HOST=127.0.0.1
+TCP_PORT=9100
+
+# Windows chop etish xato bersa yoki printer Error bo'lsa — TCP orqali urinish (TCP_HOST haqiqiy IP bo'lishi kerak)
+TCP_FALLBACK=0

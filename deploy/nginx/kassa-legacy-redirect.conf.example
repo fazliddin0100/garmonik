@@ -1,0 +1,17 @@
+# Eski kassa domeni -> yangi /kassa yo'li
+# gormonik-plus-clinik-kassa.uz ni shu konfig bilan ulang
+
+server {
+    listen 80;
+    server_name gormonik-plus-clinik-kassa.uz www.gormonik-plus-clinik-kassa.uz;
+
+    return 301 https://gormonik-plus-klinik.uz/kassa$request_uri;
+}
+
+# HTTPS (certbot):
+# server {
+#     listen 443 ssl http2;
+#     server_name gormonik-plus-clinik-kassa.uz www.gormonik-plus-clinik-kassa.uz;
+#     ...
+#     return 301 https://gormonik-plus-klinik.uz/kassa$request_uri;
+# }

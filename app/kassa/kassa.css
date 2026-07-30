@@ -1,0 +1,209 @@
+/* Kassa moduli uslublari (Tailwind v4 bilan mos — @tailwind yo'q) */
+
+.kassa-root {
+  --background: 220 20% 97%;
+  --foreground: 224 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 224 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 47% 11%;
+  --primary: 262 83% 58%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 224 47% 11%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  --accent: 220 14% 96%;
+  --accent-foreground: 224 47% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 152 69% 40%;
+  --success-foreground: 0 0% 100%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 262 83% 58%;
+  --radius: 1rem;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.kassa-root * {
+  border-color: hsl(var(--border));
+}
+
+.kassa-root .mesh-admin {
+  background-color: hsl(220 20% 97%);
+  background-image:
+    radial-gradient(at 0% 0%, hsl(262 83% 58% / 0.08) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsl(199 89% 48% / 0.06) 0, transparent 45%),
+    radial-gradient(at 100% 100%, hsl(262 83% 58% / 0.05) 0, transparent 40%);
+}
+
+.kassa-root .mesh-cashier {
+  background-color: hsl(160 20% 98%);
+  background-image:
+    radial-gradient(at 0% 100%, hsl(152 69% 40% / 0.1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsl(199 89% 48% / 0.07) 0, transparent 45%),
+    radial-gradient(at 50% 50%, hsl(152 69% 40% / 0.03) 0, transparent 60%);
+}
+
+.kassa-root .mesh-login {
+  background-image:
+    radial-gradient(at 20% 20%, hsl(262 83% 58% / 0.15) 0, transparent 45%),
+    radial-gradient(at 80% 80%, hsl(152 69% 40% / 0.12) 0, transparent 40%),
+    linear-gradient(135deg, hsl(224 47% 11%) 0%, hsl(262 40% 25%) 50%, hsl(224 47% 11%) 100%);
+}
+
+.kassa-root .glass-panel {
+  border: 1px solid rgb(255 255 255 / 0.2);
+  background: rgb(255 255 255 / 0.8);
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.05),
+    0 8px 10px -6px rgb(0 0 0 / 0.05);
+  backdrop-filter: blur(24px);
+}
+
+.kassa-root .glass-dark {
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(15 23 42 / 0.9);
+  box-shadow: 0 25px 50px -12px rgb(76 29 149 / 0.2);
+  backdrop-filter: blur(24px);
+}
+
+.kassa-root .animate-fade-up {
+  animation: kassa-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.kassa-root .animate-fade-in {
+  animation: kassa-fade-in 0.35s ease both;
+}
+
+.kassa-root .animate-scale-in {
+  animation: kassa-scale-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.kassa-root .animate-slide-right {
+  animation: kassa-slide-right 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.kassa-root .animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(0 0% 100%) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: kassa-shimmer 1.5s infinite;
+}
+
+.kassa-root .nav-glow-admin {
+  box-shadow: 0 0 20px hsl(262 83% 58% / 0.35);
+}
+
+.kassa-root .nav-glow-cashier {
+  box-shadow: 0 0 20px hsl(152 69% 40% / 0.35);
+}
+
+.kassa-root .text-gradient-brand {
+  background: linear-gradient(to right, #7c3aed, #4f46e5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.kassa-root .text-gradient-cash {
+  background: linear-gradient(to right, #059669, #0d9488);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes kassa-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kassa-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes kassa-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes kassa-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes kassa-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 80mm;
+    margin: 0;
+    padding: 0;
+    background: white !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+  .receipt-print,
+  .receipt-print * {
+    visibility: visible;
+  }
+  .receipt-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    max-width: 80mm;
+    padding: 2mm 3mm;
+    color: #000 !important;
+    background: #fff !important;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,0 +1,48 @@
+import type { ReceptionUser } from './types';
+
+export const INITIAL_RECEPTION_USERS: ReceptionUser[] = [
+  {
+    id: '25065',
+    username: 'gp.navruzov',
+    shortName: 'Navruzov Umar Umurovich',
+    roleName: 'Регистратура Амблутор,',
+    lastAccess: '17.04.2026 10:46:33',
+    email: 'test@test.ru',
+    status: 'Актив',
+    password: 'Admin@123',
+    securityPin: '1111',
+  },
+  {
+    id: '25097',
+    username: 'gp.gormonik',
+    shortName: 'Gormonikplus',
+    roleName: 'Регистратура Амблутор,',
+    lastAccess: '17.04.2026 10:17:49',
+    email: 'test@test.ru',
+    status: 'Актив',
+    password: 'Admin@123',
+    securityPin: '1111',
+  },
+  {
+    id: '25098',
+    username: 'gp.diyor',
+    shortName: 'Diyorbek Garmonik plus',
+    roleName: 'Регистратура Амблутор,',
+    lastAccess: '12.01.2025 10:48:04',
+    email: 'test@test.ru',
+    status: 'Актив',
+    password: 'Admin@123',
+    securityPin: '1111',
+  },
+  {
+    id: '25099',
+    username: 'gp.nargiza',
+    shortName: 'Nargiza',
+    roleName: 'Регистратура Амблутор,',
+    lastAccess: '17.04.2026 10:26:32',
+    email: 'test@test.ru',
+    status: 'Актив',
+    password: 'Admin@123',
+    securityPin: '1111',
+  },
+];
