@@ -1,8 +1,8 @@
 "use client";
 
+import RoleAwareUserMenu from "@/components/auth/RoleAwareUserMenu";
 import GlobalSearch from "@/components/GlobalSearch";
 import NotificationDropdown from "@/components/NotificationDropdown";
-import TopBarUserMenu from "@/components/TopBarUserMenu";
 
 type TopBarProps = {
   title: string;
@@ -14,7 +14,10 @@ export default function TopBar({ title }: TopBarProps) {
       <div className="flex h-full items-center justify-between gap-4 px-6">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-            Boshqaruv sahifasi
+            {title.toLowerCase().includes("ta'minot") ||
+            title.toLowerCase().includes('taminot') ?
+              'Xodim kabineti'
+            : 'Boshqaruv sahifasi'}
           </p>
           <h1 className="mt-1 text-2xl font-bold text-slate-800">{title}</h1>
         </div>
@@ -24,7 +27,7 @@ export default function TopBar({ title }: TopBarProps) {
 
           <NotificationDropdown />
 
-          <TopBarUserMenu />
+          <RoleAwareUserMenu />
         </div>
       </div>
     </header>

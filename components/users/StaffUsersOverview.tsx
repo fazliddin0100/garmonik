@@ -1,23 +1,61 @@
 ﻿'use client';
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { UzPhoneInput } from '@/components/ui/uz-phone-input';
 import { adminDisplayName, type AdminUser } from '@/lib/admins/types';
-import { fetchClinicResource } from '@/lib/clinic-data/client';
+import {
+  fetchClinicResource,
+  saveClinicResource,
+} from '@/lib/clinic-data/client';
 import type { DoctorRow } from '@/lib/doctors/types';
 import type { LaboratoryStaffRow } from '@/lib/laboratory-staff/types';
 import type { NurseRow } from '@/lib/nurses/types';
+import { isValidUzPhoneE164 } from '@/lib/phone/uz-phone';
 import type { PharmacistRow } from '@/lib/pharmacists/types';
 import type { ReceptionUser } from '@/lib/reception/types';
+import {
+  DEFAULT_CLINIC_SETTINGS,
+  type ClinicSettings,
+} from '@/lib/settings/types';
+import {
+  BUILTIN_ADMIN_SUPPORT_ROLES,
+  isSuperAdminRoleName,
+  normalizeRoleKey,
+  rolesMatch,
+  type AdminSupportRoleDef,
+} from '@/lib/users/admin-support-roles';
 import {
   allOverviewMembers,
   buildCoreTeamMembers,
   findMembersByKeywords,
+  includesAny,
   type StaffOverviewData,
   type StaffTeamMember,
 } from '@/lib/users/staff-overview-teams';
@@ -31,10 +69,14 @@ import {
   HandHeart,
   HeartPulse,
   Laptop,
+  Loader2,
+  Pencil,
   Pill,
+  Plus,
   ScanHeart,
   ShieldCheck,
   Stethoscope,
+  Trash2,
   UserCog,
   Users,
 } from 'lucide-react';
@@ -45,10 +87,57 @@ type TeamCard = {
   title: string;
   icon: React.ComponentType<{ className?: string }>;
   members: StaffTeamMember[];
+  /** Ma'muriy bo‘lim — xodim qo‘shish mumkin */
+  manageable?: boolean;
+  roleLabel?: string;
 };
+
+type CreateForm = {
+  firstName: string;
+  lastName: string;
+  fatherName: string;
+  age: number;
+  username: string;
+  phone: string;
+  password: string;
+};
+
+function emptyCreateForm(): CreateForm {
+  return {
+    firstName: '',
+    lastName: '',
+    fatherName: '',
+    age: 25,
+    username: '',
+    phone: '',
+    password: '',
+  };
+}
 
 function asArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? value : [];
+}
+
+function adminSupportIcon(title: string) {
+  const t = title.toLowerCase();
+  if (t.includes('kadr') || t.includes('hr')) return UserCog;
+  if (t.includes('moliya') || t.includes('buxgalter')) return BadgeDollarSign;
+  if (t.includes('yurist') || t.includes('shartnoma')) return ClipboardCheck;
+  if (t.includes('it') || t.includes('texnik')) return Laptop;
+  if (t.includes('xavfsizlik')) return ShieldCheck;
+  return BriefcaseBusiness;
+}
+
+function matchAdminToRole(
+  member: StaffTeamMember,
+  role: AdminSupportRoleDef,
+): boolean {
+  if (rolesMatch(member.role, role.roleLabel)) return true;
+  if (rolesMatch(member.role, role.title)) return true;
+  return includesAny(
+    [member.role, member.department].join(' '),
+    role.keywords,
+  );
 }
 
 async function fetchStaffItems<T>(url: string): Promise<T[]> {
@@ -78,10 +167,20 @@ async function loadStaffOverviewData(): Promise<StaffOverviewData> {
   };
 }
 
-function TeamMembersTable({ members }: { members: StaffTeamMember[] }) {
+function TeamMembersTable({
+  members,
+  manageable,
+  onEdit,
+  onDelete,
+}: {
+  members: StaffTeamMember[];
+  manageable?: boolean;
+  onEdit?: (member: StaffTeamMember) => void;
+  onDelete?: (member: StaffTeamMember) => void;
+}) {
   return (
-    <div className="mt-2 overflow-hidden rounded-2xl border border-slate-100 bg-white">
-      <table className="w-full text-left text-sm">
+    <div className="mt-2 overflow-x-auto rounded-2xl border border-slate-100 bg-white">
+      <table className="w-full min-w-[720px] text-left text-sm">
         <thead className="bg-slate-50/95 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
             <th className="px-4 py-3">F.I.SH</th>
@@ -89,6 +188,9 @@ function TeamMembersTable({ members }: { members: StaffTeamMember[] }) {
             <th className="px-4 py-3">Bo&apos;lim</th>
             <th className="px-4 py-3">Login</th>
             <th className="px-4 py-3">Bog&apos;lanish</th>
+            {manageable ?
+              <th className="px-4 py-3 text-right">Amallar</th>
+            : null}
           </tr>
         </thead>
         <tbody>
@@ -117,6 +219,30 @@ function TeamMembersTable({ members }: { members: StaffTeamMember[] }) {
               <td className="px-4 py-2.5 text-slate-600">
                 {member.contact || <span className="text-slate-400">—</span>}
               </td>
+              {manageable ?
+                <td className="px-4 py-2.5 text-right">
+                  <div className="flex justify-end gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 rounded-lg text-slate-500 hover:bg-amber-100 hover:text-amber-800"
+                      onClick={() => onEdit?.(member)}
+                      aria-label="Tahrirlash">
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                      onClick={() => onDelete?.(member)}
+                      aria-label="O‘chirish">
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                </td>
+              : null}
             </tr>
           ))}
         </tbody>
@@ -134,8 +260,40 @@ export default function StaffUsersOverview() {
     pharmacists: [],
   });
   const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [customRoleTitles, setCustomRoleTitles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTeam, setSelectedTeam] = useState<TeamCard | null>(null);
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
+  const [editingLogin, setEditingLogin] = useState('');
+  const [createRoleLabel, setCreateRoleLabel] = useState('');
+  const [createForm, setCreateForm] = useState<CreateForm>(emptyCreateForm);
+  const [createError, setCreateError] = useState('');
+  const [createSaving, setCreateSaving] = useState(false);
+  const [deleteMember, setDeleteMember] = useState<StaffTeamMember | null>(null);
+  const [deleteSaving, setDeleteSaving] = useState(false);
+
+  const [newRoleOpen, setNewRoleOpen] = useState(false);
+  const [newRoleTitle, setNewRoleTitle] = useState('');
+  const [newRoleError, setNewRoleError] = useState('');
+  const [newRoleSaving, setNewRoleSaving] = useState(false);
+
+  async function reloadAdminsAndSettings() {
+    const [adminsRaw, settingsRaw] = await Promise.all([
+      fetchClinicResource<AdminUser[]>('admins').catch(() => [] as AdminUser[]),
+      fetchClinicResource<ClinicSettings>('clinic-settings').catch(
+        () => DEFAULT_CLINIC_SETTINGS,
+      ),
+    ]);
+    setAdmins(asArray(adminsRaw));
+    const titles = Array.isArray(settingsRaw?.adminSupportRoleTitles)
+      ? settingsRaw.adminSupportRoleTitles
+          .map((t) => (typeof t === 'string' ? t.trim() : ''))
+          .filter(Boolean)
+      : [];
+    setCustomRoleTitles(titles);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -143,15 +301,12 @@ export default function StaffUsersOverview() {
       startTransition(() => {
         void (async () => {
           try {
-            const [overview, adminsRaw] = await Promise.all([
+            const [overview] = await Promise.all([
               loadStaffOverviewData(),
-              fetchClinicResource<AdminUser[]>('admins').catch(
-                () => [] as AdminUser[],
-              ),
+              reloadAdminsAndSettings(),
             ]);
             if (cancelled) return;
             setStaffData(overview);
-            setAdmins(asArray(adminsRaw));
           } catch {
             if (!cancelled) {
               toast.error('Xodimlar ma’lumotini yuklab bo‘lmadi');
@@ -166,6 +321,23 @@ export default function StaffUsersOverview() {
       cancelled = true;
     };
   }, []);
+
+  const supportRoleDefs = useMemo((): AdminSupportRoleDef[] => {
+    const builtin = BUILTIN_ADMIN_SUPPORT_ROLES;
+    const seen = new Set(builtin.map((r) => normalizeRoleKey(r.roleLabel)));
+    const custom: AdminSupportRoleDef[] = [];
+    for (const title of customRoleTitles) {
+      const key = normalizeRoleKey(title);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      custom.push({
+        title,
+        roleLabel: title,
+        keywords: [title],
+      });
+    }
+    return [...builtin, ...custom];
+  }, [customRoleTitles]);
 
   const coreTeams = useMemo((): TeamCard[] => {
     const teams = buildCoreTeamMembers(staffData);
@@ -274,7 +446,11 @@ export default function StaffUsersOverview() {
 
   const adminTeams = useMemo((): TeamCard[] => {
     const adminMembers: StaffTeamMember[] = admins
-      .filter((row) => row.firstName.trim() || row.lastName.trim())
+      .filter((row) => {
+        if (!row.firstName.trim() && !row.lastName.trim()) return false;
+        if (isSuperAdminRoleName(row.roleName)) return false;
+        return true;
+      })
       .map((row) => ({
         id: row.id,
         fullName: adminDisplayName(row),
@@ -284,63 +460,372 @@ export default function StaffUsersOverview() {
         contact: row.phone.trim(),
       }));
 
-    const supplyMembers = findMembersByKeywords(adminMembers, [
-      "ta'minot",
-      'xarid',
-      'ombor',
-    ]);
-
-    return [
-      {
-        title: "Kadrlar bo'limi (HR)",
-        icon: UserCog,
-        members: findMembersByKeywords(adminMembers, ['kadrlar', 'hr', 'xodimlar']),
-      },
-      {
-        title: 'Moliya va buxgalteriya',
-        icon: BadgeDollarSign,
-        members: findMembersByKeywords(adminMembers, [
-          'moliya',
-          'buxgalter',
-          'hisob',
-          'finance',
-        ]),
-      },
-      {
-        title: 'Yurist va shartnoma mutaxassisi',
-        icon: ClipboardCheck,
-        members: findMembersByKeywords(adminMembers, ['yurist', 'shartnoma', 'huquq']),
-      },
-      {
-        title: 'IT administrator / texnik yordam',
-        icon: Laptop,
-        members: findMembersByKeywords(adminMembers, ['it', 'texnik', 'dastur']),
-      },
-      {
-        title: "Xo'jalik bo'limi (tozalik, kir yuvish, sterilizatsiya)",
-        icon: BriefcaseBusiness,
-        members: findMembersByKeywords(adminMembers, [
-          "xo'jalik",
-          'tozalik',
-          'steril',
-          'xizmat',
-        ]),
-      },
-      {
-        title: 'Xavfsizlik xizmati',
-        icon: ShieldCheck,
-        members: findMembersByKeywords(adminMembers, ['xavfsizlik', 'qo\'riqlash']),
-      },
-      {
-        title: "Ta'minot va xarid bo'limi",
-        icon: BriefcaseBusiness,
-        members: supplyMembers.length > 0 ? supplyMembers : adminMembers,
-      },
-    ];
-  }, [admins]);
+    return supportRoleDefs.map((role) => ({
+      title: role.title,
+      icon: adminSupportIcon(role.title),
+      roleLabel: role.roleLabel,
+      manageable: true,
+      members: adminMembers.filter((m) => matchAdminToRole(m, role)),
+    }));
+  }, [admins, supportRoleDefs]);
 
   const memberCountLabel = (count: number) =>
     loading ? 'Yuklanmoqda…' : `Xodimlar soni: ${count}`;
+
+  function findAdminForMember(member: StaffTeamMember): AdminUser | null {
+    const byId = admins.find((a) => a.id === member.id);
+    if (byId) return byId;
+    const login = member.login.trim().toLowerCase();
+    if (!login) return null;
+    return (
+      admins.find((a) => a.username.trim().toLowerCase() === login) ?? null
+    );
+  }
+
+  function openCreateForTeam(team: TeamCard) {
+    if (!team.manageable || !team.roleLabel) return;
+    setEditingMemberId(null);
+    setEditingLogin('');
+    setCreateRoleLabel(team.roleLabel);
+    setCreateForm(emptyCreateForm());
+    setCreateError('');
+    setCreateOpen(true);
+  }
+
+  function openEditMember(member: StaffTeamMember) {
+    const admin = findAdminForMember(member);
+    const nameParts = member.fullName.trim().split(/\s+/).filter(Boolean);
+    setEditingMemberId(admin?.id || member.id);
+    setEditingLogin((admin?.username || member.login).trim().toLowerCase());
+    setCreateRoleLabel(
+      admin?.roleName.trim() ||
+        selectedTeam?.roleLabel ||
+        member.role ||
+        '',
+    );
+    setCreateForm({
+      firstName: admin?.firstName || nameParts[0] || '',
+      lastName: admin?.lastName || nameParts[1] || '',
+      fatherName:
+        admin?.fatherName && admin.fatherName !== '—' ?
+          admin.fatherName
+        : nameParts.slice(2).join(' ') || '',
+      age: admin?.age && admin.age > 0 ? admin.age : 25,
+      username: admin?.username || member.login,
+      phone: admin?.phone || member.contact || '',
+      password: '',
+    });
+    setCreateError('');
+    setCreateOpen(true);
+  }
+
+  function refreshSelectedTeamMembers(nextAdmins: AdminUser[]) {
+    setSelectedTeam((prev) => {
+      if (!prev?.manageable || !prev.roleLabel) return prev;
+      const role: AdminSupportRoleDef = {
+        title: prev.title,
+        roleLabel: prev.roleLabel,
+        keywords: [prev.roleLabel, prev.title],
+      };
+      const adminMembers: StaffTeamMember[] = nextAdmins
+        .filter((row) => {
+          if (!row.firstName.trim() && !row.lastName.trim()) return false;
+          if (isSuperAdminRoleName(row.roleName)) return false;
+          return true;
+        })
+        .map((row) => ({
+          id: row.id,
+          fullName: adminDisplayName(row),
+          role: row.roleName.trim() || 'Administrator',
+          department: "Ma'muriyat",
+          login: row.username.trim(),
+          contact: row.phone.trim(),
+        }))
+        .filter((m) => matchAdminToRole(m, role));
+      return { ...prev, members: adminMembers };
+    });
+  }
+
+  async function saveStaffMember() {
+    const firstName = createForm.firstName.trim();
+    const lastName = createForm.lastName.trim();
+    const fatherName = createForm.fatherName.trim();
+    const age = Math.round(Number(createForm.age));
+    const loginInput = createForm.username.trim();
+    const phone = createForm.phone.trim();
+    const password = createForm.password;
+    const roleName = createRoleLabel.trim();
+    const isEdit = Boolean(editingMemberId || editingLogin);
+
+    if (!roleName) {
+      setCreateError('Rol topilmadi.');
+      return;
+    }
+    if (!firstName || !lastName) {
+      setCreateError('Ism va familiyani kiriting.');
+      return;
+    }
+    if (!fatherName) {
+      setCreateError('Otasining ismini kiriting.');
+      return;
+    }
+    if (!Number.isFinite(age) || age < 1 || age > 120) {
+      setCreateError('Yosh 1–120 orasida bo‘lsin.');
+      return;
+    }
+    if (!loginInput) {
+      setCreateError('Login kiriting.');
+      return;
+    }
+    if (!isValidUzPhoneE164(phone)) {
+      setCreateError('+998 dan keyin 9 ta raqam kiriting.');
+      return;
+    }
+    if (!isEdit && password.length < 6) {
+      setCreateError('Parol kamida 6 belgidan iborat bo‘lsin.');
+      return;
+    }
+    if (isEdit && password && password.length < 6) {
+      setCreateError('Yangi parol kamida 6 belgidan iborat bo‘lsin.');
+      return;
+    }
+
+    setCreateSaving(true);
+    setCreateError('');
+    try {
+      if (isEdit) {
+        const res = await fetch('/api/admin/update-portal-admin', {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: editingMemberId || undefined,
+            login: editingLogin || loginInput.toLowerCase(),
+            newLogin: loginInput.toLowerCase(),
+            firstName,
+            lastName,
+            fatherName,
+            age,
+            roleName,
+            phone,
+            ...(password.length >= 6 ? { password } : {}),
+          }),
+        });
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          userId?: string;
+          login?: string;
+        };
+        if (!res.ok) {
+          setCreateError(data.error || 'Yangilab bo‘lmadi');
+          toast.error(data.error || 'Yangilab bo‘lmadi');
+          return;
+        }
+
+        const resolvedId =
+          typeof data.userId === 'string' && data.userId.trim() ?
+            data.userId.trim()
+          : editingMemberId || '';
+        const resolvedLogin =
+          typeof data.login === 'string' ? data.login : loginInput.toLowerCase();
+
+        const nextAdmins = (() => {
+          const idx = admins.findIndex(
+            (a) =>
+              a.id === editingMemberId ||
+              a.username.trim().toLowerCase() === editingLogin ||
+              a.username.trim().toLowerCase() === loginInput.toLowerCase(),
+          );
+          const row: AdminUser = {
+            id: resolvedId || (idx >= 0 ? admins[idx].id : `id-${Date.now()}`),
+            firstName,
+            lastName,
+            fatherName,
+            age,
+            username: resolvedLogin,
+            roleName,
+            phone,
+            password: password || (idx >= 0 ? admins[idx].password : ''),
+            securityPin: idx >= 0 ? admins[idx].securityPin : '1111',
+          };
+          if (idx >= 0) {
+            const copy = [...admins];
+            copy[idx] = row;
+            return copy;
+          }
+          return [...admins, row];
+        })();
+
+        await saveClinicResource('admins', nextAdmins);
+        setAdmins(nextAdmins);
+        refreshSelectedTeamMembers(nextAdmins);
+        toast.success('Xodim ma’lumotlari yangilandi');
+        setCreateOpen(false);
+        setEditingMemberId(null);
+        setEditingLogin('');
+        return;
+      }
+
+      const res = await fetch('/api/admin/create-portal-admin', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          fatherName,
+          age,
+          roleName,
+          login: loginInput,
+          password,
+          phone,
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        userId?: string;
+        login?: string;
+        firstName?: string;
+        lastName?: string;
+        fatherName?: string;
+        age?: number;
+        roleName?: string;
+        phone?: string;
+      };
+      if (!res.ok) {
+        setCreateError(data.error || 'Yaratib bo‘lmadi');
+        toast.error(data.error || 'Xatolik');
+        return;
+      }
+
+      const resolvedLogin =
+        typeof data.login === 'string' ? data.login : loginInput.toLowerCase();
+      const id =
+        typeof data.userId === 'string' && data.userId.trim() ?
+          data.userId.trim()
+        : typeof crypto !== 'undefined' && 'randomUUID' in crypto ?
+          crypto.randomUUID()
+        : `id-${Date.now()}`;
+
+      const nextAdmin: AdminUser = {
+        id,
+        firstName:
+          typeof data.firstName === 'string' ? data.firstName : firstName,
+        lastName: typeof data.lastName === 'string' ? data.lastName : lastName,
+        fatherName:
+          typeof data.fatherName === 'string' ? data.fatherName : fatherName,
+        age: typeof data.age === 'number' ? data.age : age,
+        username: resolvedLogin,
+        roleName: typeof data.roleName === 'string' ? data.roleName : roleName,
+        phone: typeof data.phone === 'string' ? data.phone : phone,
+        password,
+        securityPin: '1111',
+      };
+
+      const nextAdmins = [...admins, nextAdmin];
+      await saveClinicResource('admins', nextAdmins);
+      setAdmins(nextAdmins);
+      refreshSelectedTeamMembers(nextAdmins);
+
+      toast.success('Xodim qo‘shildi');
+      setCreateOpen(false);
+    } catch {
+      setCreateError('Tarmoq xatoligi');
+      toast.error('Tarmoq xatoligi');
+    } finally {
+      setCreateSaving(false);
+    }
+  }
+
+  async function confirmDeleteMember() {
+    if (!deleteMember) return;
+    setDeleteSaving(true);
+    try {
+      const admin = findAdminForMember(deleteMember);
+      const res = await fetch('/api/admin/update-portal-admin', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: admin?.id || deleteMember.id,
+          login: (admin?.username || deleteMember.login).trim().toLowerCase(),
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        toast.error(data.error || 'O‘chirib bo‘lmadi');
+        return;
+      }
+      const nextAdmins = admins.filter(
+        (a) =>
+          a.id !== (admin?.id || deleteMember.id) &&
+          a.username.trim().toLowerCase() !==
+            deleteMember.login.trim().toLowerCase(),
+      );
+      await saveClinicResource('admins', nextAdmins);
+      setAdmins(nextAdmins);
+      refreshSelectedTeamMembers(nextAdmins);
+      toast.success('Xodim o‘chirildi');
+    } catch {
+      toast.error('Tarmoq xatoligi');
+    } finally {
+      setDeleteSaving(false);
+      setDeleteMember(null);
+    }
+  }
+
+  async function saveNewRole() {
+    const title = newRoleTitle.trim();
+    if (!title) {
+      setNewRoleError('Rol nomini kiriting.');
+      return;
+    }
+    if (isSuperAdminRoleName(title)) {
+      setNewRoleError('Bu rol qo‘shib bo‘lmaydi.');
+      return;
+    }
+    const key = normalizeRoleKey(title);
+    if (supportRoleDefs.some((r) => normalizeRoleKey(r.title) === key || normalizeRoleKey(r.roleLabel) === key)) {
+      setNewRoleError('Bunday rol allaqachon mavjud.');
+      return;
+    }
+
+    setNewRoleSaving(true);
+    setNewRoleError('');
+    try {
+      const current = await fetchClinicResource<ClinicSettings>(
+        'clinic-settings',
+      ).catch(() => ({ ...DEFAULT_CLINIC_SETTINGS }));
+      const existing = Array.isArray(current.adminSupportRoleTitles)
+        ? current.adminSupportRoleTitles
+        : [];
+      const nextTitles = [...existing, title];
+      await saveClinicResource('clinic-settings', {
+        ...DEFAULT_CLINIC_SETTINGS,
+        ...current,
+        adminSupportRoleTitles: nextTitles,
+      });
+      setCustomRoleTitles(nextTitles);
+      toast.success('Yangi rol qo‘shildi');
+      setNewRoleOpen(false);
+      setNewRoleTitle('');
+
+      const team: TeamCard = {
+        title,
+        icon: BriefcaseBusiness,
+        roleLabel: title,
+        manageable: true,
+        members: [],
+      };
+      setSelectedTeam(team);
+      openCreateForTeam(team);
+    } catch {
+      setNewRoleError('Saqlab bo‘lmadi');
+      toast.error('Rolni saqlab bo‘lmadi');
+    } finally {
+      setNewRoleSaving(false);
+    }
+  }
 
   return (
     <>
@@ -438,9 +923,24 @@ export default function StaffUsersOverview() {
         </section>
 
         <section className="rounded-3xl border border-amber-100 bg-gradient-to-br from-white via-white to-amber-50/60 p-6 shadow-xl backdrop-blur">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-            <BriefcaseBusiness className="size-3.5" />
-            Operatsion bo&apos;lim
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+              <BriefcaseBusiness className="size-3.5" />
+              Operatsion bo&apos;lim
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="gap-1.5 border-amber-200 bg-white/90 text-amber-800 hover:bg-amber-50"
+              onClick={() => {
+                setNewRoleTitle('');
+                setNewRoleError('');
+                setNewRoleOpen(true);
+              }}>
+              <Plus className="size-3.5" />
+              Yangi rol
+            </Button>
           </div>
           <h2 className="text-lg font-semibold text-slate-800">
             Ma&apos;muriy va xizmat ko&apos;rsatish
@@ -457,7 +957,7 @@ export default function StaffUsersOverview() {
                   type="button"
                   key={team.title}
                   onClick={() => setSelectedTeam(team)}
-                  className="group rounded-xl border border-slate-100 bg-white/90 px-3 py-2 text-sm text-slate-700 transition-all duration-200 hover:border-amber-200 hover:shadow-sm">
+                  className="group w-full rounded-xl border border-slate-100 bg-white/90 px-3 py-2 text-left text-sm text-slate-700 transition-all duration-200 hover:border-amber-200 hover:shadow-sm">
                   <div className="flex items-start gap-2.5">
                     <Icon className="mt-0.5 size-4 text-amber-600" />
                     <div>
@@ -477,7 +977,9 @@ export default function StaffUsersOverview() {
       <Sheet
         open={!!selectedTeam}
         onOpenChange={(open) => !open && setSelectedTeam(null)}>
-        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-3xl">
+        <SheetContent
+          side="right"
+          className="w-full overflow-y-auto data-[side=right]:w-full data-[side=right]:sm:max-w-[50vw]">
           {selectedTeam ?
             <>
               <SheetHeader>
@@ -490,22 +992,262 @@ export default function StaffUsersOverview() {
                 </SheetDescription>
               </SheetHeader>
               <div className="px-4 pb-4">
+                {selectedTeam.manageable ?
+                  <div className="mb-3 flex justify-end">
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => openCreateForTeam(selectedTeam)}>
+                      <Plus className="size-3.5" />
+                      Xodim qo&apos;shish
+                    </Button>
+                  </div>
+                : null}
+
                 {loading ?
                   <p className="mt-2 text-sm text-slate-500">
                     Xodimlar yuklanmoqda…
                   </p>
                 : selectedTeam.members.length === 0 ?
-                  <p className="mt-2 text-sm text-slate-500">
-                    Bu rol uchun hozircha xodim ma&apos;lumoti biriktirilmagan.
-                    Xodimlar bo&apos;limida tegishli mutaxassislik yoki lavozim
-                    bilan xodim qo&apos;shing.
-                  </p>
-                : <TeamMembersTable members={selectedTeam.members} />}
+                  <div className="mt-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 px-5 py-8 text-center">
+                    <p className="text-sm font-medium text-slate-700">
+                      Bu rol uchun hali xodim yo&apos;q
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {selectedTeam.manageable ?
+                        'Pastdagi tugma orqali shu rolga xodim qo‘shing.'
+                      : "Xodimlar bo'limida tegishli mutaxassislik yoki lavozim bilan xodim qo'shing."}
+                    </p>
+                    {selectedTeam.manageable ?
+                      <Button
+                        type="button"
+                        className="mt-4 gap-1.5"
+                        onClick={() => openCreateForTeam(selectedTeam)}>
+                        <Plus className="size-4" />
+                        Xodim qo&apos;shish
+                      </Button>
+                    : null}
+                  </div>
+                : <TeamMembersTable
+                    members={selectedTeam.members}
+                    manageable={selectedTeam.manageable}
+                    onEdit={openEditMember}
+                    onDelete={setDeleteMember}
+                  />}
               </div>
             </>
           : null}
         </SheetContent>
       </Sheet>
+
+      <Dialog
+        open={createOpen}
+        onOpenChange={(open) => {
+          setCreateOpen(open);
+          if (!open) {
+            setEditingMemberId(null);
+            setEditingLogin('');
+            setCreateError('');
+          }
+        }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {editingMemberId || editingLogin ?
+                'Xodimni tahrirlash'
+              : "Xodim qo'shish"}
+            </DialogTitle>
+            <DialogDescription>
+              Rol: <strong>{createRoleLabel}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="sa-first">Ism</Label>
+              <Input
+                id="sa-first"
+                value={createForm.firstName}
+                onChange={(e) =>
+                  setCreateForm((f) => ({ ...f, firstName: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="sa-last">Familiya</Label>
+              <Input
+                id="sa-last"
+                value={createForm.lastName}
+                onChange={(e) =>
+                  setCreateForm((f) => ({ ...f, lastName: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="sa-father">Otasining ismi</Label>
+              <Input
+                id="sa-father"
+                value={createForm.fatherName}
+                onChange={(e) =>
+                  setCreateForm((f) => ({ ...f, fatherName: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="sa-age">Yosh</Label>
+              <Input
+                id="sa-age"
+                type="number"
+                min={1}
+                max={120}
+                value={createForm.age || ''}
+                onChange={(e) =>
+                  setCreateForm((f) => ({
+                    ...f,
+                    age: Number.parseInt(e.target.value, 10) || 0,
+                  }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="sa-login">Login</Label>
+              <Input
+                id="sa-login"
+                className="font-mono"
+                value={createForm.username}
+                onChange={(e) =>
+                  setCreateForm((f) => ({ ...f, username: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="sa-pass">
+                {editingMemberId || editingLogin ?
+                  'Yangi parol (ixtiyoriy)'
+                : 'Parol'}
+              </Label>
+              <Input
+                id="sa-pass"
+                type="password"
+                placeholder={
+                  editingMemberId || editingLogin ?
+                    'O‘zgartirmasangiz bo‘sh qoldiring'
+                  : undefined
+                }
+                value={createForm.password}
+                onChange={(e) =>
+                  setCreateForm((f) => ({ ...f, password: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Telefon</Label>
+              <UzPhoneInput
+                value={createForm.phone}
+                onChange={(full) =>
+                  setCreateForm((f) => ({ ...f, phone: full }))
+                }
+                className="max-w-none"
+              />
+            </div>
+          </div>
+          {createError ?
+            <p className="text-sm text-rose-600">{createError}</p>
+          : null}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={createSaving}
+              onClick={() => setCreateOpen(false)}>
+              Bekor qilish
+            </Button>
+            <Button
+              type="button"
+              disabled={createSaving}
+              onClick={() => void saveStaffMember()}>
+              {createSaving ?
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Saqlanmoqda…
+                </>
+              : 'Saqlash'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog
+        open={Boolean(deleteMember)}
+        onOpenChange={(open) => {
+          if (!open && !deleteSaving) setDeleteMember(null);
+        }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xodimni o‘chirish</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteMember ?
+                `${deleteMember.fullName} (${deleteMember.login}) hisobi o‘chiriladi.`
+              : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteSaving}>Bekor</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteSaving}
+              className="bg-rose-600 hover:bg-rose-700"
+              onClick={(e) => {
+                e.preventDefault();
+                void confirmDeleteMember();
+              }}>
+              {deleteSaving ? 'O‘chirilmoqda…' : 'O‘chirish'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={newRoleOpen} onOpenChange={setNewRoleOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Yangi rol turi</DialogTitle>
+            <DialogDescription>
+              Ma&apos;muriy bo&apos;limga yangi lavozim/rol qo&apos;shiladi.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <Label htmlFor="new-role-title">Rol nomi</Label>
+            <Input
+              id="new-role-title"
+              placeholder="Masalan: Marketing mutaxassisi"
+              value={newRoleTitle}
+              onChange={(e) => setNewRoleTitle(e.target.value)}
+            />
+          </div>
+          {newRoleError ?
+            <p className="text-sm text-rose-600">{newRoleError}</p>
+          : null}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={newRoleSaving}
+              onClick={() => setNewRoleOpen(false)}>
+              Bekor qilish
+            </Button>
+            <Button
+              type="button"
+              disabled={newRoleSaving}
+              onClick={() => void saveNewRole()}>
+              {newRoleSaving ?
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Saqlanmoqda…
+                </>
+              : 'Qo‘shish'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

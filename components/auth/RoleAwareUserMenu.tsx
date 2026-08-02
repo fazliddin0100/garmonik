@@ -14,6 +14,7 @@ import {
   adminHomePathForRouteGroup,
   adminReportsPathForRouteGroup,
   adminRestrictedNavLinks,
+  adminUsesRestrictedShell,
   isAdminJwtRouteGroup,
 } from '@/lib/admins/portal-routes';
 import { staffHomePath } from '@/lib/staff-portal/auth';
@@ -131,9 +132,16 @@ export default function RoleAwareUserMenu() {
   const staffActions = useMemo((): MenuAction[] => {
     if (session.kind !== 'staff') return [];
     if (!isStaffRole(session.role)) return [];
+    const home = staffHomePath(session.role);
+    if (session.role === 'farmatsevt') {
+      return [{ href: home, label: 'Mahsulotlar kabineti' }];
+    }
+    if (session.role === 'oshpaz') {
+      return [{ href: home, label: 'Oshxona kabineti' }];
+    }
     return uniqByHref([
-      { href: staffHomePath(session.role), label: 'Mening kabinetim' },
-      { href: `${staffHomePath(session.role)}/hisobotlar`, label: 'Hisobotlar' },
+      { href: home, label: 'Mening kabinetim' },
+      { href: `${home}/hisobotlar`, label: 'Hisobotlar' },
     ]);
   }, [session]);
 
@@ -205,19 +213,22 @@ export default function RoleAwareUserMenu() {
     typeof session.routeGroup === 'string' && isAdminJwtRouteGroup(session.routeGroup) ?
       session.routeGroup
     : 'admin_only';
-  const adminName = session.fullName?.trim() || 'Administrator';
-  const roleLabel = session.roleLabel?.trim() || 'Administrator';
+  const adminName = session.fullName?.trim() || 'Foydalanuvchi';
+  const roleLabel = session.roleLabel?.trim() || 'Foydalanuvchi';
   const login = session.login?.trim() || '';
+  const isRestrictedOffice = adminUsesRestrictedShell(rg);
+  const triggerClass = isRestrictedOffice
+    ? 'flex max-w-[280px] items-center gap-2 rounded-2xl border border-amber-200/70 bg-linear-to-r from-amber-50/90 to-orange-50/70 px-2 py-1.5 text-left shadow-sm outline-none ring-amber-300 transition hover:border-amber-300 focus-visible:ring-2'
+    : 'flex max-w-[280px] items-center gap-2 rounded-2xl border border-violet-200/70 bg-linear-to-r from-violet-50/90 to-indigo-50/80 px-2 py-1.5 text-left shadow-sm outline-none ring-violet-300 transition hover:border-violet-300 focus-visible:ring-2';
+  const avatarClass = isRestrictedOffice
+    ? 'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-600 text-xs font-bold text-white'
+    : 'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-xs font-bold text-white';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="flex max-w-[280px] items-center gap-2 rounded-2xl border border-violet-200/70 bg-linear-to-r from-violet-50/90 to-indigo-50/80 px-2 py-1.5 text-left shadow-sm outline-none ring-violet-300 transition hover:border-violet-300 focus-visible:ring-2">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-xs font-bold text-white">
-            {initialsFromName(adminName)}
-          </span>
+        <button type="button" className={triggerClass}>
+          <span className={avatarClass}>{initialsFromName(adminName)}</span>
           <span className="min-w-0 flex-1">
             <span className="hidden truncate text-sm font-semibold text-slate-800 sm:block">
               {adminName}
@@ -234,13 +245,17 @@ export default function RoleAwareUserMenu() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col gap-0.5">
             <span className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-              <Shield className="size-4 text-violet-600" />
+              {isRestrictedOffice ?
+                <UserRound className="size-4 text-amber-600" />
+              : <Shield className="size-4 text-violet-600" />}
               {adminName}
             </span>
             <span className="text-xs text-slate-500">{roleLabel}</span>
-            {login ? (
-              <span className="font-mono text-[11px] text-slate-400">Login: {login}</span>
-            ) : null}
+            {login ?
+              <span className="font-mono text-[11px] text-slate-400">
+                Login: {login}
+              </span>
+            : null}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

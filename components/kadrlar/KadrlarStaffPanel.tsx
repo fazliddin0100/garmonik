@@ -1,52 +1,89 @@
 'use client';
 
+import KadrlarEmployeeDialog from '@/components/kadrlar/KadrlarEmployeeDialog';
 import { Button } from '@/components/ui/button';
 import UsersOverviewGrid, {
   useUsersOverviewTotal,
 } from '@/components/users/UsersOverviewGrid';
 import type { KadrlarOverviewSection } from '@/lib/kadrlar/users-overview';
+import { usersViewPath, type UsersViewId } from '@/lib/users/views';
 import { Plus, Users } from 'lucide-react';
-import Link from 'next/link';
-import { startTransition, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { startTransition, useCallback, useEffect, useState } from 'react';
+
+function sectionToUsersView(
+  sectionId: KadrlarOverviewSection['id'],
+): UsersViewId {
+  switch (sectionId) {
+    case 'admins':
+      return 'admins';
+    case 'office-support':
+      return 'staff';
+    case 'doctors':
+      return 'doctors';
+    case 'nurses':
+      return 'nurses';
+    case 'laboratory':
+      return 'laboratory';
+    case 'reception':
+      return 'reception';
+    case 'pharmacists':
+      return 'pharmacists';
+    case 'kitchen':
+      return 'hub';
+    default:
+      return 'hub';
+  }
+}
 
 export default function KadrlarStaffPanel() {
+  const router = useRouter();
   const [sections, setSections] = useState<KadrlarOverviewSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
+  const [createOpen, setCreateOpen] = useState(false);
+
+  const loadSections = useCallback(async () => {
+    try {
+      const res = await fetch('/api/kadrlar/users-overview', {
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        setSections([]);
+        return;
+      }
+      const data = (await res.json()) as {
+        sections?: KadrlarOverviewSection[];
+      };
+      setSections(Array.isArray(data.sections) ? data.sections : []);
+    } catch {
+      setSections([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     queueMicrotask(() => {
       startTransition(() => {
         void (async () => {
-          try {
-            const res = await fetch('/api/kadrlar/users-overview', {
-              credentials: 'include',
-            });
-            if (!res.ok) {
-              if (!cancelled) setSections([]);
-              return;
-            }
-            const data = (await res.json()) as {
-              sections?: KadrlarOverviewSection[];
-            };
-            if (!cancelled) {
-              setSections(Array.isArray(data.sections) ? data.sections : []);
-            }
-          } catch {
-            if (!cancelled) setSections([]);
-          } finally {
-            if (!cancelled) setLoading(false);
-          }
+          if (cancelled) return;
+          await loadSections();
         })();
       });
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadSections]);
 
   const totalUsers = useUsersOverviewTotal(sections);
+
+  function openEditSection(sectionId: KadrlarOverviewSection['id']) {
+    const view = sectionToUsersView(sectionId);
+    router.push(usersViewPath(view));
+  }
 
   return (
     <div className="mt-3 space-y-6">
@@ -66,18 +103,16 @@ export default function KadrlarStaffPanel() {
               <p className="mt-1.5 text-sm text-slate-600">
                 {loading ?
                   'Yuklanmoqda…'
-                : `${totalUsers} ta xodim · Xodimlar bo‘limida ro‘yxatdan o‘tganlar`}
+                : `${totalUsers} ta xodim · Yangi xodim qo‘shish yoki tahrirlash uchun bo‘limni oching`}
               </p>
             </div>
           </div>
           <Button
-            asChild
             type="button"
-            className="rounded-xl bg-violet-600 hover:bg-violet-700">
-            <Link href="/users">
-              <Plus className="size-4" />
-              Xodim qo‘shish / tahrirlash
-            </Link>
+            className="rounded-xl bg-violet-600 hover:bg-violet-700"
+            onClick={() => setCreateOpen(true)}>
+            <Plus className="size-4" />
+            Xodim qo‘shish
           </Button>
         </div>
       </section>
@@ -87,6 +122,17 @@ export default function KadrlarStaffPanel() {
         loading={loading}
         query={query}
         onQueryChange={setQuery}
+        onSectionEdit={openEditSection}
+        subtitle="Pastdagi bo‘lim tugmasini bosing — xodimlar jadvali ochiladi"
+      />
+
+      <KadrlarEmployeeDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={() => {
+          setLoading(true);
+          void loadSections();
+        }}
       />
     </div>
   );

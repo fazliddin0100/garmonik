@@ -37,13 +37,31 @@ function canAccessResource(
         (key === 'pharmacy-products' &&
           (session.role === 'doctor' ||
             session.role === 'shifokor' ||
-            session.role === 'head_nurse')))
+            session.role === 'head_nurse' ||
+            session.role === 'farmatsevt')) ||
+        (key === 'kitchen-products' && session.role === 'oshpaz') ||
+        (key === 'supply-orders' &&
+          (session.role === 'oshpaz' || session.role === 'farmatsevt')))
     ) {
       return true;
     }
     if (method === 'PUT' && key === 'patients') return true;
     if (method === 'PUT' && key === 'queue') return true;
     if (method === 'PUT' && key === 'lab-catalog' && session.role === 'laboratory') {
+      return true;
+    }
+    if (
+      method === 'PUT' &&
+      key === 'pharmacy-products' &&
+      session.role === 'farmatsevt'
+    ) {
+      return true;
+    }
+    if (
+      method === 'PUT' &&
+      session.role === 'oshpaz' &&
+      (key === 'kitchen-products' || key === 'supply-orders')
+    ) {
       return true;
     }
   }

@@ -5,7 +5,7 @@ import type { LabCategory } from '@/lib/laboratory/catalog-types';
 import { normalizePatientRow } from '@/lib/patients/normalize-patient-row';
 import type { PatientRow } from '@/lib/patients/types';
 import { parseReportPeriod } from '@/lib/reports/period-range';
-import { SERVICE_PRICE_ROWS, type ServicePriceRow } from '@/lib/services/pricing-data';
+import type { ServicePriceRow } from '@/lib/services/pricing-data';
 import { NextRequest, NextResponse } from 'next/server';
 
 function isLaboratorySession(
@@ -53,10 +53,9 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const prices: ServicePriceRow[] =
-    Array.isArray(pricesRaw) && pricesRaw.length > 0 ?
-      (pricesRaw as ServicePriceRow[])
-    : SERVICE_PRICE_ROWS;
+  const prices: ServicePriceRow[] = Array.isArray(pricesRaw)
+    ? (pricesRaw as ServicePriceRow[])
+    : [];
   const catalog: LabCategory[] = Array.isArray(catalogRaw) ? (catalogRaw as LabCategory[]) : [];
 
   const report = buildLaboratoryWorkReport({

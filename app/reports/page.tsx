@@ -1,10 +1,6 @@
-import DashboardLayout from '@/components/layout';
-import PortalPage from '@/components/portal/PortalPage';
+import DashboardLegacyRedirect from '@/components/dashboard/DashboardLegacyRedirect';
 
+/** Eski /reports → dashboard Hisobotlar */
 export default function ReportsPage() {
-  return (
-    <DashboardLayout title="Hisobotlar">
-      <PortalPage />
-    </DashboardLayout>
-  );
+  return <DashboardLegacyRedirect view="reports" />;
 }

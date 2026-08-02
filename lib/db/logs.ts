@@ -14,7 +14,7 @@ function buildFilterSql(
 ): { sql: string; params: unknown[] } {
   const parts: string[] = [`clinic_id = $1`];
   const params: unknown[] = [filters.clinicId];
-  let idx = startIndex;
+  let idx = 1;
 
   if (filters.from) {
     idx += 1;

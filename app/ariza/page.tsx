@@ -52,8 +52,8 @@ function formatPreferredDateValue(date: Date): string {
 
 export default function ArizaPage() {
   const [clinic, setClinic] = useState<ClinicInfo>({
-    name: 'Gormonik Plus Klinikasi',
-    logoPath: '/garmonik-logo-user.png',
+    name: '',
+    logoPath: '',
   });
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -140,19 +140,23 @@ export default function ArizaPage() {
     <div className="min-h-screen bg-gradient-to-b from-violet-50 via-white to-slate-50 px-4 py-8">
       <div className="mx-auto w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="relative mb-3 size-16 overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-violet-100">
-            <Image
-              src={clinic.logoPath}
-              alt={clinic.name}
-              fill
-              className="object-contain p-2"
-              sizes="64px"
-              priority
-            />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">
-            {clinic.name}
-          </h1>
+          {clinic.logoPath ?
+            <div className="relative mb-3 size-16 overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-violet-100">
+              <Image
+                src={clinic.logoPath}
+                alt={clinic.name || 'Klinika'}
+                fill
+                className="object-contain p-2"
+                sizes="64px"
+                priority
+              />
+            </div>
+          : null}
+          {clinic.name ?
+            <h1 className="text-xl font-bold tracking-tight text-slate-900">
+              {clinic.name}
+            </h1>
+          : null}
           <p className="mt-1 text-sm text-slate-600">
             Qabulga onlayn ariza
           </p>

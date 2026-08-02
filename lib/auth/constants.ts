@@ -14,6 +14,8 @@ export const ADMIN_ONLY_PREFIXES = [
   '/appointments',
   '/services',
   '/settings',
+  '/taminot',
+  '/portal-unavailable',
 ] as const;
 
 /** Admin yoki xodim kabineti */
@@ -27,6 +29,8 @@ export const ROLE_ROUTE_PREFIXES = {
   head_nursing: ['/bosh-hamshira'],
   office: ['/kabinet'],
   specialist: ['/mutaxassis'],
+  pharmacy: ['/farmatsevt'],
+  kitchen: ['/oshxona'],
 } as const;
 
 export type StaffRouteGroup = keyof typeof ROLE_ROUTE_PREFIXES;
@@ -39,4 +43,6 @@ export const STAFF_ROLES_BY_ROUTE_GROUP: Record<StaffRouteGroup, readonly StaffR
   head_nursing: ['head_nurse'],
   office: ['kabinet'],
   specialist: ['specialist'],
+  pharmacy: ['farmatsevt'],
+  kitchen: ['oshpaz'],
 };

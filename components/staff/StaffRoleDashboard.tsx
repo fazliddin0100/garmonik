@@ -27,6 +27,9 @@ const accent: Record<StaffRole, string> = {
   nurse: 'from-rose-500 to-orange-500',
   head_nurse: 'from-rose-600 to-pink-600',
   kabinet: 'from-sky-600 to-blue-700',
+  specialist: 'from-violet-600 to-indigo-600',
+  farmatsevt: 'from-emerald-600 to-teal-600',
+  oshpaz: 'from-orange-500 to-amber-600',
 };
 
 type DashCard = {

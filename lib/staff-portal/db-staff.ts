@@ -1,23 +1,8 @@
-import { getDefaultClinicId } from '@/lib/server/default-clinic';
-import { createPortalAuthUser } from '@/lib/auth/portal-session';
 import {
-  countStaffProfiles,
   findStaffProfileByExternalId,
   findStaffProfileByLogin,
-  insertPortalProfile,
 } from '@/lib/db/portal-profiles';
-import { staffAuthEmail } from './auth-email';
-import { INITIAL_STAFF_ACCOUNTS } from './initial-data';
 import type { StaffAccount } from './types';
-
-/** Demo parollar — `initial-data` dagi bcrypt bilan mos */
-const DEMO_STAFF_PASSWORDS: Record<string, string> = {
-  doctor: 'doctor123',
-  laborant: 'lab123',
-  hamshira: 'hamshira123',
-  boshhamshira: 'hamshira123',
-  kabinet: 'kabinet123',
-};
 
 function rowToAccount(r: {
   user_id: string;
@@ -42,36 +27,9 @@ function rowToAccount(r: {
   };
 }
 
-/** Bo‘sh bo‘lsa demo xodimlar (app_users + profillar) */
+/** Demo seed o‘chirilgan — xodimlar faqat kadrlar/admin orqali yaratiladi */
 export async function ensureStaffPortalSeed(): Promise<void> {
-  const count = await countStaffProfiles();
-  if (count > 0) return;
-
-  const clinicId = await getDefaultClinicId();
-
-  for (const a of INITIAL_STAFF_ACCOUNTS) {
-    const email = staffAuthEmail(a.login);
-    const password = DEMO_STAFF_PASSWORDS[a.login.toLowerCase()] ?? 'changeme123';
-    try {
-      const created = await createPortalAuthUser({ email, password });
-      await insertPortalProfile({
-        user_id: created.id,
-        clinic_id: clinicId,
-        account_kind: 'staff',
-        auth_email: email,
-        admin_route_group: null,
-        staff_role: a.role,
-        display_name: a.fullName,
-        role_label: null,
-        staff_login: a.login.trim().toLowerCase(),
-        legacy_external_id: a.id,
-        department: a.department ?? '',
-        is_active: a.isActive,
-      });
-    } catch (error) {
-      console.error('staff seed user', a.login, error);
-    }
-  }
+  return;
 }
 
 export {

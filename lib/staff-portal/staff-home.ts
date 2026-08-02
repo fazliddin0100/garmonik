@@ -15,5 +15,9 @@ export function staffHomePath(role: StaffRole): string {
       return '/kabinet';
     case 'specialist':
       return '/mutaxassis';
+    case 'farmatsevt':
+      return '/farmatsevt';
+    case 'oshpaz':
+      return '/oshxona';
   }
 }

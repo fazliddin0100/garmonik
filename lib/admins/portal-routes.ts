@@ -11,7 +11,13 @@ export type AdminJwtRouteGroup =
   | 'hr'
   | 'marketing'
   | 'reception'
-  | 'it';
+  | 'it'
+  | 'supply'
+  | 'kassa'
+  /** Kabinet sahifasi hali yaratilmagan rollar */
+  | 'no_portal';
+
+export const PORTAL_UNAVAILABLE_PATH = '/portal-unavailable';
 
 const CLINICAL = new Set(['Bosh shifokor', 'Shifokor']);
 const LAB = new Set(['Laboratoriya menejeri', 'Laboratoriya (natijalar)']);
@@ -23,6 +29,8 @@ const HR = new Set(['Kadrlar bo‘limi']);
 const MARKETING = new Set(['Marketing / PR']);
 const RECEPTION = new Set(['Registrator / qabul']);
 const IT = new Set(['IT / texnik yordam']);
+const SUPPLY = new Set(["Ta'minot va xarid", 'Ta’minot va xarid']);
+const KASSA = new Set(['Kassir', 'Kassa']);
 
 export function pathUnderAdminPrefix(pathname: string, prefix: string): boolean {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
@@ -37,7 +45,9 @@ export function isAdminJwtRouteGroup(s: string): s is AdminJwtRouteGroup {
     s === 'nursing' ||
     s === 'office' ||
     s === 'head_nursing' ||
-    s === 'specialist'
+    s === 'specialist' ||
+    s === 'pharmacy' ||
+    s === 'kitchen'
   ) {
     return true;
   }
@@ -46,8 +56,20 @@ export function isAdminJwtRouteGroup(s: string): s is AdminJwtRouteGroup {
     s === 'hr' ||
     s === 'marketing' ||
     s === 'reception' ||
-    s === 'it'
+    s === 'it' ||
+    s === 'supply' ||
+    s === 'kassa' ||
+    s === 'no_portal'
   );
+}
+
+/** Apostrof variantlarini olib tashlash (`'`, `‘` U+2018, `’` U+2019, …) */
+function foldRoleText(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[\u0027\u0060\u00B4\u2018\u2019\u201B\u2032\u02B9\u02BB\u02BC]/g, '')
+    .replace(/\s+/g, ' ');
 }
 
 /** Mongo `roleLabel` / panel `roleName` → marshrut guruhi (`login` ixtiyoriy — super admin aniqlash) */
@@ -59,6 +81,7 @@ export function adminRoleLabelToJwtRouteGroup(
   if (lg && isSuperAdminUser(lg, roleLabel)) return 'superadmin';
 
   const t = typeof roleLabel === 'string' ? roleLabel.trim() : '';
+  const folded = foldRoleText(t);
   if (CLINICAL.has(t)) return 'clinical';
   if (LAB.has(t)) return 'laboratory';
   if (NURSING.has(t)) return 'nursing';
@@ -68,6 +91,17 @@ export function adminRoleLabelToJwtRouteGroup(
   if (MARKETING.has(t)) return 'marketing';
   if (RECEPTION.has(t)) return 'reception';
   if (IT.has(t)) return 'it';
+  if (SUPPLY.has(t) || folded.includes('taminot') || folded.includes('xarid')) {
+    return 'supply';
+  }
+  if (KASSA.has(t) || folded.includes('kassir') || folded.includes('kassa')) {
+    return 'kassa';
+  }
+  if (folded.includes('farmatsevt')) return 'pharmacy';
+  if (folded.includes('oshpaz')) return 'kitchen';
+  /** Xo‘jalik / oshxona xodimi — oshxona kabineti */
+  if (folded.includes('xojalik')) return 'kitchen';
+  if (folded.includes('yurist') || folded.includes('xavfsizlik')) return 'no_portal';
   return 'admin_only';
 }
 
@@ -82,30 +116,40 @@ export function adminHomePathForRouteGroup(rg: AdminJwtRouteGroup): string {
       return '/hamshiralar';
     case 'office':
       return '/kabinet';
+    case 'pharmacy':
+      return '/farmatsevt';
+    case 'kitchen':
+      return '/oshxona';
+    case 'head_nursing':
+      return '/bosh-hamshira';
+    case 'specialist':
+      return '/mutaxassis';
     case 'finance':
+    case 'kassa':
+      return '/kassa';
     case 'marketing':
-      return '/reports';
+      return '/dashboard?view=reports';
     case 'hr':
       return '/kadrlar';
     case 'reception':
       return '/patients';
     case 'it':
       return '/settings';
+    case 'supply':
+      return '/taminot';
     case 'superadmin':
       return '/security-center';
+    case 'no_portal':
+      return PORTAL_UNAVAILABLE_PATH;
     case 'admin_only':
     default:
       return '/dashboard';
   }
 }
 
-/** `/reports` uchun ruxsat (moliyachi, marketing, shifokor kabineti adminlari va h.k.) */
+/** Hisobotlar (dashboard) uchun ruxsat */
 export function adminCanAccessReportsRoute(rg: AdminJwtRouteGroup): boolean {
-  return (
-    rg === 'admin_only' ||
-    rg === 'finance' ||
-    rg === 'marketing'
-  );
+  return rg === 'admin_only' || rg === 'marketing';
 }
 
 /** Rolega mos "hisobot" tugmasi bosilganda ochiladigan sahifa */
@@ -113,15 +157,30 @@ export function adminReportsPathForRouteGroup(rg: AdminJwtRouteGroup): string {
   if (rg === 'clinical' || rg === 'laboratory' || rg === 'nursing' || rg === 'office' || rg === 'specialist') {
     return `${staffGroupBasePath(rg)}/hisobotlar`;
   }
-  return '/reports';
+  return '/dashboard?view=reports';
 }
 
 /**
  * `ADMIN_ONLY_PREFIXES` ostidagi yo‘l uchun ruxsat etilgan admin `routeGroup` ro‘yxati.
  */
 export function adminRouteGroupsAllowedForPath(pathname: string): AdminJwtRouteGroup[] {
+  if (pathUnderAdminPrefix(pathname, PORTAL_UNAVAILABLE_PATH)) {
+    return [
+      'no_portal',
+      'admin_only',
+      'kitchen',
+      'pharmacy',
+      'finance',
+      'hr',
+      'marketing',
+      'reception',
+      'it',
+      'supply',
+      'kassa',
+    ];
+  }
   if (pathUnderAdminPrefix(pathname, '/dashboard')) {
-    return ['admin_only'];
+    return ['admin_only', 'marketing'];
   }
   if (pathUnderAdminPrefix(pathname, '/security-center')) {
     return ['superadmin'];
@@ -144,6 +203,15 @@ export function adminRouteGroupsAllowedForPath(pathname: string): AdminJwtRouteG
   if (pathUnderAdminPrefix(pathname, '/settings')) {
     return ['admin_only', 'it'];
   }
+  if (pathUnderAdminPrefix(pathname, '/taminot')) {
+    return ['admin_only', 'supply'];
+  }
+  if (
+    pathUnderAdminPrefix(pathname, '/kassir') ||
+    pathUnderAdminPrefix(pathname, '/kassa')
+  ) {
+    return ['admin_only', 'kassa'];
+  }
   return ['admin_only'];
 }
 
@@ -153,8 +221,10 @@ export function adminRestrictedNavLinks(
 ): { href: string; label: string }[] {
   switch (rg) {
     case 'finance':
+    case 'kassa':
+      return [{ href: '/kassa', label: 'Kassa' }];
     case 'marketing':
-      return [{ href: '/reports', label: 'Hisobotlar' }];
+      return [{ href: '/dashboard?view=reports', label: 'Hisobotlar' }];
     case 'hr':
       return [{ href: '/kadrlar', label: 'Kadrlar bo‘limi' }];
     case 'reception':
@@ -164,6 +234,12 @@ export function adminRestrictedNavLinks(
       ];
     case 'it':
       return [{ href: '/settings', label: 'Sozlamalar' }];
+    case 'supply':
+      return [{ href: '/taminot', label: "Ta'minot va xarid" }];
+    case 'kitchen':
+      return [{ href: '/oshxona', label: 'Oshxona' }];
+    case 'no_portal':
+      return [{ href: PORTAL_UNAVAILABLE_PATH, label: 'Kabinet' }];
     default:
       return [];
   }
@@ -175,7 +251,11 @@ export function adminUsesRestrictedShell(rg: AdminJwtRouteGroup): boolean {
     rg === 'hr' ||
     rg === 'marketing' ||
     rg === 'reception' ||
-    rg === 'it'
+    rg === 'it' ||
+    rg === 'supply' ||
+    rg === 'kassa' ||
+    rg === 'kitchen' ||
+    rg === 'no_portal'
   );
 }
 
@@ -190,6 +270,25 @@ export function adminCanAccessClinicResource(
 ): boolean {
   if (rg === 'superadmin') return false;
   if (rg === 'admin_only') return true;
+
+  if (rg === 'supply') {
+    return (
+      key === 'supply-orders' ||
+      key === 'supply-purchases' ||
+      key === 'pharmacy-products' ||
+      key === 'kitchen-products'
+    );
+  }
+
+  if (rg === 'kitchen') {
+    return key === 'kitchen-products' || key === 'supply-orders';
+  }
+
+  if (rg === 'pharmacy') {
+    return key === 'pharmacy-products' || key === 'supply-orders';
+  }
+
+  if (rg === 'no_portal') return false;
 
   // PUT faqat to'liq klinika admini uchun (cheklangan rollar pastda)
   if (method === 'PUT') return false;
@@ -245,5 +344,9 @@ export function staffGroupBasePath(group: StaffRouteGroup): string {
       return '/kabinet';
     case 'specialist':
       return '/mutaxassis';
+    case 'pharmacy':
+      return '/farmatsevt';
+    case 'kitchen':
+      return '/oshxona';
   }
 }

@@ -55,15 +55,35 @@ export function usersViewFromLegacyPath(path: string): UsersViewId | null {
   return LEGACY_PATH_TO_VIEW.get(normalized) ?? null;
 }
 
+export function usersViewPath(view: UsersViewId): string {
+  if (view === 'hub') return '/users';
+  return `/users?view=${encodeURIComponent(view)}`;
+}
+
+export function usersViewFromSearchParam(
+  value: string | null | undefined,
+): UsersViewId | null {
+  if (!value) return null;
+  const decoded = decodeURIComponent(value);
+  return isUsersViewId(decoded) ? decoded : null;
+}
+
 export function persistUsersInitialView(view: UsersViewId) {
   if (typeof window === 'undefined') return;
   sessionStorage.setItem('garmonik-portal-initial-users-view', view);
 }
 
-export function consumeUsersInitialView(): UsersViewId | null {
+/** Peek without remove — Strict Mode remounts must still see the value. */
+export function peekUsersInitialView(): UsersViewId | null {
   if (typeof window === 'undefined') return null;
   const raw = sessionStorage.getItem('garmonik-portal-initial-users-view');
-  sessionStorage.removeItem('garmonik-portal-initial-users-view');
   if (!raw || !isUsersViewId(raw)) return null;
   return raw;
+}
+
+export function consumeUsersInitialView(): UsersViewId | null {
+  const view = peekUsersInitialView();
+  if (!view || typeof window === 'undefined') return view;
+  sessionStorage.removeItem('garmonik-portal-initial-users-view');
+  return view;
 }

@@ -24,6 +24,7 @@ import {
   UsersSortableHead,
   UsersStaffActionsCell,
   UsersStaffDepartmentCell,
+  UsersStaffDepartmentSelect,
   UsersStaffEmptyRow,
   UsersStaffFieldLabel,
   UsersStaffFormDialog,
@@ -394,15 +395,13 @@ export default function LaboratoryStaffPanel() {
               />
             </div>
             <div className="space-y-2">
-              <UsersStaffFieldLabel htmlFor="l-dep" icon={Building2}>
-                Bo&apos;lim
-              </UsersStaffFieldLabel>
-              <Input
-                id="l-dep"
-                className={USERS_STAFF_FIELD_CLASS}
+              <UsersStaffFieldLabel icon={Building2}>Bo&apos;lim</UsersStaffFieldLabel>
+              <UsersStaffDepartmentSelect
                 value={form.department}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, department: e.target.value }))
+                roleKey="laboratory"
+                className={USERS_STAFF_FIELD_CLASS}
+                onChange={(department) =>
+                  setForm((f) => ({ ...f, department }))
                 }
               />
             </div>

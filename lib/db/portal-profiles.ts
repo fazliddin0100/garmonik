@@ -409,14 +409,17 @@ export function profileToVerifiedSession(
   if (!profile.is_active) return null;
 
   if (profile.account_kind === 'admin') {
-    const fallback = adminRoleLabelToJwtRouteGroup(
+    const fromLabel = adminRoleLabelToJwtRouteGroup(
       profile.role_label,
       profile.staff_login || profile.auth_email,
     );
-    const routeGroup =
+    const stored =
       profile.admin_route_group && isAdminJwtRouteGroup(profile.admin_route_group) ?
         profile.admin_route_group
-      : fallback;
+      : null;
+    // Rol maxsus kabinetga tegishli bo‘lsa (masalan, Ta'minot) — eski admin_only ni yengamiz
+    const routeGroup =
+      fromLabel !== 'admin_only' ? fromLabel : (stored ?? fromLabel);
 
     return {
       kind: 'admin',

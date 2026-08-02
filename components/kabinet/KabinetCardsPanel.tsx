@@ -45,10 +45,7 @@ import PatientDoctorOrderSummary, {
 import PatientClinicalHistoryPanel from '@/components/patients/PatientClinicalHistoryPanel';
 import { getPatientClinicalHistory } from '@/lib/patients/clinical-history';
 import type { PatientRow } from '@/lib/patients/types';
-import {
-  SERVICE_PRICE_ROWS,
-  type ServicePriceRow,
-} from '@/lib/services/pricing-data';
+import type { ServicePriceRow } from '@/lib/services/pricing-data';
 import {
   formatUzPhoneDisplay,
   isValidUzPhoneE164,
@@ -204,7 +201,7 @@ export default function KabinetCardsPanel() {
   const [doctorsLoading, setDoctorsLoading] = useState(false);
   const [clinicalById, setClinicalById] = useState<Record<string, PatientRow>>({});
   const [labCatalog, setLabCatalog] = useState<Awaited<ReturnType<typeof loadLabCatalog>>>([]);
-  const [priceRows, setPriceRows] = useState<ServicePriceRow[]>(SERVICE_PRICE_ROWS);
+  const [priceRows, setPriceRows] = useState<ServicePriceRow[]>([]);
   const [clinicalLoading, setClinicalLoading] = useState(false);
 
   const fullName = useMemo(
@@ -289,7 +286,7 @@ export default function KabinetCardsPanel() {
       }
       setClinicalById(map);
       setClinicPatients(list);
-      setPriceRows(Array.isArray(pricesRaw) && pricesRaw.length > 0 ? pricesRaw : SERVICE_PRICE_ROWS);
+      setPriceRows(Array.isArray(pricesRaw) ? pricesRaw : []);
       setLabCatalog(catalog);
     } catch {
       setClinicalById({});

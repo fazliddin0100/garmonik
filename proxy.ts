@@ -169,7 +169,7 @@ export async function proxy(request: NextRequest) {
       if (pathname.startsWith('/api/kassa')) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
-      return redirect(new URL('/kassa', request.url));
+      return redirect(new URL('/kassir', request.url));
     }
 
     return sessionResponse;
@@ -188,6 +188,7 @@ export const config = {
     '/appointments/:path*',
     '/services/:path*',
     '/settings/:path*',
+    '/taminot/:path*',
     '/reports/:path*',
     '/doctor/:path*',
     '/labaratoriya/:path*',
@@ -195,8 +196,14 @@ export const config = {
     '/bosh-hamshira/:path*',
     '/kabinet/:path*',
     '/mutaxassis/:path*',
+    '/farmatsevt/:path*',
+    '/oshxona/:path*',
+    '/portal-unavailable',
+    '/portal-unavailable/:path*',
     '/kassa',
     '/kassa/:path*',
+    '/kassir',
+    '/kassir/:path*',
     '/kassa-admin/:path*',
     '/api/kassa/:path*',
   ],

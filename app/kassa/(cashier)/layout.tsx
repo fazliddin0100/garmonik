@@ -7,7 +7,7 @@ export default async function KassaCashierLayout({
   children: React.ReactNode;
 }) {
   const session = await getSession();
-  if (!session) redirect("/kassa/login");
+  if (!session) redirect("/auth/login?next=/kassa");
 
   return children;
 }

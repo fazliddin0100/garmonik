@@ -11,8 +11,8 @@ import {
   PORTAL_SECTION_ENTRY_PATH,
 } from '@/lib/portal/sections';
 import {
-  persistUsersInitialView,
   usersViewFromLegacyPath,
+  usersViewPath,
 } from '@/lib/users/views';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -23,6 +23,8 @@ const SAFE_POST_LOGIN_PREFIXES = [
   '/security-center',
   '/users',
   '/kadrlar',
+  '/kassir',
+  '/kassa',
   '/patients',
   '/appointments',
   '/services',
@@ -33,6 +35,11 @@ const SAFE_POST_LOGIN_PREFIXES = [
   '/hamshiralar',
   '/bosh-hamshira',
   '/kabinet',
+  '/mutaxassis',
+  '/farmatsevt',
+  '/oshxona',
+  '/taminot',
+  '/portal-unavailable',
 ] as const;
 
 function isSafeInternalRedirect(path: string): boolean {
@@ -67,8 +74,7 @@ function normalizeRedirectFromServer(path: unknown, fallback: string): string {
   const usersView = usersViewFromLegacyPath(pathOnly);
   if (usersView && usersView !== 'hub') {
     persistPortalInitialSection('users');
-    persistUsersInitialView(usersView);
-    return '/users';
+    return usersViewPath(usersView);
   }
 
   const portalSection = mainSectionFromPath(pathOnly);
@@ -186,13 +192,26 @@ export function useLogin() {
             loginNorm === 'kassir1' ||
             loginNorm.endsWith('@klinika')
           ) {
-            setError({
-              message:
-                "Bu kassa logini. Kassa uchun: /kassa/login (admin@klinika / admin123)",
-              field: 'general',
+            const kr = await fetch('/api/kassa/auth/login', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                login: data.login,
+                password: data.password,
+              }),
             });
-            toast.error('Kassa logini — /kassa/login sahifasidan kiring');
-            return false;
+            const kassaJson = (await kr.json().catch(() => ({}))) as {
+              role?: string;
+              error?: string;
+            };
+            if (kr.ok) {
+              toast.success('Kassa tizimiga muvaffaqiyatli kirdingiz!');
+              navigateAfterLogin(
+                kassaJson.role === 'ADMIN' ? '/kassa-admin' : '/kassa',
+              );
+              return true;
+            }
           }
 
           const sr = await fetch('/api/auth/staff-login', {

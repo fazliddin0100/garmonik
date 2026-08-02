@@ -36,6 +36,8 @@ import {
 } from '@/components/ui/table';
 import { type DoctorRow, type DoctorSortKey } from '@/lib/doctors/types';
 import { generateStaffPassword } from '@/lib/staff-portal/generate-password';
+import { UsersStaffDepartmentSelect } from '@/components/users/users-staff-ui';
+import { useClinicDepartments } from '@/hooks/useClinicDepartments';
 import { cn } from '@/lib/utils';
 import {
   ArrowUpDown,
@@ -122,6 +124,7 @@ function DoctorSortableHead({
 }
 
 export default function DoctorsPanel() {
+  const { labelFor } = useClinicDepartments();
   const [rows, setRows] = useState<DoctorRow[]>([]);
   const [, setLoading] = useState(true);
   const [sort, setSort] = useState<SortState>({
@@ -453,7 +456,9 @@ export default function DoctorsPanel() {
                     {row.department ?
                       <span className="inline-flex items-center gap-1.5 text-sm text-slate-700">
                         <Building2 className="size-3.5 shrink-0 text-violet-500" />
-                        <span className="whitespace-normal">{row.department}</span>
+                        <span className="whitespace-normal">
+                          {labelFor(row.department) || row.department}
+                        </span>
                       </span>
                     : <span className="text-slate-400">—</span>}
                   </TableCell>
@@ -583,19 +588,16 @@ export default function DoctorsPanel() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label
-                        htmlFor="d-dep"
-                        className="flex items-center gap-2 text-slate-700">
+                      <Label className="flex items-center gap-2 text-slate-700">
                         <Building2 className="size-4 text-violet-600" />
                         Bo&apos;lim
                       </Label>
-                      <Input
-                        id="d-dep"
-                        className={doctorFieldInputClass}
-                        placeholder="Endokrinologiya"
+                      <UsersStaffDepartmentSelect
                         value={form.department}
-                        onChange={(e) =>
-                          setForm((f) => ({ ...f, department: e.target.value }))
+                        roleKey="shifokor"
+                        className={doctorFieldInputClass}
+                        onChange={(department) =>
+                          setForm((f) => ({ ...f, department }))
                         }
                       />
                     </div>

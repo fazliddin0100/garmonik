@@ -21,6 +21,8 @@ import {
   HeartPulse,
   Home,
   Microscope,
+  CookingPot,
+  Pill,
   Stethoscope,
   UserRound,
 } from 'lucide-react';
@@ -49,6 +51,8 @@ const staffRoleIcon: Record<StaffRole, LucideIcon> = {
   head_nurse: HeartPulse,
   kabinet: Building2,
   specialist: Stethoscope,
+  farmatsevt: Pill,
+  oshpaz: CookingPot,
 };
 
 const groupIcon: Record<StaffRouteGroup, LucideIcon> = {
@@ -58,6 +62,8 @@ const groupIcon: Record<StaffRouteGroup, LucideIcon> = {
   head_nursing: HeartPulse,
   office: Building2,
   specialist: Stethoscope,
+  pharmacy: Pill,
+  kitchen: CookingPot,
 };
 
 type MeStaff = {

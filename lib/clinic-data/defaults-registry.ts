@@ -18,6 +18,8 @@ export function defaultPayloadForKey(key: ClinicResourceKey): unknown {
     case 'partners':
     case 'contracts':
     case 'pharmacy-products':
+    case 'kitchen-products':
+    case 'kitchen-staff':
     case 'doctors':
     case 'nurses':
     case 'laboratory-staff':
@@ -27,6 +29,8 @@ export function defaultPayloadForKey(key: ClinicResourceKey): unknown {
     case 'lab-catalog':
     case 'queue':
     case 'inpatient-admissions':
+    case 'supply-orders':
+    case 'supply-purchases':
       return [];
     default: {
       const _exhaustive: never = key;

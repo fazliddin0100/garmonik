@@ -19,6 +19,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Table,
   TableBody,
   TableCell,
@@ -39,6 +46,9 @@ import {
 } from '@/lib/clinic-data/client';
 import { loadLabCatalog } from '@/lib/laboratory/catalog-storage';
 import type { LabCategory } from '@/lib/laboratory/catalog-types';
+import type { MedicalServiceGroup } from '@/lib/service-groups/types';
+import { SERVICE_GROUPS } from '@/lib/services/pricing-data';
+import { serviceTypesToPriceRows } from '@/lib/services/service-types-to-prices';
 import { findMatchingLabCategories } from '@/lib/service-types/lab-match';
 import { type ServiceTypeRow } from '@/lib/service-types/types';
 import {
@@ -59,6 +69,8 @@ import {
 } from 'lucide-react';
 import { Fragment, startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
+
+const BUILTIN_SERVICE_GROUP_LABELS = SERVICE_GROUPS.map((g) => g.label);
 
 const ALL_TAB = 'all';
 const LEGACY_RESET_KEY = 'garmonik-service-types-reset-v2';
@@ -118,9 +130,20 @@ function nextServiceId(rows: ServiceTypeRow[]): string {
   return String(candidate);
 }
 
+function isActiveGroupStatus(status: string) {
+  const normalized = status.trim().toLowerCase();
+  return (
+    !normalized ||
+    normalized === 'active' ||
+    normalized === 'aktiv' ||
+    normalized === 'актив'
+  );
+}
+
 export default function ServiceTypesPanel() {
   const [rows, setRows] = useState<ServiceTypeRow[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [clinicGroups, setClinicGroups] = useState<string[]>([]);
   const [labCatalog, setLabCatalog] = useState<LabCategory[]>([]);
   const [expandedRowIds, setExpandedRowIds] = useState<Set<string>>(() => new Set());
   const [activeTab, setActiveTab] = useState(ALL_TAB);
@@ -139,8 +162,12 @@ export default function ServiceTypesPanel() {
     queueMicrotask(() => {
       void (async () => {
         try {
-          const next =
-            await fetchClinicResource<ServiceTypeRow[]>('service-types');
+          const [next, groupsRaw] = await Promise.all([
+            fetchClinicResource<ServiceTypeRow[]>('service-types'),
+            fetchClinicResource<MedicalServiceGroup[]>(
+              'medical-service-groups',
+            ).catch(() => [] as MedicalServiceGroup[]),
+          ]);
           const shouldReset =
             typeof window !== 'undefined' &&
             !window.localStorage.getItem(LEGACY_RESET_KEY);
@@ -150,6 +177,13 @@ export default function ServiceTypesPanel() {
             startTransition(() => {
               if (cancelled) return;
               setRows([]);
+              setClinicGroups(
+                Array.isArray(groupsRaw) ?
+                  groupsRaw
+                    .filter((g) => g.name?.trim() && isActiveGroupStatus(g.status))
+                    .map((g) => g.name.trim())
+                : [],
+              );
               setHydrated(true);
             });
             skipFirstPersist.current = true;
@@ -159,12 +193,20 @@ export default function ServiceTypesPanel() {
             if (cancelled) return;
             const list = Array.isArray(next) ? next : [];
             setRows(list.map(normalizeServiceTypeRow));
+            setClinicGroups(
+              Array.isArray(groupsRaw) ?
+                groupsRaw
+                  .filter((g) => g.name?.trim() && isActiveGroupStatus(g.status))
+                  .map((g) => g.name.trim())
+              : [],
+            );
             setHydrated(true);
           });
         } catch {
           startTransition(() => {
             if (cancelled) return;
             setRows([]);
+            setClinicGroups([]);
             setHydrated(true);
           });
         }
@@ -181,6 +223,21 @@ export default function ServiceTypesPanel() {
       .catch(() => setLabCatalog([]));
   }, []);
 
+  const groupSelectOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const label of BUILTIN_SERVICE_GROUP_LABELS) {
+      if (label.trim()) set.add(label.trim());
+    }
+    for (const name of clinicGroups) {
+      if (name.trim()) set.add(name.trim());
+    }
+    for (const r of rows) {
+      if (r.group.trim()) set.add(r.group.trim());
+    }
+    if (form.group.trim()) set.add(form.group.trim());
+    return [...set].sort((a, b) => a.localeCompare(b, 'uz'));
+  }, [clinicGroups, rows, form.group]);
+
   useEffect(() => {
     if (!hydrated) return;
     if (skipFirstPersist.current) {
@@ -190,6 +247,11 @@ export default function ServiceTypesPanel() {
     void (async () => {
       try {
         await saveClinicResource('service-types', rows);
+        // Katalog / kassa / navbat uchun service-prices sinxroni
+        await saveClinicResource(
+          'service-prices',
+          serviceTypesToPriceRows(rows),
+        ).catch(() => undefined);
       } catch {
         toast.error('Xizmat turlarini saqlab bo‘lmadi');
       }
@@ -592,7 +654,7 @@ export default function ServiceTypesPanel() {
         icon={Tags}
         createTitle="Yangi xizmat"
         editTitle="Xizmatni tahrirlash"
-        createDescription="Guruh, nom va narxni kiriting."
+        createDescription="Guruhni tanlang va xizmat ma’lumotlarini kiriting."
         editDescription="Guruh, nom va narxni yangilang."
         createSaveLabel="Xizmat qo‘shish"
         onSave={saveRow}
@@ -601,17 +663,31 @@ export default function ServiceTypesPanel() {
           <div className="grid gap-4">
             <div className="space-y-2">
               <UsersStaffFieldLabel htmlFor="st-group" icon={Layers}>
-                Guruh
+                Guruh / kategoriya
               </UsersStaffFieldLabel>
-              <Input
-                id="st-group"
-                className={USERS_STAFF_FIELD_CLASS}
-                value={form.group}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, group: e.target.value }))
-                }
-                placeholder="Laboratoriya, UZI..."
-              />
+              <Select
+                value={form.group || undefined}
+                onValueChange={(group) =>
+                  setForm((f) => ({ ...f, group }))
+                }>
+                <SelectTrigger
+                  id="st-group"
+                  className={cn(USERS_STAFF_FIELD_CLASS, 'w-full')}>
+                  <SelectValue placeholder="Guruh tanlang" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {groupSelectOptions.length === 0 ?
+                    <SelectItem value="__empty" disabled>
+                      Guruhlar yo‘q
+                    </SelectItem>
+                  : groupSelectOptions.map((group) => (
+                      <SelectItem key={group} value={group}>
+                        {group}
+                      </SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <UsersStaffFieldLabel htmlFor="st-name" icon={Tags}>

@@ -7,6 +7,7 @@ import PartnersPanel from '@/components/partners/PartnersPanel';
 import PharmacyProductsPanel from '@/components/pharmacy/PharmacyProductsPanel';
 import RoomsOccupancyPanel from '@/components/rooms/RoomsOccupancyPanel';
 import ServiceTypesPanel from '@/components/service-types/ServiceTypesPanel';
+import ReportsFinancialPanel from '@/components/reports/ReportsFinancialPanel';
 import { useDashboardView } from '@/components/dashboard/DashboardViewContext';
 
 export default function DashboardWorkspace() {
@@ -49,6 +50,12 @@ export default function DashboardWorkspace() {
       return (
         <div className="space-y-5">
           <ContractsPanel />
+        </div>
+      );
+    case 'reports':
+      return (
+        <div className="space-y-5">
+          <ReportsFinancialPanel />
         </div>
       );
     default:

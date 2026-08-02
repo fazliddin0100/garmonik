@@ -13,8 +13,8 @@ import {
   type PortalMainSectionId,
 } from "@/lib/portal/sections";
 import {
-  persistUsersInitialView,
   usersSubNavItems,
+  usersViewPath,
   type UsersViewId,
 } from "@/lib/users/views";
 import { Search } from "lucide-react";
@@ -64,20 +64,6 @@ const baseRecords: SearchRecord[] = [
   })),
   { id: "kadrlar", label: "Kadrlar bo'limi", description: "Login va parollar", href: "/kadrlar" },
   {
-    id: "patients",
-    label: "Patients",
-    description: "Bemorlar bo'limi",
-    href: "/patients",
-    portalSection: "patients",
-  },
-  {
-    id: "appointments",
-    label: "Navbat",
-    description: "Qabul va jonli navbat",
-    href: "/appointments",
-    portalSection: "appointments",
-  },
-  {
     id: "services",
     label: "Services",
     description: "Xizmatlar bo'limi",
@@ -86,10 +72,10 @@ const baseRecords: SearchRecord[] = [
   },
   {
     id: "reports",
-    label: "Reports",
-    description: "Hisobotlar",
-    href: "/reports",
-    portalSection: "reports",
+    label: "Hisobotlar",
+    description: "Moliyaviy hisobotlar (dashboard)",
+    href: "/dashboard?view=reports",
+    dashboardView: "reports",
   },
   {
     id: "settings",
@@ -172,8 +158,7 @@ export default function GlobalSearch() {
           return;
         }
         persistPortalInitialSection("users");
-        persistUsersInitialView(item.usersView);
-        router.push("/users");
+        router.push(usersViewPath(item.usersView));
         return;
       }
 

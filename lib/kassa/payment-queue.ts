@@ -46,7 +46,7 @@ import {
 
 import type { LabCategory } from '@/lib/laboratory/catalog-types';
 
-import { SERVICE_PRICE_ROWS, type ServicePriceRow } from '@/lib/services/pricing-data';
+import type { ServicePriceRow } from '@/lib/services/pricing-data';
 
 import { getDefaultClinicId } from '@/lib/server/default-clinic';
 
@@ -123,13 +123,7 @@ async function readPriceRows(clinicId: string): Promise<ServicePriceRow[]> {
 
   const payload = await readClinicResourcePayload(clinicId, 'service-prices');
 
-  if (Array.isArray(payload) && payload.length > 0) {
-
-    return payload as ServicePriceRow[];
-
-  }
-
-  return SERVICE_PRICE_ROWS;
+  return Array.isArray(payload) ? (payload as ServicePriceRow[]) : [];
 
 }
 

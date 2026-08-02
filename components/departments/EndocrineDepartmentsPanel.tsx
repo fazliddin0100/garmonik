@@ -20,11 +20,26 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
   fetchClinicResource,
   saveClinicResource,
 } from '@/lib/clinic-data/client';
+import {
+  DEPARTMENT_ROLE_SECTIONS,
+  departmentRoleLabel,
+  departmentRolesForSection,
+  normalizeDepartmentGroups,
+} from '@/lib/clinic-departments/roles';
 import {
   type DepartmentGroup,
   type DepartmentSubItem,
@@ -49,6 +64,16 @@ export default function EndocrineDepartmentsPanel() {
   const [groupEditingId, setGroupEditingId] = useState<string | null>(null);
   const [groupTitle, setGroupTitle] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
+  const [groupRoleKey, setGroupRoleKey] = useState('');
+
+  const roleSections = useMemo(
+    () =>
+      DEPARTMENT_ROLE_SECTIONS.map((section) => ({
+        ...section,
+        roles: departmentRolesForSection(section.id),
+      })).filter((s) => s.roles.length > 0),
+    [],
+  );
 
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
   const [itemContextGroupId, setItemContextGroupId] = useState<string | null>(
@@ -70,11 +95,10 @@ export default function EndocrineDepartmentsPanel() {
     queueMicrotask(() => {
       void (async () => {
         try {
-          const next =
-            await fetchClinicResource<DepartmentGroup[]>('departments');
+          const next = await fetchClinicResource<unknown>('departments');
           startTransition(() => {
             if (cancelled) return;
-            setGroups(Array.isArray(next) ? next : []);
+            setGroups(normalizeDepartmentGroups(next));
             setHydrated(true);
           });
         } catch {
@@ -122,6 +146,7 @@ export default function EndocrineDepartmentsPanel() {
     setGroupEditingId(null);
     setGroupTitle('');
     setGroupDescription('');
+    setGroupRoleKey('');
     setGroupDialogOpen(true);
   }
 
@@ -129,17 +154,25 @@ export default function EndocrineDepartmentsPanel() {
     setGroupEditingId(gr.id);
     setGroupTitle(gr.title);
     setGroupDescription(gr.description);
+    setGroupRoleKey(gr.roleKey || '');
     setGroupDialogOpen(true);
   }
 
   function saveGroup() {
     const title = groupTitle.trim();
     if (!title) return;
+    if (!groupRoleKey.trim()) {
+      toast.error('Bo‘lim uchun rol tanlang');
+      return;
+    }
     const description = groupDescription.trim();
+    const roleKey = groupRoleKey.trim();
     if (groupEditingId) {
       setGroups((prev) =>
         prev.map((g) =>
-          g.id === groupEditingId ? { ...g, title, description } : g,
+          g.id === groupEditingId ?
+            { ...g, title, description, roleKey }
+          : g,
         ),
       );
     } else {
@@ -149,6 +182,7 @@ export default function EndocrineDepartmentsPanel() {
           id: newGroupId(),
           title,
           description,
+          roleKey,
           items: [],
         },
       ]);
@@ -250,6 +284,12 @@ export default function EndocrineDepartmentsPanel() {
                   <h3 className="text-base font-semibold text-slate-800">
                     {gr.title}
                   </h3>
+                  <p
+                    className={`mt-1 text-xs font-medium ${
+                      gr.roleKey ? 'text-violet-700' : 'text-amber-600'
+                    }`}>
+                    Rol: {departmentRoleLabel(gr.roleKey || null)}
+                  </p>
                   {gr.description ?
                     <p className="mt-1 text-sm text-slate-500">
                       {gr.description}
@@ -353,6 +393,29 @@ export default function EndocrineDepartmentsPanel() {
               />
             </div>
             <div className="grid gap-1.5">
+              <Label>Bo‘lim roli</Label>
+              <Select value={groupRoleKey} onValueChange={setGroupRoleKey}>
+                <SelectTrigger className="w-full rounded-xl">
+                  <SelectValue placeholder="Rol tanlang" />
+                </SelectTrigger>
+                <SelectContent className="max-h-80">
+                  {roleSections.map((section) => (
+                    <SelectGroup key={section.id}>
+                      <SelectLabel>{section.label}</SelectLabel>
+                      {section.roles.map((role) => (
+                        <SelectItem key={role.key} value={role.key}>
+                          {role.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-slate-500">
+                Shu bo‘limdagi xodimlar faqat shu rol kabinetiga kira oladi.
+              </p>
+            </div>
+            <div className="grid gap-1.5">
               <Label htmlFor="dep-desc">Qisqa izoh (ixtiyoriy)</Label>
               <Textarea
                 id="dep-desc"
@@ -374,7 +437,7 @@ export default function EndocrineDepartmentsPanel() {
             <Button
               type="button"
               className="bg-violet-600 text-white hover:bg-violet-700"
-              disabled={!groupTitle.trim()}
+              disabled={!groupTitle.trim() || !groupRoleKey.trim()}
               onClick={saveGroup}>
               Saqlash
             </Button>

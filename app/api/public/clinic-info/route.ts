@@ -10,13 +10,13 @@ export async function GET() {
       [clinicId],
     );
     return NextResponse.json({
-      name: clinic?.name ?? 'Gormonik Plus Klinikasi',
-      logoPath: clinic?.logo_file_path ?? '/garmonik-logo-user.png',
+      name: clinic?.name?.trim() || '',
+      logoPath: clinic?.logo_file_path?.trim() || '',
     });
   } catch {
     return NextResponse.json({
-      name: 'Gormonik Plus Klinikasi',
-      logoPath: '/garmonik-logo-user.png',
+      name: '',
+      logoPath: '',
     });
   }
 }

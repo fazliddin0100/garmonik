@@ -8,6 +8,11 @@ import {
   adminLoginExists,
   insertPortalProfile,
 } from '@/lib/db/portal-profiles';
+import {
+  ensureKassaCashierUser,
+  isKassaPortalRole,
+  isKassaPortalRouteGroup,
+} from '@/lib/kassa/portal-cashier-bridge';
 import { getDefaultClinicId } from '@/lib/server/default-clinic';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -37,6 +42,8 @@ export async function POST(request: NextRequest) {
     const loginRaw = typeof body.login === 'string' ? body.login.trim() : '';
     const password = typeof body.password === 'string' ? body.password : '';
     const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
+    const department =
+      typeof body.department === 'string' ? body.department.trim() : '';
 
     if (!firstName || !lastName) {
       return NextResponse.json({ error: 'Ism va familiya kiritilishi kerak' }, { status: 400 });
@@ -103,6 +110,7 @@ export async function POST(request: NextRequest) {
         father_name: fatherName,
         age,
         phone,
+        department: department || '',
         is_active: true,
       });
     } catch (insErr) {
@@ -111,8 +119,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
+    if (isKassaPortalRouteGroup(rg) || isKassaPortalRole(roleName)) {
+      try {
+        await ensureKassaCashierUser({
+          login: loginNorm,
+          password,
+          fullName,
+        });
+      } catch (kassaErr) {
+        await deletePortalAuthUser(created.id);
+        const message =
+          kassaErr instanceof Error ? kassaErr.message : 'Kassa hisobi yaratilmadi';
+        return NextResponse.json({ error: message }, { status: 400 });
+      }
+    }
+
     return NextResponse.json({
       ok: true,
+      userId: created.id,
       login: loginNorm,
       firstName,
       lastName,
@@ -120,6 +144,7 @@ export async function POST(request: NextRequest) {
       age,
       roleName,
       phone,
+      adminRouteGroup: rg,
     });
   } catch (e) {
     console.error('create-portal-admin:', e);

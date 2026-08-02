@@ -5,7 +5,8 @@ export type DashboardViewId =
   | 'service-types'
   | 'products'
   | 'partners'
-  | 'contracts';
+  | 'contracts'
+  | 'reports';
 
 export const DASHBOARD_INITIAL_VIEW_KEY = 'garmonik-dashboard-initial-view';
 
@@ -31,6 +32,10 @@ export const DASHBOARD_VIEW_META: Record<
   products: { title: 'Mahsulotlar', legacyPath: '/dashboard/products' },
   partners: { title: 'Hamkorlar', legacyPath: '/dashboard/partners' },
   contracts: { title: 'Shartnomalar', legacyPath: '/dashboard/contracts' },
+  reports: {
+    title: 'Hisobotlar',
+    legacyPath: '/dashboard/reports',
+  },
 };
 
 export const dashboardSubNavItems: {
@@ -44,6 +49,7 @@ export const dashboardSubNavItems: {
     'products',
     'partners',
     'contracts',
+    'reports',
   ] as const
 ).map((view) => ({
   view,
@@ -69,15 +75,34 @@ export function dashboardViewFromLegacyPath(
   return LEGACY_PATH_TO_VIEW.get(normalized) ?? null;
 }
 
+export function dashboardViewPath(view: DashboardViewId): string {
+  if (view === 'overview') return '/dashboard';
+  return `/dashboard?view=${encodeURIComponent(view)}`;
+}
+
+export function dashboardViewFromSearchParam(
+  value: string | null | undefined,
+): DashboardViewId | null {
+  if (!value) return null;
+  const decoded = decodeURIComponent(value);
+  return isDashboardViewId(decoded) ? decoded : null;
+}
+
 export function persistDashboardInitialView(view: DashboardViewId) {
   if (typeof window === 'undefined') return;
   sessionStorage.setItem(DASHBOARD_INITIAL_VIEW_KEY, view);
 }
 
-export function consumeDashboardInitialView(): DashboardViewId | null {
+export function peekDashboardInitialView(): DashboardViewId | null {
   if (typeof window === 'undefined') return null;
   const raw = sessionStorage.getItem(DASHBOARD_INITIAL_VIEW_KEY);
-  sessionStorage.removeItem(DASHBOARD_INITIAL_VIEW_KEY);
   if (!raw || !isDashboardViewId(raw)) return null;
   return raw;
+}
+
+export function consumeDashboardInitialView(): DashboardViewId | null {
+  const view = peekDashboardInitialView();
+  if (!view || typeof window === 'undefined') return view;
+  sessionStorage.removeItem(DASHBOARD_INITIAL_VIEW_KEY);
+  return view;
 }

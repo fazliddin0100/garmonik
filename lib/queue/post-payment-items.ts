@@ -1,7 +1,6 @@
 import { findCatalogItem, type LabCategory } from '@/lib/laboratory/catalog-types';
 import {
   priceRowByServiceKey,
-  SERVICE_PRICE_ROWS,
   type ServicePriceRow,
 } from '@/lib/services/pricing-data';
 
@@ -14,7 +13,7 @@ export type PostPaymentLineItem = {
 
 export function resolvePostPaymentLineItems(
   orderedKeys: string[],
-  priceRows: ServicePriceRow[] = SERVICE_PRICE_ROWS,
+  priceRows: ServicePriceRow[] = [],
   labCatalog: LabCategory[] = [],
 ): PostPaymentLineItem[] {
   const items: PostPaymentLineItem[] = [];

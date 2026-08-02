@@ -17,7 +17,6 @@ import {
 import { validateClinicResourcePayload } from '@/lib/clinic-data/validate-payload';
 import { insertPortalProfile } from '@/lib/db/portal-profiles';
 import { query, queryOne } from '@/lib/db/query';
-import { ensureStaffPortalSeed } from '@/lib/staff-portal/db-staff';
 
 async function ensureClinicId(): Promise<string> {
   const existing = await queryOne<{ id: string }>(
@@ -30,7 +29,7 @@ async function ensureClinicId(): Promise<string> {
 
   const created = await queryOne<{ id: string }>(
     `insert into public.clinics (name) values ($1) returning id`,
-    ['Gormonik Plus'],
+    [''],
   );
   if (!created?.id) throw new Error('Klinika yaratilmadi');
   console.log('✓ Klinika yaratildi:', created.id);
@@ -120,7 +119,11 @@ async function main() {
     adminRouteGroup: adminRoleLabelToJwtRouteGroup('Klinika direktori', adminLogin),
   });
 
-  await ensureStaffPortalSeed();
+  const resetContent = process.env.SEED_RESET_CONTENT === '1';
+  if (resetContent) {
+    await query(`update public.clinics set name = '' where id = $1`, [clinicId]);
+    console.log('↻ clinics.name — tozalandi');
+  }
 
   const payloads = getFullSeedPayloads();
   for (const key of allClinicResourceKeys()) {
@@ -129,12 +132,22 @@ async function main() {
        where clinic_id = $1 and key = $2`,
       [clinicId, key],
     );
-    if (row) {
-      console.log(`○ ${key} — mavjud`);
-      continue;
-    }
     const payload = payloads[key];
     validateClinicResourcePayload(key, payload);
+    if (row) {
+      if (resetContent) {
+        await query(
+          `update public.clinic_json_resources
+           set payload = $3::jsonb, updated_at = now()
+           where clinic_id = $1 and key = $2`,
+          [clinicId, key, JSON.stringify(payload)],
+        );
+        console.log(`↻ ${key} — tozalandi`);
+      } else {
+        console.log(`○ ${key} — mavjud`);
+      }
+      continue;
+    }
     await query(
       `insert into public.clinic_json_resources (clinic_id, key, payload)
        values ($1, $2, $3::jsonb)`,

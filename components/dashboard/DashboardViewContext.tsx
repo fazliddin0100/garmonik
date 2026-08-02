@@ -1,13 +1,17 @@
 'use client';
 
 import {
+  DASHBOARD_INITIAL_VIEW_KEY,
   DASHBOARD_VIEW_META,
   type DashboardViewId,
-  consumeDashboardInitialView,
+  dashboardViewFromSearchParam,
+  dashboardViewPath,
+  peekDashboardInitialView,
 } from '@/lib/dashboard/views';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   createContext,
+  Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -27,33 +31,54 @@ const DashboardViewContext = createContext<DashboardViewContextValue | null>(
   null,
 );
 
-export function DashboardViewProvider({ children }: { children: ReactNode }) {
+function DashboardViewProviderInner({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const onDashboard = pathname === '/dashboard';
+  const viewParam = searchParams.get('view');
 
-  const [view, setViewState] = useState<DashboardViewId>('overview');
+  const [view, setViewState] = useState<DashboardViewId>(() => {
+    return (
+      dashboardViewFromSearchParam(viewParam) ||
+      peekDashboardInitialView() ||
+      'overview'
+    );
+  });
 
   useEffect(() => {
     if (!onDashboard) return;
-    const initial = consumeDashboardInitialView();
-    if (initial) {
-      setViewState(initial);
+    const fromQuery = dashboardViewFromSearchParam(viewParam);
+    if (fromQuery) {
+      setViewState(fromQuery);
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(DASHBOARD_INITIAL_VIEW_KEY);
+      }
+      return;
     }
-  }, [onDashboard]);
+    const pending = peekDashboardInitialView();
+    if (pending) {
+      setViewState(pending);
+      sessionStorage.removeItem(DASHBOARD_INITIAL_VIEW_KEY);
+    }
+  }, [onDashboard, viewParam]);
 
-  const setView = useCallback((next: DashboardViewId) => {
-    setViewState(next);
-  }, []);
+  const setView = useCallback(
+    (next: DashboardViewId) => {
+      setViewState(next);
+      if (onDashboard) {
+        router.replace(dashboardViewPath(next));
+      }
+    },
+    [onDashboard, router],
+  );
 
   const openView = useCallback(
     (next: DashboardViewId) => {
       setViewState(next);
-      if (pathname !== '/dashboard') {
-        router.push('/dashboard');
-      }
+      router.push(dashboardViewPath(next));
     },
-    [pathname, router],
+    [router],
   );
 
   const title = DASHBOARD_VIEW_META[view].title;
@@ -67,6 +92,14 @@ export function DashboardViewProvider({ children }: { children: ReactNode }) {
     <DashboardViewContext.Provider value={value}>
       {children}
     </DashboardViewContext.Provider>
+  );
+}
+
+export function DashboardViewProvider({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={null}>
+      <DashboardViewProviderInner>{children}</DashboardViewProviderInner>
+    </Suspense>
   );
 }
 

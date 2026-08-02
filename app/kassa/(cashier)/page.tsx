@@ -4,7 +4,7 @@ import { CashierWorkspace } from "@/components/kassa/cashier-workspace";
 
 export default async function KassaPage() {
   const session = await getSession();
-  if (!session) redirect("/kassa/login");
+  if (!session) redirect("/auth/login?next=/kassa");
 
   return (
     <CashierWorkspace

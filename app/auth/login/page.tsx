@@ -2,7 +2,6 @@
 
 import { useLogin } from '@/hooks/useLogin';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -170,7 +169,7 @@ export default function Login() {
         <div className="flex items-center justify-center mb-6">
           <Image
             src="/garmonik-logo-user.png"
-            alt="Garmonik Plus Klinikasi"
+            alt="Klinika"
             width={120}
             height={120}
             priority
@@ -329,15 +328,6 @@ export default function Login() {
           </button>
         </div>
 
-        {/* Parolni unutdingizmi */}
-        <div className="anim-btn-2 mb-3">
-          <Link
-            href="/auth/reset"
-            className="flex justify-end text-sm text-violet-600 hover:text-violet-700">
-            Parolni esdan chiqarib qo&apos;ydingizmi?
-          </Link>
-        </div>
-
         {/* Badges */}
         <div className="flex items-center justify-center gap-3 mt-6">
           {['256-bit SSL', 'Xavfsiz ulanish'].map((label, i) => (
@@ -350,19 +340,6 @@ export default function Login() {
             </div>
           ))}
         </div>
-
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-4 rounded-xl bg-violet-50 px-4 py-3 text-center text-xs text-violet-900">
-            Klinika: <strong>admin</strong> / <strong>admin123</strong>
-            {' · '}
-            kabinet: <strong>kabinet</strong> / <strong>kabinet123</strong>
-            <br />
-            Kassa alohida:{' '}
-            <Link href="/kassa/login" className="font-semibold underline">
-              /kassa/login
-            </Link>
-          </div>
-        )}
       </div>
     </div>
   );

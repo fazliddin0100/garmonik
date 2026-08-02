@@ -24,8 +24,8 @@ const geistMono = Geist_Mono({
  * Favicon: `public/favicon.ico` yoki `app/icon.png` ishlatiladi.
  */
 export const metadata: Metadata = {
-  title: 'Gormonik Plus Klinikasi',
-  description: 'Gormonik Plus Kliniasi xizmatlari',
+  title: 'Klinika',
+  description: 'Klinika boshqaruv tizimi',
   icons: { icon: '/garmonik-logo-user.png' },
   other: {
     google: 'notranslate',

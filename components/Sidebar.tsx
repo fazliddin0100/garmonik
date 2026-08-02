@@ -44,8 +44,8 @@ import {
   type PortalMainSectionId,
 } from '@/lib/portal/sections';
 import {
-  persistUsersInitialView,
   usersSubNavItems,
+  usersViewPath,
   type UsersViewId,
 } from '@/lib/users/views';
 import { usePathname, useRouter } from 'next/navigation';
@@ -82,6 +82,7 @@ const dashboardSubIcons: Record<
   products: Package,
   partners: Handshake,
   contracts: FileSignature,
+  reports: FileBarChart2,
 };
 
 const usersSubIcons: Record<
@@ -102,10 +103,7 @@ const mainNavItems: {
   label: string;
   icon: ComponentType<{ className?: string }>;
 }[] = [
-  { section: 'patients', label: 'Patients', icon: Users },
-  { section: 'appointments', label: 'Navbat', icon: CalendarDays },
   { section: 'services', label: 'Services', icon: ClipboardList },
-  { section: 'reports', label: 'Reports', icon: FileBarChart2 },
   { section: 'settings', label: 'Sozlamalar', icon: Settings },
 ];
 
@@ -320,9 +318,7 @@ export default function Sidebar() {
     'loading',
   );
   const [adminRg, setAdminRg] = useState<AdminJwtRouteGroup | null>(null);
-  const canTrackOnlineNavbat =
-    shell === 'full' ||
-    (shell === 'restricted' && adminRg === 'reception');
+  const canTrackOnlineNavbat = shell === 'restricted' && adminRg === 'reception';
   const newOnlineCount = useNewOnlineQueueCount(canTrackOnlineNavbat);
 
   useEffect(() => {
@@ -394,18 +390,22 @@ export default function Sidebar() {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-45 overflow-hidden border-r border-white/50 bg-white/65 backdrop-blur-xl md:flex md:flex-col">
         <div className="border-b border-white/60 px-6 py-6">
           <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-violet-600/80">
-            Gormonik Plus
+            Klinika
           </p>
           <h2 className="text-xl font-bold text-slate-800">Kabinet</h2>
           <p className="mt-1 text-xs text-slate-500">Cheklangan kirish</p>
         </div>
         <nav className="flex-1 space-y-1 p-4">
           {links.map((item) => {
+            const hrefPath = item.href.split('?')[0] || item.href;
             const isActive =
-              pathname === item.href || pathname.startsWith(`${item.href}/`);
+              pathname === hrefPath || pathname.startsWith(`${hrefPath}/`);
             const SubIcon =
-              item.href.startsWith('/reports') ? FileBarChart2
+              item.href.includes('view=reports') ||
+              item.href.startsWith('/reports') ?
+                FileBarChart2
               : item.href.startsWith('/kadrlar') ? Briefcase
+              : item.href.startsWith('/taminot') ? Briefcase
               : item.href.startsWith('/patients') ? Users
               : item.href.startsWith('/appointments') ? CalendarDays
               : item.href.startsWith('/settings') ? Settings
@@ -439,7 +439,7 @@ export default function Sidebar() {
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-45 overflow-hidden border-r border-white/50 bg-white/65 backdrop-blur-xl md:flex md:flex-col">
       <div className="border-b border-white/60 px-6 py-6">
         <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-violet-600/80">
-          Gormonik Plus
+          Klinika
         </p>
         <h2 className="text-xl font-bold text-slate-800">Klinika Paneli</h2>
         <p className="mt-1 text-sm text-slate-500">Boshqaruv markazi</p>
@@ -498,8 +498,7 @@ export default function Sidebar() {
                 portalNav.openUsersView('hub');
                 return;
               }
-              persistUsersInitialView('hub');
-              router.push('/users');
+              router.push(usersViewPath('hub'));
             }}
             toggleAriaOpen="Xodimlar menyusini yopish"
             toggleAriaClosed="Xodimlar menyusini ochish"
@@ -516,8 +515,7 @@ export default function Sidebar() {
                     portalNav.openUsersView(view);
                     return;
                   }
-                  persistUsersInitialView(view);
-                  router.push('/users');
+                  router.push(usersViewPath(view));
                 }}
               />
             </div>
@@ -554,12 +552,6 @@ export default function Sidebar() {
               )}
               <Icon className="h-4 w-4" />
               <span className="min-w-0 flex-1 font-medium">{item.label}</span>
-              {item.section === 'appointments' ?
-                <OnlineNavbatCountBadge
-                  count={newOnlineCount}
-                  active={isActive}
-                />
-              : null}
             </button>
           );
         })}

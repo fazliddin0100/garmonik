@@ -10,6 +10,8 @@ export const CLINIC_RESOURCE_KEYS = [
   'partners',
   'contracts',
   'pharmacy-products',
+  'kitchen-products',
+  'kitchen-staff',
   'doctors',
   'nurses',
   'laboratory-staff',
@@ -20,6 +22,8 @@ export const CLINIC_RESOURCE_KEYS = [
   'lab-catalog',
   'queue',
   'inpatient-admissions',
+  'supply-orders',
+  'supply-purchases',
 ] as const;
 
 export type ClinicResourceKey = (typeof CLINIC_RESOURCE_KEYS)[number];

@@ -26,6 +26,20 @@ const BASE_KADRLAR_ROLE_OPTIONS: KadrlarRoleOption[] = [
   { key: 'head_nurse', label: 'Bosh hamshira', group: 'clinical', accountKind: 'staff', staffRole: 'head_nurse' },
   { key: 'kabinet', label: 'Kabinet', group: 'clinical', accountKind: 'staff', staffRole: 'kabinet' },
   {
+    key: 'farmatsevt',
+    label: 'Farmatsevt',
+    group: 'clinical',
+    accountKind: 'staff',
+    staffRole: 'farmatsevt',
+  },
+  {
+    key: 'oshpaz',
+    label: 'Oshpaz',
+    group: 'clinical',
+    accountKind: 'staff',
+    staffRole: 'oshpaz',
+  },
+  {
     key: 'finance',
     label: 'Buxgalter / moliya',
     group: 'office',
@@ -66,6 +80,22 @@ const BASE_KADRLAR_ROLE_OPTIONS: KadrlarRoleOption[] = [
     adminRouteGroup: 'it',
   },
   {
+    key: 'supply',
+    label: "Ta'minot va xarid",
+    group: 'office',
+    accountKind: 'admin',
+    roleLabel: "Ta'minot va xarid",
+    adminRouteGroup: 'supply',
+  },
+  {
+    key: 'kassir',
+    label: 'Kassir',
+    group: 'office',
+    accountKind: 'admin',
+    roleLabel: 'Kassir',
+    adminRouteGroup: 'kassa',
+  },
+  {
     key: 'director',
     label: 'Klinika direktori',
     group: 'office',
@@ -88,6 +118,39 @@ const BASE_KADRLAR_ROLE_OPTIONS: KadrlarRoleOption[] = [
     accountKind: 'admin',
     roleLabel: 'Laboratoriya menejeri',
     adminRouteGroup: 'laboratory',
+  },
+  {
+    key: 'lab_results',
+    label: 'Laboratoriya (natijalar)',
+    group: 'office',
+    accountKind: 'admin',
+    roleLabel: 'Laboratoriya (natijalar)',
+    adminRouteGroup: 'laboratory',
+  },
+  {
+    key: 'lawyer',
+    label: 'Yurist',
+    group: 'office',
+    accountKind: 'admin',
+    roleLabel: 'Yurist',
+    adminRouteGroup: 'no_portal',
+  },
+  {
+    key: 'facilities',
+    label: "Xo‘jalik bo‘limi",
+    group: 'office',
+    accountKind: 'admin',
+    roleLabel: "Xo‘jalik bo‘limi",
+    /** Oshxona kabineti (mahulot qoldig‘i + Ta’minot buyurtmasi) */
+    adminRouteGroup: 'kitchen',
+  },
+  {
+    key: 'security',
+    label: 'Xavfsizlik xizmati',
+    group: 'office',
+    accountKind: 'admin',
+    roleLabel: 'Xavfsizlik xizmati',
+    adminRouteGroup: 'no_portal',
   },
 ];
 
@@ -140,11 +203,16 @@ export const KADRLAR_MANAGED_ADMIN_ROUTE_GROUPS: readonly AdminJwtRouteGroup[] =
   'marketing',
   'reception',
   'it',
+  'supply',
+  'kassa',
   'admin_only',
   'clinical',
   'laboratory',
   'nursing',
   'office',
+  'kitchen',
+  'pharmacy',
+  'no_portal',
 ] as const;
 
 export function isKadrlarManagedAdminRouteGroup(rg: string | null | undefined): boolean {
@@ -152,20 +220,43 @@ export function isKadrlarManagedAdminRouteGroup(rg: string | null | undefined): 
   return (KADRLAR_MANAGED_ADMIN_ROUTE_GROUPS as readonly string[]).includes(rg);
 }
 
+function foldKadrlarRoleLabel(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[\u0027\u0060\u00B4\u2018\u2019\u201B\u2032\u02B9\u02BB\u02BC]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
 export function kadrlarRoleKeyFromAdminProfile(input: {
   role_label?: string | null;
   admin_route_group?: string | null;
 }): string {
   const label = input.role_label?.trim() || '';
+  const folded = foldKadrlarRoleLabel(label);
   const rg = input.admin_route_group || '';
   if (label.includes('moliya') || rg === 'finance') return 'finance';
   if (label.includes('Kadrlar') || rg === 'hr') return 'hr';
   if (label.includes('Marketing') || rg === 'marketing') return 'marketing';
   if (label.includes('Registrator') || rg === 'reception') return 'reception';
   if (label.includes('IT') || rg === 'it') return 'it';
-  if (label.includes('direktor') || rg === 'admin_only') return 'director';
+  if (folded.includes('taminot') || folded.includes('xarid') || rg === 'supply') {
+    return 'supply';
+  }
+  if (folded.includes('kassir') || folded.includes('kassa') || rg === 'kassa') {
+    return 'kassir';
+  }
   if (label.includes('Bosh shifokor') || rg === 'clinical') return 'chief_doctor';
-  if (label.includes('Laboratoriya menejeri') || rg === 'laboratory') return 'lab_manager';
+  if (label.includes('Laboratoriya menejeri')) return 'lab_manager';
+  if (label.includes('Laboratoriya (natijalar)') || rg === 'laboratory') {
+    return label.includes('natijalar') ? 'lab_results' : 'lab_manager';
+  }
+  if (label.includes('Yurist')) return 'lawyer';
+  if (folded.includes('xojalik') || rg === 'kitchen') return 'facilities';
+  if (folded.includes('xavfsizlik')) return 'security';
+  if (folded.includes('farmatsevt')) return 'farmatsevt';
+  if (folded.includes('oshpaz')) return 'oshpaz';
+  if (label.includes('direktor') || rg === 'admin_only') return 'director';
   return 'director';
 }
 

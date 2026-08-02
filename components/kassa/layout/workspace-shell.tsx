@@ -39,7 +39,7 @@ export function WorkspaceShell<T extends string>({
 
   async function logout() {
     await fetch("/api/kassa/auth/logout", { method: "POST" });
-    router.push("/kassa/login");
+    router.push("/auth/login");
     router.refresh();
   }
 

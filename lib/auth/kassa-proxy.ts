@@ -40,6 +40,8 @@ export function isKassaProtectedPath(pathname: string): boolean {
   return (
     pathname === '/kassa' ||
     pathname.startsWith('/kassa/') ||
+    pathname === '/kassir' ||
+    pathname.startsWith('/kassir/') ||
     pathname === '/kassa-admin' ||
     pathname.startsWith('/kassa-admin/') ||
     pathname.startsWith('/api/kassa/')
@@ -47,7 +49,7 @@ export function isKassaProtectedPath(pathname: string): boolean {
 }
 
 export function kassaLoginUrl(request: NextRequest, pathname: string): URL {
-  const u = new URL('/kassa/login', request.url);
-  u.searchParams.set('next', pathname);
+  const u = new URL('/auth/login', request.url);
+  u.searchParams.set('next', pathname || '/kassa');
   return u;
 }

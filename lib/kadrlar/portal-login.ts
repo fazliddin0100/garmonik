@@ -1,5 +1,6 @@
 import {
   adminHomePathForRouteGroup,
+  adminRoleLabelToJwtRouteGroup,
   isAdminJwtRouteGroup,
 } from '@/lib/admins/portal-routes';
 import {
@@ -25,11 +26,17 @@ export function portalLoginRedirect(row: PortalLoginProfile, loginNorm: string):
   if (row.account_kind === 'staff' && isStaffRole(row.staff_role || '')) {
     return staffHomePath(row.staff_role as StaffRole);
   }
-  const roleKey = kadrlarRoleKeyFromAdminProfile(row);
+  const fromLabel = adminRoleLabelToJwtRouteGroup(
+    row.role_label,
+    row.staff_login || loginNorm,
+  );
+  if (fromLabel !== 'admin_only') {
+    return adminHomePathForRouteGroup(fromLabel);
+  }
   if (row.admin_route_group && isAdminJwtRouteGroup(row.admin_route_group)) {
     return adminHomePathForRouteGroup(row.admin_route_group);
   }
-  return kadrlarHomePath(roleKey, loginNorm);
+  return kadrlarHomePath(kadrlarRoleKeyFromAdminProfile(row), loginNorm);
 }
 
 export function portalLoginRoleKey(row: PortalLoginProfile): string {

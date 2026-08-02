@@ -512,6 +512,7 @@ export default function AdminsPanel() {
       });
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;
+        userId?: string;
         login?: string;
         firstName?: string;
         lastName?: string;
@@ -529,7 +530,9 @@ export default function AdminsPanel() {
       const resolvedLogin =
         typeof data.login === 'string' ? data.login : loginNorm;
       const id =
-        typeof crypto !== 'undefined' && 'randomUUID' in crypto ?
+        typeof data.userId === 'string' && data.userId.trim() ?
+          data.userId.trim()
+        : typeof crypto !== 'undefined' && 'randomUUID' in crypto ?
           crypto.randomUUID()
         : `id-${Date.now()}`;
 
@@ -553,7 +556,7 @@ export default function AdminsPanel() {
         },
       ]);
       toast.success(
-        'Administrator yaratildi — tizimga shu login va parol bilan kiradi.',
+        'Foydalanuvchi yaratildi — tizimga shu login va parol bilan kiradi.',
       );
       setDialogOpen(false);
       setEditingId(null);
@@ -566,7 +569,7 @@ export default function AdminsPanel() {
     }
   }
 
-  function saveEditAdmin() {
+  async function saveEditAdmin() {
     const firstName = form.firstName.trim();
     const lastName = form.lastName.trim();
     const fatherName = form.fatherName.trim();
@@ -607,25 +610,65 @@ export default function AdminsPanel() {
     }
 
     if (!editingId) return;
+    const previous = rows.find((r) => r.id === editingId);
+    if (!previous) return;
 
-    setRows((prev) =>
-      prev.map((r) =>
-        r.id === editingId ?
-          {
-            ...r,
-            firstName,
-            lastName,
-            fatherName,
-            age,
-            username,
-            roleName,
-            phone,
-          }
-        : r,
-      ),
-    );
-    setDialogOpen(false);
-    setEditingId(null);
+    try {
+      const res = await fetch('/api/admin/update-portal-admin', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: editingId,
+          login: previous.username.trim().toLowerCase(),
+          newLogin: username.toLowerCase(),
+          firstName,
+          lastName,
+          fatherName,
+          age,
+          roleName,
+          phone,
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        userId?: string;
+      };
+      if (!res.ok) {
+        setFormError(data.error || 'Portalda yangilab bo‘lmadi');
+        toast.error(data.error || 'Yangilab bo‘lmadi');
+        return;
+      }
+
+      const resolvedId =
+        typeof data.userId === 'string' && data.userId.trim() ?
+          data.userId.trim()
+        : editingId;
+
+      setRows((prev) =>
+        prev.map((r) =>
+          r.id === editingId ?
+            {
+              ...r,
+              id: resolvedId,
+              firstName,
+              lastName,
+              fatherName,
+              age,
+              username,
+              roleName,
+              phone,
+            }
+          : r,
+        ),
+      );
+      toast.success('Foydalanuvchi ma’lumotlari yangilandi');
+      setDialogOpen(false);
+      setEditingId(null);
+    } catch {
+      setFormError('Tarmoq xatoligi');
+      toast.error('Tarmoq xatoligi');
+    }
   }
 
   function saveAdmin() {
@@ -633,13 +676,39 @@ export default function AdminsPanel() {
       void saveNewAdmin();
       return;
     }
-    saveEditAdmin();
+    void saveEditAdmin();
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!deleteId) return;
-    setRows((prev) => prev.filter((r) => r.id !== deleteId));
-    setDeleteId(null);
+    const target = rows.find((r) => r.id === deleteId);
+    if (!target) {
+      setDeleteId(null);
+      return;
+    }
+    try {
+      const res = await fetch('/api/admin/update-portal-admin', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: target.id,
+          login: target.username.trim().toLowerCase(),
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        toast.error(data.error || 'O‘chirib bo‘lmadi');
+        setDeleteId(null);
+        return;
+      }
+      setRows((prev) => prev.filter((r) => r.id !== deleteId));
+      toast.success('Foydalanuvchi o‘chirildi');
+    } catch {
+      toast.error('Tarmoq xatoligi');
+    } finally {
+      setDeleteId(null);
+    }
   }
 
   function openPasswordDialog(adminId: string) {
@@ -707,190 +776,188 @@ export default function AdminsPanel() {
 
   return (
     <>
-      <div className="mt-3 grid gap-5 lg:grid-cols-[1.8fr_1fr]">
-        <div className="space-y-6">
-          <UsersStaffHero
-            eyebrow="Tizim boshqaruvi"
-            title="Administratorlar"
-            subtitle={`${rows.length} ta foydalanuvchi — admin paneli va tizim sozlamalari`}
-            icon={UserRoundCog}
-            addLabel="Yangi foydalanuvchi"
-            onAdd={openCreate}
-          />
+      <div className="mt-3 space-y-6">
+        <UsersStaffHero
+          eyebrow="Tizim boshqaruvi"
+          title="Administratorlar"
+          subtitle={`${rows.length} ta foydalanuvchi — admin paneli va tizim sozlamalari`}
+          icon={UserRoundCog}
+          addLabel="Yangi foydalanuvchi"
+          onAdd={openCreate}
+        />
 
-          <UsersStaffTableSection
-            title="Foydalanuvchilar (admin) ro‘yxati"
-            filteredCount={filtered.length}
-            totalCount={rows.length}
-            query={searchQuery}
-            onQueryChange={setSearchQuery}
-            searchPlaceholder="Qidirish: ism, familiya, rol, login, telefon...">
-            <Table>
-              <TableHeader className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
-                <TableRow className="border-slate-100 bg-slate-50/80 hover:bg-slate-50/80">
-                  <UsersSortableHead
-                    title="Ism"
-                    sortKey="firstName"
-                    sort={sort}
-                    onSort={changeSort}
-                  />
-                  <UsersSortableHead
-                    title="Familiya"
-                    sortKey="lastName"
-                    sort={sort}
-                    onSort={changeSort}
-                  />
-                  <UsersSortableHead
-                    title="Otasining ismi"
-                    sortKey="fatherName"
-                    sort={sort}
-                    onSort={changeSort}
-                  />
-                  <UsersSortableHead
-                    title="Yosh"
-                    sortKey="age"
-                    sort={sort}
-                    onSort={changeSort}
-                  />
-                  <UsersSortableHead
-                    title="Rol"
-                    sortKey="roleName"
-                    className="min-w-50"
-                    sort={sort}
-                    onSort={changeSort}
-                  />
-                  <UsersSortableHead
-                    title="Login"
-                    sortKey="username"
-                    sort={sort}
-                    onSort={changeSort}
-                  />
-                  <UsersSortableHead
-                    title="Telefon"
-                    sortKey="phone"
-                    sort={sort}
-                    onSort={changeSort}
-                  />
-                  <UsersSortableHead
-                    title="Tizimga kirish"
-                    sortKey="lastLoginAt"
-                    className="min-w-44"
-                    sort={sort}
-                    onSort={changeSort}
-                  />
-                  <TableHead className="text-right text-xs font-semibold text-slate-500">
-                    Amallar
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {!hydrated ?
-                  <UsersStaffEmptyRow
-                    colSpan={9}
-                    icon={UserRoundCog}
-                    title="Yuklanmoqda"
-                    description=""
-                    loading
-                  />
-                : rows.length === 0 ?
-                  <UsersStaffEmptyRow
-                    colSpan={9}
-                    icon={UserRoundCog}
-                    title="Hozircha yozuv yo‘q"
-                    description="Birinchi administratorni qo‘shing — login va parol bilan tizimga kira oladi."
-                    addLabel="Yangi foydalanuvchi"
-                    onAdd={openCreate}
-                  />
-                : sorted.length === 0 ?
-                  <UsersStaffEmptyRow
-                    colSpan={9}
-                    icon={UserRoundCog}
-                    title="Natija topilmadi"
-                    description="Qidiruv so‘zini o‘zgartiring yoki filterni tozalang."
-                  />
-                : sorted.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      className="border-slate-100 transition-colors hover:bg-violet-50/40">
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-violet-100 to-indigo-100 text-xs font-bold text-violet-700">
-                            {staffInitials(adminDisplayName(row))}
-                          </span>
-                          <span className="text-sm font-medium text-slate-800">
-                            {row.firstName}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-slate-800">
-                        {row.lastName}
-                      </TableCell>
-                      <TableCell className="text-sm text-slate-700">
-                        {row.fatherName || (
-                          <span className="text-slate-400">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-sm tabular-nums text-slate-600">
-                        {row.age || <span className="text-slate-400">—</span>}
-                      </TableCell>
-                      <TableCell className="whitespace-normal text-sm">
-                        {row.roleName ?
-                          <span className="inline-flex rounded-full bg-violet-100 px-2.5 py-1 text-xs font-medium text-violet-800">
-                            {row.roleName}
-                          </span>
-                        : <span className="text-slate-400">—</span>}
-                      </TableCell>
-                      <UsersStaffLoginCode login={row.username} />
-                      <TableCell className="text-sm">
-                        {row.phone ?
-                          <span className="font-mono text-xs text-slate-700">
-                            {row.phone}
-                          </span>
-                        : <span className="text-slate-400">—</span>}
-                      </TableCell>
-                      <TableCell className="text-xs text-slate-600">
-                        {formatLastLogin(
-                          loginIsoFor(row.username, lastLoginByLogin),
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-lg text-slate-500 hover:bg-violet-100 hover:text-violet-700"
-                            onClick={() => openPasswordDialog(row.id)}
-                            aria-label="Parolni almashtirish">
-                            <KeyRound className="size-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-lg text-slate-500 hover:bg-violet-100 hover:text-violet-700"
-                            onClick={() => openEdit(row)}
-                            aria-label="Tahrirlash">
-                            <Pencil className="size-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                            onClick={() => setDeleteId(row.id)}
-                            aria-label="O'chirish">
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                }
-              </TableBody>
-            </Table>
-          </UsersStaffTableSection>
-        </div>
+        <UsersStaffTableSection
+          title="Foydalanuvchilar (admin) ro‘yxati"
+          filteredCount={filtered.length}
+          totalCount={rows.length}
+          query={searchQuery}
+          onQueryChange={setSearchQuery}
+          searchPlaceholder="Qidirish: ism, familiya, rol, login, telefon...">
+          <Table>
+            <TableHeader className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
+              <TableRow className="border-slate-100 bg-slate-50/80 hover:bg-slate-50/80">
+                <UsersSortableHead
+                  title="Ism"
+                  sortKey="firstName"
+                  sort={sort}
+                  onSort={changeSort}
+                />
+                <UsersSortableHead
+                  title="Familiya"
+                  sortKey="lastName"
+                  sort={sort}
+                  onSort={changeSort}
+                />
+                <UsersSortableHead
+                  title="Otasining ismi"
+                  sortKey="fatherName"
+                  sort={sort}
+                  onSort={changeSort}
+                />
+                <UsersSortableHead
+                  title="Yosh"
+                  sortKey="age"
+                  sort={sort}
+                  onSort={changeSort}
+                />
+                <UsersSortableHead
+                  title="Rol"
+                  sortKey="roleName"
+                  className="min-w-50"
+                  sort={sort}
+                  onSort={changeSort}
+                />
+                <UsersSortableHead
+                  title="Login"
+                  sortKey="username"
+                  sort={sort}
+                  onSort={changeSort}
+                />
+                <UsersSortableHead
+                  title="Telefon"
+                  sortKey="phone"
+                  sort={sort}
+                  onSort={changeSort}
+                />
+                <UsersSortableHead
+                  title="Tizimga kirish"
+                  sortKey="lastLoginAt"
+                  className="min-w-44"
+                  sort={sort}
+                  onSort={changeSort}
+                />
+                <TableHead className="text-right text-xs font-semibold text-slate-500">
+                  Amallar
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {!hydrated ?
+                <UsersStaffEmptyRow
+                  colSpan={9}
+                  icon={UserRoundCog}
+                  title="Yuklanmoqda"
+                  description=""
+                  loading
+                />
+              : rows.length === 0 ?
+                <UsersStaffEmptyRow
+                  colSpan={9}
+                  icon={UserRoundCog}
+                  title="Hozircha yozuv yo‘q"
+                  description="Birinchi administratorni qo‘shing — login va parol bilan tizimga kira oladi."
+                  addLabel="Yangi foydalanuvchi"
+                  onAdd={openCreate}
+                />
+              : sorted.length === 0 ?
+                <UsersStaffEmptyRow
+                  colSpan={9}
+                  icon={UserRoundCog}
+                  title="Natija topilmadi"
+                  description="Qidiruv so‘zini o‘zgartiring yoki filterni tozalang."
+                />
+              : sorted.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    className="border-slate-100 transition-colors hover:bg-violet-50/40">
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-violet-100 to-indigo-100 text-xs font-bold text-violet-700">
+                          {staffInitials(adminDisplayName(row))}
+                        </span>
+                        <span className="text-sm font-medium text-slate-800">
+                          {row.firstName}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-slate-800">
+                      {row.lastName}
+                    </TableCell>
+                    <TableCell className="text-sm text-slate-700">
+                      {row.fatherName || (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm tabular-nums text-slate-600">
+                      {row.age || <span className="text-slate-400">—</span>}
+                    </TableCell>
+                    <TableCell className="whitespace-normal text-sm">
+                      {row.roleName ?
+                        <span className="inline-flex rounded-full bg-violet-100 px-2.5 py-1 text-xs font-medium text-violet-800">
+                          {row.roleName}
+                        </span>
+                      : <span className="text-slate-400">—</span>}
+                    </TableCell>
+                    <UsersStaffLoginCode login={row.username} />
+                    <TableCell className="text-sm">
+                      {row.phone ?
+                        <span className="font-mono text-xs text-slate-700">
+                          {row.phone}
+                        </span>
+                      : <span className="text-slate-400">—</span>}
+                    </TableCell>
+                    <TableCell className="text-xs text-slate-600">
+                      {formatLastLogin(
+                        loginIsoFor(row.username, lastLoginByLogin),
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="rounded-lg text-slate-500 hover:bg-violet-100 hover:text-violet-700"
+                          onClick={() => openPasswordDialog(row.id)}
+                          aria-label="Parolni almashtirish">
+                          <KeyRound className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="rounded-lg text-slate-500 hover:bg-violet-100 hover:text-violet-700"
+                          onClick={() => openEdit(row)}
+                          aria-label="Tahrirlash">
+                          <Pencil className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                          onClick={() => setDeleteId(row.id)}
+                          aria-label="O'chirish">
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              }
+            </TableBody>
+          </Table>
+        </UsersStaffTableSection>
       </div>
 
       <UsersStaffFormDialog

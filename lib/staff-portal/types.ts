@@ -6,7 +6,9 @@ export type StaffRole =
   | 'nurse'
   | 'head_nurse'
   | 'kabinet'
-  | 'specialist';
+  | 'specialist'
+  | 'farmatsevt'
+  | 'oshpaz';
 
 export type StaffAccount = {
   id: string;
@@ -40,6 +42,8 @@ export const STAFF_ROLE_LABELS: Record<StaffRole, string> = {
   head_nurse: 'Bosh hamshira',
   kabinet: 'Kabinet',
   specialist: 'Tor mutaxassis',
+  farmatsevt: 'Farmatsevt',
+  oshpaz: 'Oshpaz',
 };
 
 const STAFF_ROLE_SET = new Set<string>(

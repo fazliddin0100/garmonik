@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { fetchClinicResource } from '@/lib/clinic-data/client';
+import { normalizeDepartmentGroups } from '@/lib/clinic-departments/roles';
 import { type DepartmentGroup } from '@/lib/clinic-departments/types';
 import { type ClinicRoom } from '@/lib/clinic-rooms/types';
 import { type ContractRow } from '@/lib/contracts/types';
@@ -94,7 +95,7 @@ export default function DashboardAnalyticsPanel() {
             nextPharmacy,
           ] = await Promise.all([
             fetchClinicResource<ClinicRoom[]>('rooms').catch(() => []),
-            fetchClinicResource<DepartmentGroup[]>('departments').catch(() => []),
+            fetchClinicResource<unknown>('departments').catch(() => []),
             fetchClinicResource<ServiceTypeRow[]>('service-types').catch(() => []),
             fetchClinicResource<Partner[]>('partners').catch(() => []),
             fetchClinicResource<ContractRow[]>('contracts').catch(() => []),
@@ -103,7 +104,7 @@ export default function DashboardAnalyticsPanel() {
           startTransition(() => {
             if (cancelled) return;
             setRooms(Array.isArray(nextRooms) ? nextRooms : []);
-            setDepartments(Array.isArray(nextDepartments) ? nextDepartments : []);
+            setDepartments(normalizeDepartmentGroups(nextDepartments));
             setServiceTypes(Array.isArray(nextServiceTypes) ? nextServiceTypes : []);
             setPartners(Array.isArray(nextPartners) ? nextPartners : []);
             setContracts(Array.isArray(nextContracts) ? nextContracts : []);

@@ -35,18 +35,11 @@ import {
   UsersStaffTableSection,
   type UsersStaffSortState,
 } from '@/components/users/users-staff-ui';
-import {
-  fetchClinicResource,
-  saveClinicResource,
-} from '@/lib/clinic-data/client';
-import {
-  type PharmacistRow,
-  type PharmacistSortKey,
-} from '@/lib/pharmacists/types';
+import { type PharmacistRow, type PharmacistSortKey } from '@/lib/pharmacists/types';
 import { generateStaffPassword } from '@/lib/staff-portal/generate-password';
 import { cn } from '@/lib/utils';
 import { KeyRound, Pill, Shield, UserRound } from 'lucide-react';
-import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
+import { startTransition, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 type SortState = UsersStaffSortState<PharmacistSortKey>;
@@ -61,7 +54,7 @@ type PharmacistFormState = {
 function emptyForm(): PharmacistFormState {
   return {
     fullName: '',
-    roleName: '',
+    roleName: 'Farmatsevt',
     login: '',
     password: generateStaffPassword(),
   };
@@ -69,7 +62,8 @@ function emptyForm(): PharmacistFormState {
 
 export default function PharmacistsPanel() {
   const [rows, setRows] = useState<PharmacistRow[]>([]);
-  const [hydrated, setHydrated] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [sort, setSort] = useState<SortState>({
     key: 'fullName',
     direction: 'asc',
@@ -82,48 +76,41 @@ export default function PharmacistsPanel() {
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const skipFirstPersist = useRef(true);
+
+  async function loadRows() {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/pharmacists/staff', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (!res.ok) {
+        setRows([]);
+        return;
+      }
+      const data = (await res.json()) as { items?: PharmacistRow[] };
+      setRows(Array.isArray(data.items) ? data.items : []);
+    } catch {
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
     queueMicrotask(() => {
-      void (async () => {
-        try {
-          const next =
-            await fetchClinicResource<PharmacistRow[]>('pharmacists');
-          startTransition(() => {
-            if (cancelled) return;
-            setRows(Array.isArray(next) ? next : []);
-            setHydrated(true);
-          });
-        } catch {
-          startTransition(() => {
-            if (cancelled) return;
-            setRows([]);
-            setHydrated(true);
-          });
-        }
-      })();
+      startTransition(() => {
+        void (async () => {
+          if (cancelled) return;
+          await loadRows();
+        })();
+      });
     });
     return () => {
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    if (skipFirstPersist.current) {
-      skipFirstPersist.current = false;
-      return;
-    }
-    void (async () => {
-      try {
-        await saveClinicResource('pharmacists', rows);
-      } catch {
-        toast.error('Farmatsevtlarni saqlab bo‘lmadi');
-      }
-    })();
-  }, [rows, hydrated]);
 
   const sorted = useMemo(() => {
     const factor = sort.direction === 'asc' ? 1 : -1;
@@ -184,7 +171,7 @@ export default function PharmacistsPanel() {
     setFormError('');
     setForm({
       fullName: row.fullName,
-      roleName: row.specialty,
+      roleName: row.specialty || 'Farmatsevt',
       login: row.login,
       password: '',
     });
@@ -192,82 +179,83 @@ export default function PharmacistsPanel() {
     setDialogOpen(true);
   }
 
-  function saveRow() {
-    const fullName = form.fullName.trim();
-    const roleName = form.roleName.trim();
-    const login = form.login.trim().toLowerCase();
-    const password = form.password.trim();
+  async function saveRow() {
+    const payload = {
+      fullName: form.fullName.trim(),
+      specialty: form.roleName.trim() || 'Farmatsevt',
+      login: form.login.trim().toLowerCase(),
+      password: form.password.trim() || undefined,
+    };
 
-    if (!fullName) {
-      setFormError('F.I.Sh majburiy.');
+    if (!payload.fullName || !payload.login) {
+      setFormError('F.I.SH va login majburiy.');
       return;
     }
-    if (!roleName) {
-      setFormError('Lavozim majburiy.');
+    if (!editingId && !payload.password) {
+      setFormError('Yangi farmatsevt uchun parol majburiy.');
       return;
     }
-    if (!login) {
-      setFormError('Login majburiy.');
-      return;
-    }
-    if (!editingId && !password) {
-      setFormError('Yangi farmatsevt uchun parol kiriting.');
+    if (payload.password && payload.password.length < 6) {
+      setFormError('Parol kamida 6 belgidan iborat bo‘lsin.');
       return;
     }
 
-    const loginTaken = rows.some(
-      (row) =>
-        row.login.trim().toLowerCase() === login && row.id !== editingId,
-    );
-    if (loginTaken) {
-      setFormError('Bu login band.');
-      return;
-    }
-
-    if (editingId) {
-      setRows((prev) =>
-        prev.map((row) =>
-          row.id === editingId ?
-            {
-              ...row,
-              fullName,
-              specialty: roleName,
-              login,
-              password: password || row.password,
-            }
-          : row,
+    setSaving(true);
+    setFormError('');
+    try {
+      const res = await fetch('/api/pharmacists/staff', {
+        method: editingId ? 'PATCH' : 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+          editingId ? { id: editingId, ...payload } : payload,
         ),
-      );
-      toast.success('Farmatsevt yangilandi');
-    } else {
-      const id = crypto.randomUUID();
-      setRows((prev) => [
-        ...prev,
-        {
-          id,
-          code: '',
-          fullName,
-          specialty: roleName,
-          degree: '',
-          department: '',
-          contact: '',
-          login,
-          password,
-          status: 'Актив',
-        },
-      ]);
-      toast.success('Farmatsevt qo‘shildi');
+      });
+      const data = (await res.json()) as {
+        item?: PharmacistRow;
+        error?: string;
+      };
+      if (!res.ok) {
+        setFormError(data.error ?? 'Saqlab bo‘lmadi');
+        return;
+      }
+      if (data.item) {
+        setRows((prev) =>
+          editingId ?
+            prev.map((r) => (r.id === editingId ? data.item! : r))
+          : [...prev, data.item!],
+        );
+      } else {
+        await loadRows();
+      }
+      toast.success(editingId ? 'Farmatsevt yangilandi' : 'Farmatsevt qo‘shildi');
+      setDialogOpen(false);
+      setEditingId(null);
+    } catch {
+      setFormError('Tarmoq xatoligi');
+    } finally {
+      setSaving(false);
     }
-
-    setDialogOpen(false);
-    setEditingId(null);
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!deleteId) return;
-    setRows((prev) => prev.filter((r) => r.id !== deleteId));
-    setDeleteId(null);
-    toast.success('Farmatsevt o‘chirildi');
+    try {
+      const res = await fetch(
+        `/api/pharmacists/staff?id=${encodeURIComponent(deleteId)}`,
+        { method: 'DELETE', credentials: 'include' },
+      );
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        toast.error(data.error ?? 'O‘chirib bo‘lmadi');
+        return;
+      }
+      setRows((prev) => prev.filter((r) => r.id !== deleteId));
+      toast.success('Farmatsevt o‘chirildi');
+      setDeleteId(null);
+    } catch {
+      toast.error('Tarmoq xatoligi');
+    }
   }
 
   return (
@@ -277,8 +265,8 @@ export default function PharmacistsPanel() {
         title="Farmatsevtlar"
         subtitle={
           summary.roles > 0 ?
-            `${summary.total} ta farmatsevt · ${summary.roles} ta lavozim`
-          : `${summary.total} ta farmatsevt`
+            `${summary.total} ta farmatsevt · ${summary.roles} ta lavozim · kabinet: /farmatsevt`
+          : `${summary.total} ta farmatsevt · kabinet: /farmatsevt`
         }
         icon={Pill}
         addLabel="Yangi farmatsevt"
@@ -337,7 +325,7 @@ export default function PharmacistsPanel() {
               <UsersStaffEmptyRow
                 colSpan={4}
                 icon={Pill}
-                loading={!hydrated}
+                loading={loading}
                 title="Farmatsevt topilmadi"
                 description={
                   query.trim() ?
@@ -359,14 +347,15 @@ export default function PharmacistsPanel() {
         icon={Pill}
         createTitle="Yangi farmatsevt"
         editTitle="Farmatsevtni tahrirlash"
-        createDescription="Farmatsevt profili va tizimga kirish ma’lumotlarini kiriting."
+        createDescription="Login/parol bilan /farmatsevt kabinetiga kiradi — mahsulotlarni ko‘radi."
         editDescription="Farmatsevt ma’lumotlarini yangilang."
         error={formError}
         createSaveLabel="Farmatsevt qo‘shish"
-        onSave={saveRow}
+        onSave={() => void saveRow()}
+        saving={saving}
         hint={
           !editingId ?
-            <UsersStaffPortalHint path="/users" />
+            <UsersStaffPortalHint path="/farmatsevt" />
           : undefined
         }>
         <UsersStaffFormSection title="Shaxsiy ma’lumotlar" icon={UserRound}>
@@ -416,10 +405,7 @@ export default function PharmacistsPanel() {
                 <Input
                   id="p-login"
                   autoComplete="username"
-                  className={cn(
-                    USERS_STAFF_FIELD_CLASS,
-                    'pl-10 font-mono',
-                  )}
+                  className={cn(USERS_STAFF_FIELD_CLASS, 'pl-10 font-mono')}
                   placeholder="masalan: m.ismoilova"
                   value={form.login}
                   onChange={(e) =>
@@ -458,7 +444,7 @@ export default function PharmacistsPanel() {
             <AlertDialogTitle>Farmatsevtni o&lsquo;chirish</AlertDialogTitle>
             <AlertDialogDescription>
               {deleteTarget ?
-                `${deleteTarget.fullName} o&lsquo;chirilsinmi?`
+                `${deleteTarget.fullName} o&lsquo;chirilsinmi? Kabinetga kirish ham o‘chadi.`
               : ''}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -466,7 +452,7 @@ export default function PharmacistsPanel() {
             <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 text-white hover:bg-red-700"
-              onClick={confirmDelete}>
+              onClick={() => void confirmDelete()}>
               O&lsquo;chirish
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -12,7 +12,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { usePortalNavOptional } from '@/components/portal/PortalNavContext';
-import { persistUsersInitialView, type UsersViewId } from '@/lib/users/views';
+import { usersViewPath, type UsersViewId } from '@/lib/users/views';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -81,8 +81,7 @@ export default function UsersHubPanel() {
       portalNav.openUsersView(view);
       return;
     }
-    persistUsersInitialView(view);
-    router.push('/users');
+    router.push(usersViewPath(view));
   }
 
   return (

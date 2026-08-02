@@ -17,10 +17,18 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   TableCell,
   TableHead,
   TableRow,
 } from '@/components/ui/table';
+import { useClinicDepartments } from '@/hooks/useClinicDepartments';
 import { cn } from '@/lib/utils';
 import {
   ArrowUpDown,
@@ -201,15 +209,65 @@ export function UsersStaffSpecialtyBadge({ specialty }: { specialty?: string }) 
 }
 
 export function UsersStaffDepartmentCell({ department }: { department?: string }) {
+  const { labelFor } = useClinicDepartments();
+  const title = labelFor(department) || department?.trim() || '';
   return (
     <TableCell>
-      {department ?
+      {title ?
         <span className="inline-flex items-center gap-1.5 text-sm text-slate-700">
           <Building2 className="size-3.5 shrink-0 text-violet-500" />
-          <span className="whitespace-normal">{department}</span>
+          <span className="whitespace-normal">{title}</span>
         </span>
       : <span className="text-slate-400">—</span>}
     </TableCell>
+  );
+}
+
+/** Bo‘limlar katalogidan select (saqlanadi: dep-grp-… id) */
+export function UsersStaffDepartmentSelect({
+  value,
+  onChange,
+  roleKey,
+  className,
+  optional = false,
+}: {
+  value: string;
+  onChange: (departmentId: string) => void;
+  /** Masalan `laboratory` — faqat shu rolli bo‘limlar */
+  roleKey?: string;
+  className?: string;
+  optional?: boolean;
+}) {
+  const { departments, forRoleKey, loading } = useClinicDepartments();
+  const options = roleKey ? forRoleKey(roleKey) : departments.filter((d) => d.roleKey);
+
+  return (
+    <Select
+      value={value || undefined}
+      onValueChange={onChange}
+      disabled={loading}>
+      <SelectTrigger className={cn('w-full rounded-xl', className)}>
+        <SelectValue
+          placeholder={
+            loading ? 'Yuklanmoqda…'
+            : optional ? 'Bo‘lim (ixtiyoriy)'
+            : 'Bo‘lim tanlang'
+          }
+        />
+      </SelectTrigger>
+      <SelectContent className="max-h-72">
+        {options.length === 0 ?
+          <div className="px-2 py-3 text-xs text-slate-500">
+            Mos bo‘lim yo‘q. Avval Dashboard → Bo‘limlar ro‘yxatida yarating.
+          </div>
+        : options.map((d) => (
+            <SelectItem key={d.id} value={d.id}>
+              {d.title}
+            </SelectItem>
+          ))
+        }
+      </SelectContent>
+    </Select>
   );
 }
 

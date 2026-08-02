@@ -23,6 +23,7 @@ import {
   USERS_STAFF_FIELD_CLASS,
   UsersStaffActionsCell,
   UsersStaffDepartmentCell,
+  UsersStaffDepartmentSelect,
   UsersStaffEmptyRow,
   UsersStaffFieldLabel,
   UsersStaffFormDialog,
@@ -461,15 +462,15 @@ export default function NursesPanel() {
               />
             </div>
             <div className="space-y-2">
-              <UsersStaffFieldLabel htmlFor="n-dep" icon={Building2}>
-                Bo&apos;lim
-              </UsersStaffFieldLabel>
-              <Input
-                id="n-dep"
-                className={USERS_STAFF_FIELD_CLASS}
+              <UsersStaffFieldLabel icon={Building2}>Bo&apos;lim</UsersStaffFieldLabel>
+              <UsersStaffDepartmentSelect
                 value={form.department}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, department: e.target.value }))
+                roleKey={
+                  form.staffRole === 'head_nurse' ? 'head_nurse' : 'nurse'
+                }
+                className={USERS_STAFF_FIELD_CLASS}
+                onChange={(department) =>
+                  setForm((f) => ({ ...f, department }))
                 }
               />
             </div>

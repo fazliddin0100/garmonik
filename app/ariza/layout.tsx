@@ -2,9 +2,8 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
-  title: 'Qabulga ariza — Gormonik Plus',
-  description:
-    'Gormonik Plus klinikasiga onlayn qabul arizasi. Instagram orqali tez va oson.',
+  title: 'Qabulga ariza',
+  description: 'Klinikaga onlayn qabul arizasi.',
 };
 
 export default function ArizaLayout({ children }: { children: ReactNode }) {

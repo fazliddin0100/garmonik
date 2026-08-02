@@ -2,10 +2,9 @@ import { toNumber } from "./utils";
 
 export const CLINIC_LOGO_PATH = "/garmonik-logo-user.png";
 
-export const CLINIC_NAME_DEFAULT = "Gormonik Plus Klinik";
+export const CLINIC_NAME_DEFAULT = "";
 
-export const CLINIC_ADDRESS =
-  "200103, Bukhara region, Bukhara, highway Gazli";
+export const CLINIC_ADDRESS = "";
 
 export function getClinicName(): string {
   const name = process.env.NEXT_PUBLIC_CLINIC_NAME || CLINIC_NAME_DEFAULT;

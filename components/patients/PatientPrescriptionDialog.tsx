@@ -13,7 +13,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { fetchClinicResource } from '@/lib/clinic-data/client';
 import { cn } from '@/lib/utils';
-import { INITIAL_PHARMACY_PRODUCTS } from '@/lib/pharmacy/initial-data';
 import {
   PHARMACY_CATEGORY_DEFS,
   type PharmacyProduct,
@@ -70,11 +69,11 @@ export default function PatientPrescriptionDialog({
     setLoadingProducts(true);
     void fetchClinicResource<PharmacyProduct[]>('pharmacy-products')
       .then((rows) => {
-        setProducts(Array.isArray(rows) && rows.length > 0 ? rows : INITIAL_PHARMACY_PRODUCTS);
+        setProducts(Array.isArray(rows) ? rows : []);
       })
       .catch(() => {
-        setProducts(INITIAL_PHARMACY_PRODUCTS);
-        toast.error('Mahsulotlar ro‘yxati yuklanmadi — standart katalog ishlatildi');
+        setProducts([]);
+        toast.error('Mahsulotlar ro‘yxati yuklanmadi');
       })
       .finally(() => setLoadingProducts(false));
   }, [open]);

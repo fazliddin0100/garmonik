@@ -34,41 +34,44 @@ export type ClinicSettings = {
   twoFactorEnforced: boolean;
   auditLogEnabled: boolean;
   showPricesWithVat: boolean;
+  /** Ma'muriy bo‘limdagi qo‘shimcha rol turlari (sarlavhalar) */
+  adminSupportRoleTitles: string[];
 };
 
+/** Bo‘sh shablon — barcha qiymatlar admin tomonidan kiritiladi */
 export const DEFAULT_CLINIC_SETTINGS: ClinicSettings = {
-  clinicName: 'Gormonik Plus',
-  legalName: '“GORMONIK PLUS” MCHJ',
+  clinicName: '',
+  legalName: '',
   inn: '',
-  phone: '+998 91 000 00 00',
-  email: 'info@gormonik.uz',
-  address: "Buxoro viloyati, Buxoro shahri",
-  website: 'https://gormonik.uz',
+  phone: '',
+  email: '',
+  address: '',
+  website: '',
   timezone: 'Asia/Tashkent',
   locale: 'uz',
-  workDayOpen: '08:00',
-  workDayClose: '20:00',
-  workSaturdayOpen: '09:00',
-  workSaturdayClose: '14:00',
-  saturdayEnabled: true,
-  slotMinutes: 10,
-  maxAppointmentsPerDay: 120,
+  workDayOpen: '',
+  workDayClose: '',
+  workSaturdayOpen: '',
+  workSaturdayClose: '',
+  saturdayEnabled: false,
+  slotMinutes: 15,
+  maxAppointmentsPerDay: 0,
   defaultServiceCurrency: 'UZS',
-  invoicePrefix: 'GM-',
-  invoiceLegalFooter:
-    'Tibbiy xizmatlar O‘zbekiston Respublikasi qonun hujjatlariga muvofiq ko‘rsatiladi. To‘lov naqd yoki plastik karta orqali.',
-  smsReminder: true,
-  smsReminderHoursBefore: 2,
+  invoicePrefix: '',
+  invoiceLegalFooter: '',
+  smsReminder: false,
+  smsReminderHoursBefore: 0,
   emailDailyDigest: false,
-  internalPushAlerts: true,
-  patientConsentOnRegister: true,
-  retentionMonths: 60,
+  internalPushAlerts: false,
+  patientConsentOnRegister: false,
+  retentionMonths: 0,
   apiReadEnabled: false,
   webhookUrl: '',
   sessionTimeoutMinutes: 45,
   twoFactorEnforced: false,
-  auditLogEnabled: true,
+  auditLogEnabled: false,
   showPricesWithVat: false,
+  adminSupportRoleTitles: [],
 };
 
 export function parseClinicSettings(raw: string | null): ClinicSettings {

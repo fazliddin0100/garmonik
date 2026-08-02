@@ -15,7 +15,11 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { fetchClinicResource, saveClinicResource } from '@/lib/clinic-data/client';
-import { persistDashboardInitialView, type DashboardViewId } from '@/lib/dashboard/views';
+import {
+  dashboardViewPath,
+  persistDashboardInitialView,
+  type DashboardViewId,
+} from '@/lib/dashboard/views';
 import { DEFAULT_CLINIC_SETTINGS, type ClinicSettings } from '@/lib/settings/types';
 import {
   Bell,
@@ -71,7 +75,7 @@ export default function ClinicSettingsPanel() {
 
   const resetDefaults = useCallback(() => {
     setSettings({ ...DEFAULT_CLINIC_SETTINGS });
-    toast.message('Standart qiymatlar yuklandi', {
+    toast.message('Maydonlar tozalandi', {
       description: 'Saqlash uchun «Saqlash» tugmasini bosing.',
     });
   }, []);
@@ -600,7 +604,12 @@ export default function ClinicSettingsPanel() {
                 { href: '/patients', label: 'Bemorlar', desc: 'Kartoteka va rozilik' },
                 { href: '/appointments', label: 'Navbat', desc: 'Slot va yuklama' },
                 { href: '/services', label: 'Xizmatlar', desc: 'Narxlar katalogi' },
-                { href: '/reports', label: 'Hisobotlar', desc: 'Moliyaviy ko‘rinish' },
+                {
+                  href: '/dashboard',
+                  dashboardView: 'reports' as DashboardViewId,
+                  label: 'Hisobotlar',
+                  desc: 'Moliyaviy ko‘rinish',
+                },
                 {
                   href: '/dashboard',
                   dashboardView: 'contracts' as DashboardViewId,
@@ -623,7 +632,7 @@ export default function ClinicSettingsPanel() {
                   type="button"
                   onClick={() => {
                     persistDashboardInitialView(l.dashboardView);
-                    router.push('/dashboard');
+                    router.push(dashboardViewPath(l.dashboardView));
                   }}
                   className="rounded-2xl border border-violet-100 bg-linear-to-br from-white to-violet-50/40 p-4 text-left shadow-sm transition hover:border-violet-300 hover:shadow-md">
                   <p className="font-semibold text-slate-800">{l.label}</p>
