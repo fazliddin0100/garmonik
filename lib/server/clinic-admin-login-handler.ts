@@ -12,9 +12,11 @@ import {
   updateProfileLastLogin,
 } from '@/lib/db/portal-profiles';
 import {
-  ensureKassaCashierUser,
+  ensureKassaPortalUser,
   isKassaPortalRole,
   isKassaPortalRouteGroup,
+  kassaHomePathForBridgeRole,
+  resolveKassaBridgeRole,
 } from '@/lib/kassa/portal-cashier-bridge';
 import { sessionUserToVerifiedSession } from '@/lib/kassa/unified-session';
 import { blockedIpResponse, isRequestIpBlocked } from '@/lib/server/ip-block';
@@ -109,19 +111,24 @@ export async function handleClinicAdminLogin(
     const seedAdminLanding =
       loginEquals(dispLogin, adminLogin) && rg === 'admin_only';
 
-    /** Buxgalter / moliya va kassir — kassa sessiyasi + /kassa */
+    /** Buxgalter → /kassa-admin; Kassir → /kassa */
     if (isKassaPortalRouteGroup(rg) || isKassaPortalRole(roleLabel)) {
       try {
-        const kassaUser = await ensureKassaCashierUser({
+        const kassaRole = resolveKassaBridgeRole({
+          roleLabel,
+          routeGroup: rg,
+        });
+        const kassaUser = await ensureKassaPortalUser({
           login: (profile.staff_login || loginNorm).trim().toLowerCase(),
           password: passwordStr,
           fullName: displayName,
+          role: kassaRole,
         });
         const kassaSession = sessionUserToVerifiedSession(kassaUser);
         let jsonRes = NextResponse.json(
           {
             message: 'Muvaffaqiyatli kirildi',
-            redirect: '/kassa',
+            redirect: kassaHomePathForBridgeRole(kassaRole),
           },
           { status: 200 },
         );

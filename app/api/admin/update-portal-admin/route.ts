@@ -11,9 +11,10 @@ import {
 } from '@/lib/db/portal-profiles';
 import {
   deactivateKassaCashierByLogin,
-  ensureKassaCashierUser,
+  ensureKassaPortalUser,
   isKassaPortalRole,
   isKassaPortalRouteGroup,
+  resolveKassaBridgeRole,
 } from '@/lib/kassa/portal-cashier-bridge';
 import { prisma as kassaPrisma } from '@/lib/kassa/prisma';
 import { NextRequest, NextResponse } from 'next/server';
@@ -128,15 +129,21 @@ export async function PATCH(request: NextRequest) {
       nextLogin;
     const prevLogin = (profile.staff_login || loginRaw).trim().toLowerCase();
 
-    if (
-      isKassaPortalRole(nextRole) ||
-      isKassaPortalRouteGroup(profile.admin_route_group)
-    ) {
+    const nextRg =
+      typeof patch.admin_route_group === 'string' && patch.admin_route_group ?
+        patch.admin_route_group
+      : profile.admin_route_group;
+    if (isKassaPortalRole(nextRole) || isKassaPortalRouteGroup(nextRg)) {
+      const kassaRole = resolveKassaBridgeRole({
+        roleLabel: nextRole,
+        routeGroup: nextRg,
+      });
       if (password.length >= 6) {
-        await ensureKassaCashierUser({
+        await ensureKassaPortalUser({
           login: nextLogin,
           password,
           fullName: nextName,
+          role: kassaRole,
         });
       } else if (prevLogin) {
         try {
@@ -145,7 +152,7 @@ export async function PATCH(request: NextRequest) {
             data: {
               login: nextLogin,
               fullName: nextName,
-              role: 'CASHIER',
+              role: kassaRole,
               isActive: true,
             },
           });

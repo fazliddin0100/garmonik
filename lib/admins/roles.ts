@@ -5,6 +5,7 @@ export const ADMIN_ROLE_OPTIONS: AdminRoleOption[] = [
   { value: 'Super administrator', label: 'Super administrator' },
   { value: 'Klinika direktori', label: 'Klinika direktori' },
   { value: 'Bosh shifokor', label: 'Bosh shifokor' },
+  { value: 'Buxgalter', label: 'Buxgalter' },
   { value: 'Buxgalter / moliya', label: 'Buxgalter / moliya' },
   { value: 'Kadrlar bo‘limi', label: 'Kadrlar bo‘limi' },
   { value: 'Laboratoriya menejeri', label: 'Laboratoriya menejeri' },

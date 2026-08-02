@@ -41,10 +41,10 @@ const BASE_KADRLAR_ROLE_OPTIONS: KadrlarRoleOption[] = [
   },
   {
     key: 'finance',
-    label: 'Buxgalter / moliya',
+    label: 'Buxgalter',
     group: 'office',
     accountKind: 'admin',
-    roleLabel: 'Buxgalter / moliya',
+    roleLabel: 'Buxgalter',
     adminRouteGroup: 'finance',
   },
   {
@@ -235,7 +235,13 @@ export function kadrlarRoleKeyFromAdminProfile(input: {
   const label = input.role_label?.trim() || '';
   const folded = foldKadrlarRoleLabel(label);
   const rg = input.admin_route_group || '';
-  if (label.includes('moliya') || rg === 'finance') return 'finance';
+  if (
+    folded.includes('buxgalter') ||
+    folded.includes('moliya') ||
+    rg === 'finance'
+  ) {
+    return 'finance';
+  }
   if (label.includes('Kadrlar') || rg === 'hr') return 'hr';
   if (label.includes('Marketing') || rg === 'marketing') return 'marketing';
   if (label.includes('Registrator') || rg === 'reception') return 'reception';
@@ -243,7 +249,7 @@ export function kadrlarRoleKeyFromAdminProfile(input: {
   if (folded.includes('taminot') || folded.includes('xarid') || rg === 'supply') {
     return 'supply';
   }
-  if (folded.includes('kassir') || folded.includes('kassa') || rg === 'kassa') {
+  if (folded.includes('kassir') || rg === 'kassa') {
     return 'kassir';
   }
   if (label.includes('Bosh shifokor') || rg === 'clinical') return 'chief_doctor';

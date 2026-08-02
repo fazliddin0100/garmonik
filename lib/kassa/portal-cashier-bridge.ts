@@ -2,6 +2,8 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/kassa/prisma';
 import type { SessionUser } from '@/lib/kassa/unified-session';
 
+export type KassaBridgeRole = 'ADMIN' | 'CASHIER';
+
 /** Asosiy login → /kassa ga ulanadigan portal rollar */
 export function isKassirRoleLabel(roleLabel: string | null | undefined): boolean {
   return isKassaPortalRole(roleLabel);
@@ -25,15 +27,34 @@ export function isKassaPortalRouteGroup(
   return rg === 'finance' || rg === 'kassa';
 }
 
-/** Portal «Kassir» xodimini kassa.users jadvali bilan sinxronlaydi. */
-export async function ensureKassaCashierUser(input: {
+/** Buxgalter → kassa ADMIN (/kassa-admin); Kassir → CASHIER (/kassa) */
+export function resolveKassaBridgeRole(input: {
+  roleLabel?: string | null;
+  routeGroup?: string | null;
+}): KassaBridgeRole {
+  const rg = (input.routeGroup || '').trim();
+  const t = (input.roleLabel || '').trim().toLowerCase();
+  if (rg === 'finance' || t.includes('buxgalter') || t.includes('moliya')) {
+    return 'ADMIN';
+  }
+  return 'CASHIER';
+}
+
+export function kassaHomePathForBridgeRole(role: KassaBridgeRole): string {
+  return role === 'ADMIN' ? '/kassa-admin' : '/kassa';
+}
+
+/** Portal kassa xodimini kassa.users bilan sinxronlaydi. */
+export async function ensureKassaPortalUser(input: {
   login: string;
   password: string;
   fullName: string;
+  role: KassaBridgeRole;
 }): Promise<SessionUser> {
   const login = input.login.trim().toLowerCase();
   const fullName = input.fullName.trim() || login;
   const password = input.password;
+  const role = input.role === 'ADMIN' ? 'ADMIN' : 'CASHIER';
   if (!login) throw new Error('Login majburiy');
   if (!password || password.length < 6) {
     throw new Error('Parol kamida 6 belgidan iborat bo‘lishi kerak');
@@ -51,7 +72,7 @@ export async function ensureKassaCashierUser(input: {
         login,
         fullName,
         passwordHash,
-        role: 'CASHIER',
+        role,
         isActive: true,
         failedLoginCount: 0,
         lockedUntil: null,
@@ -70,7 +91,7 @@ export async function ensureKassaCashierUser(input: {
       login,
       fullName,
       passwordHash,
-      role: 'CASHIER',
+      role,
       isActive: true,
     },
   });
@@ -81,6 +102,15 @@ export async function ensureKassaCashierUser(input: {
     fullName: created.fullName,
     role: created.role,
   };
+}
+
+/** @deprecated ensureKassaPortalUser({ role: 'CASHIER' }) ishlating */
+export async function ensureKassaCashierUser(input: {
+  login: string;
+  password: string;
+  fullName: string;
+}): Promise<SessionUser> {
+  return ensureKassaPortalUser({ ...input, role: 'CASHIER' });
 }
 
 export async function syncKassaCashierPassword(input: {

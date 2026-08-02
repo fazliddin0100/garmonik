@@ -24,7 +24,7 @@ const LAB = new Set(['Laboratoriya menejeri', 'Laboratoriya (natijalar)']);
 const NURSING = new Set(['Hamshira', 'Bosh hamshira']);
 const OFFICE = new Set(['Kabinet']);
 
-const FINANCE = new Set(['Buxgalter / moliya']);
+const FINANCE = new Set(['Buxgalter', 'Buxgalter / moliya']);
 const HR = new Set(['Kadrlar bo‘limi']);
 const MARKETING = new Set(['Marketing / PR']);
 const RECEPTION = new Set(['Registrator / qabul']);
@@ -86,7 +86,13 @@ export function adminRoleLabelToJwtRouteGroup(
   if (LAB.has(t)) return 'laboratory';
   if (NURSING.has(t)) return 'nursing';
   if (OFFICE.has(t)) return 'office';
-  if (FINANCE.has(t)) return 'finance';
+  if (
+    FINANCE.has(t) ||
+    folded.includes('buxgalter') ||
+    folded.includes('moliya')
+  ) {
+    return 'finance';
+  }
   if (HR.has(t)) return 'hr';
   if (MARKETING.has(t)) return 'marketing';
   if (RECEPTION.has(t)) return 'reception';
@@ -94,7 +100,7 @@ export function adminRoleLabelToJwtRouteGroup(
   if (SUPPLY.has(t) || folded.includes('taminot') || folded.includes('xarid')) {
     return 'supply';
   }
-  if (KASSA.has(t) || folded.includes('kassir') || folded.includes('kassa')) {
+  if (KASSA.has(t) || folded.includes('kassir')) {
     return 'kassa';
   }
   if (folded.includes('farmatsevt')) return 'pharmacy';
@@ -125,6 +131,7 @@ export function adminHomePathForRouteGroup(rg: AdminJwtRouteGroup): string {
     case 'specialist':
       return '/mutaxassis';
     case 'finance':
+      return '/kassa-admin';
     case 'kassa':
       return '/kassa';
     case 'marketing':
@@ -206,6 +213,9 @@ export function adminRouteGroupsAllowedForPath(pathname: string): AdminJwtRouteG
   if (pathUnderAdminPrefix(pathname, '/taminot')) {
     return ['admin_only', 'supply'];
   }
+  if (pathUnderAdminPrefix(pathname, '/kassa-admin')) {
+    return ['admin_only', 'finance'];
+  }
   if (
     pathUnderAdminPrefix(pathname, '/kassir') ||
     pathUnderAdminPrefix(pathname, '/kassa')
@@ -221,6 +231,7 @@ export function adminRestrictedNavLinks(
 ): { href: string; label: string }[] {
   switch (rg) {
     case 'finance':
+      return [{ href: '/kassa-admin', label: 'Buxgalter (kassa)' }];
     case 'kassa':
       return [{ href: '/kassa', label: 'Kassa' }];
     case 'marketing':

@@ -57,7 +57,7 @@ export function AdminWorkspace({
     <WorkspaceShell
       theme="admin"
       userName={userName}
-      roleLabel="Administrator"
+      roleLabel="Buxgalter"
       navItems={NAV}
       activeView={view}
       onNavigate={navigate}

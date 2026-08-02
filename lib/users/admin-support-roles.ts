@@ -16,9 +16,9 @@ export const BUILTIN_ADMIN_SUPPORT_ROLES: AdminSupportRoleDef[] = [
     keywords: ['kadrlar', 'hr', 'xodimlar'],
   },
   {
-    title: 'Moliya va buxgalteriya (Kassa)',
-    roleLabel: 'Buxgalter / moliya',
-    keywords: ['moliya', 'buxgalter', 'hisob', 'finance', 'kassa', 'kassir'],
+    title: 'Buxgalter (kassa admin)',
+    roleLabel: 'Buxgalter',
+    keywords: ['moliya', 'buxgalter', 'hisob', 'finance', 'kassa-admin'],
   },
   {
     title: 'Yurist va shartnoma mutaxassisi',

@@ -52,7 +52,7 @@ function CashierWorkspaceContent({
     <WorkspaceShell
       theme="cashier"
       userName={userName}
-      roleLabel={userRole === "ADMIN" ? "Administrator" : "Kassir"}
+      roleLabel={userRole === "ADMIN" ? "Buxgalter" : "Kassir"}
       navItems={NAV}
       activeView={view}
       onNavigate={navigate}

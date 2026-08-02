@@ -9,9 +9,10 @@ import {
   insertPortalProfile,
 } from '@/lib/db/portal-profiles';
 import {
-  ensureKassaCashierUser,
+  ensureKassaPortalUser,
   isKassaPortalRole,
   isKassaPortalRouteGroup,
+  resolveKassaBridgeRole,
 } from '@/lib/kassa/portal-cashier-bridge';
 import { getDefaultClinicId } from '@/lib/server/default-clinic';
 import { NextRequest, NextResponse } from 'next/server';
@@ -121,10 +122,14 @@ export async function POST(request: NextRequest) {
 
     if (isKassaPortalRouteGroup(rg) || isKassaPortalRole(roleName)) {
       try {
-        await ensureKassaCashierUser({
+        await ensureKassaPortalUser({
           login: loginNorm,
           password,
           fullName,
+          role: resolveKassaBridgeRole({
+            roleLabel: roleName,
+            routeGroup: rg,
+          }),
         });
       } catch (kassaErr) {
         await deletePortalAuthUser(created.id);

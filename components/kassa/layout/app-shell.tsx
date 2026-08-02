@@ -54,7 +54,7 @@ export function AppShell({
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">{userName}</p>
           <span className="mt-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-            {role === "ADMIN" ? "Administrator" : "Kassir"}
+            {role === "ADMIN" ? "Buxgalter" : "Kassir"}
           </span>
         </div>
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-y-contain p-4">
@@ -91,7 +91,7 @@ export function AppShell({
           <div>
             <p className="font-semibold">{userName}</p>
             <p className="text-xs text-muted-foreground">
-              {role === "ADMIN" ? "Admin" : "Kassir"}
+              {role === "ADMIN" ? "Buxgalter" : "Kassir"}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={logout}>

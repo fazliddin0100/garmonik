@@ -25,6 +25,7 @@ const SAFE_POST_LOGIN_PREFIXES = [
   '/kadrlar',
   '/kassir',
   '/kassa',
+  '/kassa-admin',
   '/patients',
   '/appointments',
   '/services',

@@ -40,10 +40,10 @@ const TAB_META: Record<
     activeLabel: "Faol kassir",
   },
   ADMIN: {
-    title: "Administratorlar",
-    addTitle: "Yangi admin",
-    listTitle: "Adminlar ro'yxati",
-    activeLabel: "Faol admin",
+    title: "Buxgalterlar",
+    addTitle: "Yangi buxgalter",
+    listTitle: "Buxgalterlar ro'yxati",
+    activeLabel: "Faol buxgalter",
   },
 };
 
@@ -133,7 +133,9 @@ export function CashiersView({ currentUserId }: { currentUserId: string }) {
       setPassword("");
       setFullName("");
       setSuccess(
-        tab === "ADMIN" ? "Admin muvaffaqiyatli qo'shildi" : "Kassir muvaffaqiyatli qo'shildi"
+        tab === "ADMIN"
+          ? "Buxgalter muvaffaqiyatli qo'shildi"
+          : "Kassir muvaffaqiyatli qo'shildi"
       );
       load();
     } catch {
@@ -292,7 +294,7 @@ export function CashiersView({ currentUserId }: { currentUserId: string }) {
             </Badge>
             {user.role === "ADMIN" && (
               <Badge variant="outline" className="border-violet-200 text-violet-700">
-                Admin
+                Buxgalter
               </Badge>
             )}
             {user.lockedUntil && new Date(user.lockedUntil) > new Date() && (
@@ -332,7 +334,7 @@ export function CashiersView({ currentUserId }: { currentUserId: string }) {
       <PageHeader
         icon={Users}
         title="Foydalanuvchilar"
-        description="Kassir va adminlarni qo'shish, tahrirlash, parolni almashtirish"
+        description="Kassir va buxgalterlarni qo'shish, tahrirlash, parolni almashtirish"
         accent="sky"
       />
 
@@ -351,7 +353,7 @@ export function CashiersView({ currentUserId }: { currentUserId: string }) {
           onClick={() => setTab("ADMIN")}
         >
           <Shield className="h-4 w-4" />
-          Administratorlar
+          Buxgalterlar
         </Button>
       </div>
 
@@ -389,7 +391,7 @@ export function CashiersView({ currentUserId }: { currentUserId: string }) {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder={
-                    tab === "ADMIN" ? "Masalan: Admin Karimov" : "Masalan: Dilnoza Karimova"
+                    tab === "ADMIN" ? "Masalan: Buxgalter Karimov" : "Masalan: Dilnoza Karimova"
                   }
                   required
                 />
