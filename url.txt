@@ -1,3 +1,31 @@
-url = mongodb+srv://abdullayevdilshod511_db_user:V21xOZxKJl47rqYI@cluster0.tbz5ls3.mongodb.net/?appName=Cluster0 
+# PostgreSQL (klinika + kassa bir bazada)
+# Parolda $ bo'lsa URL-da %24 deb yozing (Next.js $ ni o'zgaruvchi deb o'qiydi)
+DATABASE_URL="postgresql://postgres:Dil%24hodjon0100@localhost:5432/garmonik"
 
-MONGODB_URI=mongodb://garmonik_db:PJ3GlJfaJPu89zI5@ac-dlz5oun-shard-00-00.tbz5ls3.mongodb.net:27017,ac-dlz5oun-shard-00-01.tbz5ls3.mongodb.net:27017,ac-dlz5oun-shard-00-02.tbz5ls3.mongodb.net:27017/garmonik_db?ssl=true&replicaSet=atlas-by6lkn-shard-0&authSource=admin&retryWrites=true&w=majority
+# Kamida 32 belgili tasodifiy kalit (productionda yangilang!)
+JWT_SECRET="rT8mQ2Xv7Nc5LpZk1Hs9YfWd4Bj6AeGu"
+
+# Ilova manzili
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Birinchi o'rnatishda admin avtomatik yaratiladi (deploy:bootstrap)
+# Agar o'zgartirmasangiz, default: admin / admin123
+SEED_ADMIN_LOGIN=admin
+SEED_ADMIN_PASSWORD=admin123
+
+# Ixtiyoriy: super admin (Security Center)
+ SEED_PRIMARY_ADMIN_EMAIL=superadmin@garmonik.local
+ SEED_PRIMARY_ADMIN_PASSWORD=SuperSecureParol123
+
+# Klinika nomi
+NEXT_PUBLIC_CLINIC_NAME="Gormonik Plus Klinik"
+
+# Kassa (legacy domen redirect)
+# KASSA_LEGACY_HOST="gormonik-plus-clinik-kassa.uz"
+
+# Chek printer (kassir kompyuterida)
+ NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL=http://127.0.0.1:17888
+ RECEIPT_PRINTER_ENABLED=true
+
+# Docker: to'liq seedni majburiy qayta ishga tushirish (faqat bir marta kerak bo'lsa)
+ RUN_DB_SEED=true
