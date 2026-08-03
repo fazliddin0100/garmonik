@@ -1,4 +1,5 @@
 import { adminRoleLabelToJwtRouteGroup } from '@/lib/admins/portal-routes';
+import { isAllowedAdminCreationRole } from '@/lib/admins/roles';
 import { getAdminSessionFromRequest } from '@/lib/auth/request-session';
 import {
   createPortalAuthUser,
@@ -60,6 +61,12 @@ export async function POST(request: NextRequest) {
     }
     if (!roleName || roleName.length > 200) {
       return NextResponse.json({ error: 'Rol tanlang yoki kiriting' }, { status: 400 });
+    }
+    if (!isAllowedAdminCreationRole(roleName)) {
+      return NextResponse.json(
+        { error: 'Faqat Administrator yoki Super administrator roli tanlanishi mumkin' },
+        { status: 400 },
+      );
     }
     if (!loginRaw || loginRaw.length < 2) {
       return NextResponse.json({ error: 'Login juda qisqa' }, { status: 400 });

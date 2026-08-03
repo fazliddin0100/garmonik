@@ -47,7 +47,10 @@ import {
   staffInitials,
 } from '@/components/users/users-staff-ui';
 import { cn } from '@/lib/utils';
-import { ADMIN_ROLE_OPTIONS } from '@/lib/admins/roles';
+import {
+  ADMIN_CREATION_ROLE_OPTIONS,
+  defaultAdminCreationRole,
+} from '@/lib/admins/roles';
 import {
   adminDisplayName,
   type AdminSortKey,
@@ -183,7 +186,7 @@ function normalizeStoredAdmin(item: unknown): AdminUser | null {
     fatherName,
     age,
     username: typeof r.username === 'string' ? r.username.trim() : '',
-    roleName: roleRaw || ADMIN_ROLE_OPTIONS[0].value,
+    roleName: roleRaw || defaultAdminCreationRole(),
     phone,
     password: r.password,
     securityPin:
@@ -197,7 +200,7 @@ function emptyForm(): AdminForm {
     lastName: '',
     fatherName: '',
     age: 25,
-    roleName: ADMIN_ROLE_OPTIONS[0].value,
+    roleName: defaultAdminCreationRole(),
     username: '',
     phone: '',
   };
@@ -235,11 +238,6 @@ function adminSearchHaystack(
   ]
     .map((x) => String(x ?? '').toLowerCase())
     .join(' ');
-}
-
-function isSuperAdminRole(value: string): boolean {
-  const v = value.trim().toLowerCase();
-  return /super\s*admin(istrator)?/i.test(v);
 }
 
 export default function AdminsPanel() {
@@ -381,18 +379,22 @@ export default function AdminsPanel() {
   }, [filtered, sort, lastLoginByLogin]);
 
   const roleSelectOptions = useMemo((): { value: string; label: string }[] => {
-    const base = ADMIN_ROLE_OPTIONS.map((o) => ({
+    const base = ADMIN_CREATION_ROLE_OPTIONS.map((o) => ({
       value: o.value,
       label: o.label,
-    })).filter((o) => !isSuperAdminRole(`${o.value} ${o.label}`));
+    }));
     const seen = new Set(base.map((b) => b.value));
-    for (const r of rows) {
-      if (!editingId && isSuperAdminRole(r.roleName)) continue;
-      if (r.roleName && !seen.has(r.roleName)) {
-        seen.add(r.roleName);
-        base.push({ value: r.roleName, label: `${r.roleName} (saqlangan)` });
+
+    if (editingId) {
+      for (const r of rows) {
+        if (r.id !== editingId) continue;
+        if (r.roleName && !seen.has(r.roleName)) {
+          seen.add(r.roleName);
+          base.push({ value: r.roleName, label: `${r.roleName} (saqlangan)` });
+        }
       }
     }
+
     if (form.roleName && !seen.has(form.roleName)) {
       base.push({
         value: form.roleName,
@@ -400,7 +402,7 @@ export default function AdminsPanel() {
       });
     }
     return base;
-  }, [rows, form.roleName]);
+  }, [rows, form.roleName, editingId]);
 
   const deleteTarget = useMemo(
     () => rows.find((r) => r.id === deleteId) ?? null,
