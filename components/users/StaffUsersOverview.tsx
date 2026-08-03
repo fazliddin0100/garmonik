@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
   AlertDialog,
@@ -21,6 +21,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Sheet,
   SheetContent,
@@ -52,13 +59,27 @@ import {
   type AdminSupportRoleDef,
 } from '@/lib/users/admin-support-roles';
 import {
+  buildCoreTeamCards,
+  findCoreTeamCard,
+  resolveMedicalStaffKind,
+  type CoreTeamKey,
+  type MedicalStaffKind,
+} from '@/lib/users/core-team-config';
+import {
+  createMedicalStaffAccount,
+  deleteMedicalStaffAccount,
+  surgeryVariantConfig,
+  updateMedicalStaffAccount,
+  type SurgeryVariant,
+} from '@/lib/users/medical-staff-api';
+import {
   allOverviewMembers,
-  buildCoreTeamMembers,
   findMembersByKeywords,
   includesAny,
   type StaffOverviewData,
   type StaffTeamMember,
 } from '@/lib/users/staff-overview-teams';
+import { generateStaffPassword } from '@/lib/staff-portal/generate-password';
 import {
   Activity,
   Ambulance,
@@ -90,7 +111,33 @@ type TeamCard = {
   /** Ma'muriy bo‘lim — xodim qo‘shish mumkin */
   manageable?: boolean;
   roleLabel?: string;
+  teamKey?: CoreTeamKey;
+  staffKind?: MedicalStaffKind | 'mixed';
+  defaultSpecialty?: string;
+  defaultPosition?: string;
+  defaultDepartment?: string;
+  defaultRoleName?: string;
 };
+
+type MedicalCreateForm = {
+  fullName: string;
+  specialty: string;
+  department: string;
+  contact: string;
+  login: string;
+  password: string;
+};
+
+function emptyMedicalForm(): MedicalCreateForm {
+  return {
+    fullName: '',
+    specialty: '',
+    department: '',
+    contact: '',
+    login: '',
+    password: generateStaffPassword(),
+  };
+}
 
 type CreateForm = {
   firstName: string;
@@ -128,6 +175,19 @@ function adminSupportIcon(title: string) {
   return BriefcaseBusiness;
 }
 
+const CORE_TEAM_ICONS: Record<
+  CoreTeamKey,
+  React.ComponentType<{ className?: string }>
+> = {
+  chief_doctors: UserCog,
+  general_doctors: Stethoscope,
+  surgery_team: Activity,
+  general_nurses: HeartPulse,
+  lab_staff: FlaskConical,
+  reception: Users,
+  pharmacists: Pill,
+};
+
 function matchAdminToRole(
   member: StaffTeamMember,
   role: AdminSupportRoleDef,
@@ -153,9 +213,7 @@ async function loadStaffOverviewData(): Promise<StaffOverviewData> {
     fetchStaffItems<NurseRow>('/api/nurses/staff'),
     fetchStaffItems<LaboratoryStaffRow>('/api/laboratory/staff'),
     fetchStaffItems<ReceptionUser>('/api/reception/staff'),
-    fetchClinicResource<PharmacistRow[]>('pharmacists').catch(
-      () => [] as PharmacistRow[],
-    ),
+    fetchStaffItems<PharmacistRow>('/api/pharmacists/staff'),
   ]);
 
   return {
@@ -279,6 +337,32 @@ export default function StaffUsersOverview() {
   const [newRoleError, setNewRoleError] = useState('');
   const [newRoleSaving, setNewRoleSaving] = useState(false);
 
+  const [medicalCreateOpen, setMedicalCreateOpen] = useState(false);
+  const [editingMedicalId, setEditingMedicalId] = useState<string | null>(null);
+  const [medicalTeamKey, setMedicalTeamKey] = useState<CoreTeamKey | null>(null);
+  const [medicalStaffKind, setMedicalStaffKind] =
+    useState<MedicalStaffKind>('doctor');
+  const [medicalForm, setMedicalForm] = useState<MedicalCreateForm>(emptyMedicalForm);
+  const [medicalError, setMedicalError] = useState('');
+  const [medicalSaving, setMedicalSaving] = useState(false);
+  const [surgeryVariant, setSurgeryVariant] =
+    useState<SurgeryVariant>('surgeon');
+
+  async function reloadStaffOverview() {
+    const overview = await loadStaffOverviewData();
+    setStaffData(overview);
+    setSelectedTeam((prev) => {
+      if (!prev?.teamKey) return prev;
+      const card = findCoreTeamCard(overview, prev.teamKey);
+      if (!card) return prev;
+      return {
+        ...prev,
+        members: card.members,
+      };
+    });
+    return overview;
+  }
+
   async function reloadAdminsAndSettings() {
     const [adminsRaw, settingsRaw] = await Promise.all([
       fetchClinicResource<AdminUser[]>('admins').catch(() => [] as AdminUser[]),
@@ -340,45 +424,11 @@ export default function StaffUsersOverview() {
   }, [customRoleTitles]);
 
   const coreTeams = useMemo((): TeamCard[] => {
-    const teams = buildCoreTeamMembers(staffData);
-    return [
-      {
-        title: 'Bosh shifokor / Tibbiy direktor',
-        icon: UserCog,
-        members: teams.chiefDoctors,
-      },
-      {
-        title:
-          'Shifokorlar (terapevt, endokrinolog, kardiolog, nevrolog, ginekolog, pediatr)',
-        icon: Stethoscope,
-        members: teams.generalDoctors,
-      },
-      {
-        title: 'Jarrohlik jamoasi (jarroh, anesteziolog, operatsion hamshira)',
-        icon: Activity,
-        members: teams.surgeryTeam,
-      },
-      {
-        title: 'Hamshiralar (statsionar, ambulator, muolaja xonasi)',
-        icon: HeartPulse,
-        members: teams.generalNurses,
-      },
-      {
-        title: 'Laboratoriya xodimlari (laborant, bioximik, PCR mutaxassisi)',
-        icon: FlaskConical,
-        members: teams.labStaff,
-      },
-      {
-        title: 'Qabulxona va registratura xodimlari',
-        icon: Users,
-        members: teams.reception,
-      },
-      {
-        title: "Farmatsevtlar va dori ombori mas'ullari",
-        icon: Pill,
-        members: teams.pharmacists,
-      },
-    ];
+    return buildCoreTeamCards(staffData).map((team) => ({
+      ...team,
+      icon: CORE_TEAM_ICONS[team.teamKey],
+      manageable: true,
+    }));
   }, [staffData]);
 
   const allMembers = useMemo(() => allOverviewMembers(staffData), [staffData]);
@@ -483,7 +533,26 @@ export default function StaffUsersOverview() {
   }
 
   function openCreateForTeam(team: TeamCard) {
-    if (!team.manageable || !team.roleLabel) return;
+    if (!team.manageable) return;
+
+    if (team.teamKey && team.staffKind) {
+      setEditingMedicalId(null);
+      setMedicalTeamKey(team.teamKey);
+      setMedicalStaffKind(
+        team.staffKind === 'mixed' ? surgeryVariantConfig('surgeon').kind : team.staffKind,
+      );
+      setSurgeryVariant('surgeon');
+      setMedicalForm({
+        ...emptyMedicalForm(),
+        specialty: team.defaultSpecialty ?? team.defaultRoleName ?? '',
+        department: team.defaultDepartment ?? '',
+      });
+      setMedicalError('');
+      setMedicalCreateOpen(true);
+      return;
+    }
+
+    if (!team.roleLabel) return;
     setEditingMemberId(null);
     setEditingLogin('');
     setCreateRoleLabel(team.roleLabel);
@@ -492,7 +561,69 @@ export default function StaffUsersOverview() {
     setCreateOpen(true);
   }
 
+  function openEditMedicalMember(member: StaffTeamMember, team: TeamCard) {
+    if (!team.teamKey) return;
+    const kind =
+      resolveMedicalStaffKind(team.teamKey, member.id, staffData) ??
+      (team.staffKind !== 'mixed' ? team.staffKind : null);
+    if (!kind) {
+      toast.error('Xodim turini aniqlab bo‘lmadi');
+      return;
+    }
+
+    setMedicalTeamKey(team.teamKey);
+    setMedicalStaffKind(kind);
+    setEditingMedicalId(member.id);
+
+    if (team.teamKey === 'surgery_team') {
+      if (kind === 'nurse') setSurgeryVariant('or_nurse');
+      else if (includesAny(member.role, ['anestez'])) {
+        setSurgeryVariant('anesthesiologist');
+      } else {
+        setSurgeryVariant('surgeon');
+      }
+    }
+
+    const doctor = staffData.doctors.find((row) => row.id === member.id);
+    const nurse = staffData.nurses.find((row) => row.id === member.id);
+    const lab = staffData.labStaff.find((row) => row.id === member.id);
+    const reception = staffData.reception.find((row) => row.id === member.id);
+    const pharmacist = staffData.pharmacists.find((row) => row.id === member.id);
+
+    setMedicalForm({
+      fullName: member.fullName,
+      specialty:
+        doctor?.specialty ||
+        nurse?.specialty ||
+        lab?.specialty ||
+        reception?.roleName ||
+        pharmacist?.specialty ||
+        member.role,
+      department:
+        doctor?.department ||
+        nurse?.department ||
+        lab?.department ||
+        pharmacist?.department ||
+        member.department,
+      contact:
+        doctor?.contact ||
+        nurse?.contact ||
+        pharmacist?.contact ||
+        reception?.email ||
+        member.contact,
+      login: member.login,
+      password: '',
+    });
+    setMedicalError('');
+    setMedicalCreateOpen(true);
+  }
+
   function openEditMember(member: StaffTeamMember) {
+    if (selectedTeam?.teamKey) {
+      openEditMedicalMember(member, selectedTeam);
+      return;
+    }
+
     const admin = findAdminForMember(member);
     const nameParts = member.fullName.trim().split(/\s+/).filter(Boolean);
     setEditingMemberId(admin?.id || member.id);
@@ -544,6 +675,93 @@ export default function StaffUsersOverview() {
         .filter((m) => matchAdminToRole(m, role));
       return { ...prev, members: adminMembers };
     });
+  }
+
+  async function saveMedicalStaffMember() {
+    if (!medicalTeamKey) return;
+
+    const team = coreTeams.find((row) => row.teamKey === medicalTeamKey);
+    const fullName = medicalForm.fullName.trim();
+    const specialty = medicalForm.specialty.trim();
+    const department = medicalForm.department.trim();
+    const contact = medicalForm.contact.trim();
+    const login = medicalForm.login.trim().toLowerCase();
+    const password = medicalForm.password.trim();
+    const isEdit = Boolean(editingMedicalId);
+
+    let kind = medicalStaffKind;
+    let position = team?.defaultPosition;
+    let roleName = team?.defaultRoleName;
+    let staffRole: 'nurse' | 'head_nurse' | undefined;
+
+    if (team?.staffKind === 'mixed') {
+      const variant = surgeryVariantConfig(surgeryVariant);
+      kind = variant.kind;
+      position = variant.position;
+      staffRole = variant.staffRole;
+    }
+
+    if (!fullName) {
+      setMedicalError('F.I.SH kiriting.');
+      return;
+    }
+    if (!specialty && kind !== 'reception') {
+      setMedicalError('Mutaxassislik / lavozim kiriting.');
+      return;
+    }
+    if (!login) {
+      setMedicalError('Login kiriting.');
+      return;
+    }
+    if (!isEdit && password.length < 6) {
+      setMedicalError('Parol kamida 6 belgidan iborat bo‘lsin.');
+      return;
+    }
+    if (isEdit && password && password.length < 6) {
+      setMedicalError('Yangi parol kamida 6 belgidan iborat bo‘lsin.');
+      return;
+    }
+
+    setMedicalSaving(true);
+    setMedicalError('');
+    try {
+      const payload = {
+        fullName,
+        specialty:
+          kind === 'reception' ?
+            (roleName || specialty || 'Registrator')
+          : specialty,
+        department,
+        contact,
+        login,
+        password: password || undefined,
+        position,
+        roleName: roleName || specialty,
+        staffRole,
+      };
+
+      const result =
+        isEdit && editingMedicalId ?
+          await updateMedicalStaffAccount(kind, editingMedicalId, payload)
+        : await createMedicalStaffAccount(kind, payload);
+
+      if (result.error) {
+        setMedicalError(result.error);
+        toast.error(result.error);
+        return;
+      }
+
+      await reloadStaffOverview();
+      toast.success(isEdit ? 'Xodim yangilandi' : 'Xodim qo‘shildi');
+      setMedicalCreateOpen(false);
+      setEditingMedicalId(null);
+      setMedicalTeamKey(null);
+    } catch {
+      setMedicalError('Tarmoq xatoligi');
+      toast.error('Tarmoq xatoligi');
+    } finally {
+      setMedicalSaving(false);
+    }
   }
 
   async function saveStaffMember() {
@@ -741,6 +959,26 @@ export default function StaffUsersOverview() {
     if (!deleteMember) return;
     setDeleteSaving(true);
     try {
+      if (selectedTeam?.teamKey) {
+        const kind = resolveMedicalStaffKind(
+          selectedTeam.teamKey,
+          deleteMember.id,
+          staffData,
+        );
+        if (!kind) {
+          toast.error('Xodim turini aniqlab bo‘lmadi');
+          return;
+        }
+        const result = await deleteMedicalStaffAccount(kind, deleteMember.id);
+        if (result.error) {
+          toast.error(result.error);
+          return;
+        }
+        await reloadStaffOverview();
+        toast.success('Xodim o‘chirildi');
+        return;
+      }
+
       const admin = findAdminForMember(deleteMember);
       const res = await fetch('/api/admin/update-portal-admin', {
         method: 'DELETE',
@@ -840,8 +1078,8 @@ export default function StaffUsersOverview() {
           </h2>
           <p className="mt-2 text-sm text-slate-500">
             Klinikada doimiy ishlashi zarur bo&apos;lgan birlamchi tibbiy rollar.
-            Xodimlar bo&apos;limidagi haqiqiy ma&apos;lumotlar asosida
-            to&apos;ldiriladi.
+            Har bir rol ichida xodimlarni ko&apos;rish va yo&apos;q bo&apos;lsa
+            shu yerda qo&apos;shish mumkin.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {coreTeams.map((team) => {
@@ -1167,6 +1405,168 @@ export default function StaffUsersOverview() {
               disabled={createSaving}
               onClick={() => void saveStaffMember()}>
               {createSaving ?
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Saqlanmoqda…
+                </>
+              : 'Saqlash'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={medicalCreateOpen}
+        onOpenChange={(open) => {
+          setMedicalCreateOpen(open);
+          if (!open) {
+            setEditingMedicalId(null);
+            setMedicalTeamKey(null);
+            setMedicalError('');
+          }
+        }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {editingMedicalId ? 'Xodimni tahrirlash' : "Xodim qo'shish"}
+            </DialogTitle>
+            <DialogDescription>
+              {medicalTeamKey ?
+                coreTeams.find((team) => team.teamKey === medicalTeamKey)?.title
+              : null}
+            </DialogDescription>
+          </DialogHeader>
+
+          {medicalTeamKey === 'surgery_team' && !editingMedicalId ?
+            <div className="space-y-1.5">
+              <Label>Jamoa roli</Label>
+              <Select
+                value={surgeryVariant}
+                onValueChange={(value) => {
+                  const variant = value as SurgeryVariant;
+                  setSurgeryVariant(variant);
+                  const cfg = surgeryVariantConfig(variant);
+                  setMedicalStaffKind(cfg.kind);
+                  setMedicalForm((form) => ({
+                    ...form,
+                    specialty: cfg.specialty,
+                  }));
+                }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Rolni tanlang" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="surgeon">Jarroh (shifokor)</SelectItem>
+                  <SelectItem value="anesthesiologist">
+                    Anesteziolog (shifokor)
+                  </SelectItem>
+                  <SelectItem value="or_nurse">Operatsion hamshira</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          : null}
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="med-full">F.I.SH</Label>
+              <Input
+                id="med-full"
+                value={medicalForm.fullName}
+                onChange={(e) =>
+                  setMedicalForm((form) => ({ ...form, fullName: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="med-spec">
+                {medicalStaffKind === 'reception' ? 'Lavozim' : 'Mutaxassislik'}
+              </Label>
+              <Input
+                id="med-spec"
+                value={medicalForm.specialty}
+                onChange={(e) =>
+                  setMedicalForm((form) => ({ ...form, specialty: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="med-dept">Bo&apos;lim</Label>
+              <Input
+                id="med-dept"
+                value={medicalForm.department}
+                onChange={(e) =>
+                  setMedicalForm((form) => ({ ...form, department: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="med-contact">
+                {medicalStaffKind === 'reception' ? 'Email' : 'Telefon'}
+              </Label>
+              {medicalStaffKind === 'reception' ?
+                <Input
+                  id="med-contact"
+                  type="email"
+                  value={medicalForm.contact}
+                  onChange={(e) =>
+                    setMedicalForm((form) => ({ ...form, contact: e.target.value }))
+                  }
+                />
+              : <UzPhoneInput
+                  value={medicalForm.contact}
+                  onChange={(full) =>
+                    setMedicalForm((form) => ({ ...form, contact: full }))
+                  }
+                  className="max-w-none"
+                />
+              }
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="med-login">Login</Label>
+              <Input
+                id="med-login"
+                className="font-mono"
+                value={medicalForm.login}
+                onChange={(e) =>
+                  setMedicalForm((form) => ({ ...form, login: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="med-pass">
+                {editingMedicalId ? 'Yangi parol (ixtiyoriy)' : 'Parol'}
+              </Label>
+              <Input
+                id="med-pass"
+                type="password"
+                placeholder={
+                  editingMedicalId ? 'O‘zgartirmasangiz bo‘sh qoldiring' : undefined
+                }
+                value={medicalForm.password}
+                onChange={(e) =>
+                  setMedicalForm((form) => ({ ...form, password: e.target.value }))
+                }
+              />
+            </div>
+          </div>
+
+          {medicalError ?
+            <p className="text-sm text-rose-600">{medicalError}</p>
+          : null}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={medicalSaving}
+              onClick={() => setMedicalCreateOpen(false)}>
+              Bekor qilish
+            </Button>
+            <Button
+              type="button"
+              disabled={medicalSaving}
+              onClick={() => void saveMedicalStaffMember()}>
+              {medicalSaving ?
                 <>
                   <Loader2 className="mr-2 size-4 animate-spin" />
                   Saqlanmoqda…

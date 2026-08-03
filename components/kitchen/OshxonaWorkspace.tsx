@@ -549,7 +549,7 @@ export default function OshxonaWorkspace() {
                 placeholder="Masalan: Guruch"
               />
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               <div className="grid gap-1.5">
                 <Label>Qoldiq</Label>
                 <Input
@@ -633,7 +633,7 @@ export default function OshxonaWorkspace() {
                 ))}
               </datalist>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div className="grid gap-1.5">
                 <Label>Miqdor</Label>
                 <Input

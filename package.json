@@ -35,6 +35,10 @@
     "merge:smoke-kassa-phase-7": "node scripts/merge/smoke-kassa-phase-7.mjs",
     "merge:verify-phase-8": "powershell -ExecutionPolicy Bypass -File scripts/merge/verify-phase-8.ps1",
     "deploy:preflight": "node scripts/deploy/preflight-production.mjs",
+    "deploy:bootstrap": "tsx scripts/deploy/bootstrap-if-empty.ts",
+    "deploy:setup-db": "node scripts/deploy/setup-database.mjs",
+    "deploy:import-kassa": "node scripts/deploy/kassa-import-only.mjs --force",
+    "deploy:install": "node scripts/deploy/setup-database.mjs",
     "postinstall": "node scripts/merge/prisma-generate-kassa.mjs"
   },
   "prisma": {

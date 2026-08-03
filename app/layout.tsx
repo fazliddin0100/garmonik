@@ -1,4 +1,5 @@
 import SessionAlivePoller from '@/components/auth/SessionAlivePoller';
+import GarmonikChatRoot from '@/components/assistant/GarmonikChatRoot';
 import { Toaster } from '@/components/ui/sonner';
 import type { Metadata } from 'next';
 import { Geist_Mono, Roboto } from 'next/font/google';
@@ -48,10 +49,11 @@ export default function RootLayout({
       </head>
       <body
         translate="no"
-        className={`notranslate ${roboto.className} min-h-full flex flex-col`}
+        className={`notranslate ${roboto.className} min-h-full flex w-full min-w-0 flex-col`}
         suppressHydrationWarning>
         <SessionAlivePoller />
         {children}
+        <GarmonikChatRoot />
         <Toaster richColors position="top-right" />
       </body>
     </html>

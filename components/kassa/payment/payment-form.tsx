@@ -28,6 +28,10 @@ import {
   PaymentQueuePanel,
   type PaymentQueueItem,
 } from "@/components/kassa/payment/payment-queue-panel";
+import {
+  ManualPaymentEntryPanel,
+  type ManualPaymentEntry,
+} from "@/components/kassa/payment/manual-payment-entry-panel";
 import type { SelectedKassaPatient } from "@/components/kassa/payment/patient-lookup-field";
 import { ServicePickerGrid } from "@/components/kassa/payment/service-picker-grid";
 
@@ -60,8 +64,15 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
   const [paymentTypes, setPaymentTypes] = useState<PaymentType[]>([]);
   const [patientName, setPatientName] = useState("");
   const [patientPhone, setPatientPhone] = useState("");
+  const [manualEntry, setManualEntry] = useState<ManualPaymentEntry>({
+    fullName: "",
+    phone: "",
+    note: "",
+    patient: null,
+  });
   const [selectedPatient, setSelectedPatient] = useState<SelectedKassaPatient | null>(null);
   const [selectedQueueId, setSelectedQueueId] = useState<string | null>(null);
+  const [manualEntryActive, setManualEntryActive] = useState(false);
   const [selectedPaymentLabel, setSelectedPaymentLabel] = useState("");
   const [referralNote, setReferralNote] = useState("");
   const [paymentTypeId, setPaymentTypeId] = useState("");
@@ -252,17 +263,55 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
     setCart((c) => c.map((i) => (i.cartKey === cartKey ? { ...i, quantity: qty } : i)));
   }
 
+  function clearManualEntry() {
+    setManualEntryActive(false);
+    setManualEntry({ fullName: "", phone: "", note: "", patient: null });
+    if (!selectedQueueId) {
+      setSelectedPatient(null);
+      setPatientName("");
+      setPatientPhone("");
+      setReferralNote("");
+    }
+  }
+
   function clearQueueSelection() {
     setSelectedQueueId(null);
     setSelectedPatient(null);
     setSelectedPaymentLabel("");
     setPatientName("");
     setPatientPhone("");
-    setReferralNote("");
+    if (!manualEntryActive) {
+      setReferralNote("");
+    }
+    setCart([]);
+  }
+
+  function activateManualEntry() {
+    const name = manualEntry.fullName.trim();
+    if (name.length < 2) return;
+
+    setManualEntryActive(true);
+    setSelectedQueueId(null);
+    setSelectedPaymentLabel("Qo'lda kiritilgan");
+    setPatientName(name);
+    setPatientPhone(manualEntry.phone);
+    setReferralNote(manualEntry.note.trim());
+    setSelectedPatient(
+      manualEntry.patient ?? {
+        garmonikPatientId: "",
+        kassaPatientId: null,
+        cardNumber: "Qo'lda",
+        fullName: name,
+        phone: manualEntry.phone,
+      },
+    );
+    setError("");
     setCart([]);
   }
 
   function handleQueueSelect(item: PaymentQueueItem, patient: SelectedKassaPatient) {
+    setManualEntryActive(false);
+    setManualEntry({ fullName: "", phone: "", note: "", patient: null });
     setSelectedQueueId(item.queueId);
     setSelectedPatient(patient);
     setSelectedPaymentLabel(item.paymentLabel);
@@ -320,18 +369,25 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
 
   async function submitPayment() {
     setError("");
-    if (!selectedPatient) {
-      setError("To'lov navbatidan bemorni tanlang");
+    const activeName =
+      manualEntryActive ? manualEntry.fullName.trim() : patientName.trim();
+
+    if (!selectedQueueId && !manualEntryActive) {
+      setError("Navbatdan bemorni tanlang yoki qo'lda kiriting");
       return;
     }
-    if (!patientName.trim()) {
+    if (!activeName) {
       setError("Bemor ismini kiriting");
       return;
     }
 
-    const phoneE164 = resolveUzPhoneE164(selectedPatient?.phone, patientPhone);
+    const phoneE164 = resolveUzPhoneE164(
+      selectedPatient?.phone,
+      manualEntryActive ? manualEntry.phone : patientPhone,
+    );
     const hasPhoneHint = Boolean(
-      selectedPatient?.phone?.trim() || patientPhone.trim(),
+      selectedPatient?.phone?.trim() ||
+        (manualEntryActive ? manualEntry.phone.trim() : patientPhone.trim()),
     );
     if (hasPhoneHint && !phoneE164) {
       setError("Telefon raqamini to'liq kiriting: +998 (XX) XXX-XX-XX");
@@ -350,16 +406,16 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
         setError("Qisman to'lov uchun 0 yoki undan katta, lekin jami summadan kichik summa kiriting");
         return;
       }
-    } else if (isCash && paidNow < total) {
-      setError("Naqt pul yetarli emas yoki «Qisman to'lov» rejimini yoqing");
+    } else if (paidNow > 0 && paidNow < total) {
+      setError(
+        isCash
+          ? "Naqt pul yetarli emas yoki «Qisman to'lov» rejimini yoqing"
+          : "Kiritilgan summa jami summadan kam",
+      );
       return;
     }
 
-    const paidAmount = isPartialPayment
-      ? paidNow
-      : isCash
-        ? paidNow || total
-        : total;
+    const paidAmount = isPartialPayment ? paidNow : paidNow || total;
 
     setLoading(true);
     try {
@@ -367,10 +423,13 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          patientName,
+          patientName: activeName,
           patientPhone: phoneE164,
           kassaPatientId: selectedPatient?.kassaPatientId ?? undefined,
-          garmonikPatientId: selectedPatient?.garmonikPatientId ?? undefined,
+          garmonikPatientId:
+            selectedPatient?.garmonikPatientId?.trim() ?
+              selectedPatient.garmonikPatientId
+            : undefined,
           referralNote: referralNote || undefined,
           paymentTypeId,
           discount: allowDiscount ? discount : 0,
@@ -405,6 +464,8 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
       setPatientPhone("");
       setSelectedPatient(null);
       setSelectedQueueId(null);
+      setManualEntryActive(false);
+      setManualEntry({ fullName: "", phone: "", note: "", patient: null });
       setSelectedPaymentLabel("");
       setReferralNote("");
       setCart([]);
@@ -498,33 +559,60 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
               <CardTitle className="text-lg">To&apos;lov navbati</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
+          <CardContent className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
             <PaymentQueuePanel
               selectedQueueId={selectedQueueId}
               onSelect={handleQueueSelect}
               onClear={clearQueueSelection}
             />
+            <ManualPaymentEntryPanel
+              active={manualEntryActive}
+              value={manualEntry}
+              onChange={(next) => {
+                setManualEntry(next);
+                if (manualEntryActive) {
+                  setPatientName(next.fullName);
+                  setPatientPhone(next.phone);
+                  setReferralNote(next.note.trim());
+                  setSelectedPatient(
+                    next.patient ?? {
+                      garmonikPatientId: "",
+                      kassaPatientId: null,
+                      cardNumber: "Qo'lda",
+                      fullName: next.fullName.trim(),
+                      phone: next.phone,
+                    },
+                  );
+                }
+              }}
+              onActivate={activateManualEntry}
+              onClear={clearManualEntry}
+            />
             {selectedPatient ? (
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 sm:col-span-2">
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 lg:col-span-2">
                 <p className="text-sm font-medium text-emerald-900">Tanlangan bemor</p>
-                <p className="mt-1 font-semibold text-slate-900">{selectedPatient.fullName}</p>
+                <p className="mt-1 font-semibold text-slate-900">
+                  {manualEntryActive ? manualEntry.fullName.trim() : selectedPatient.fullName}
+                </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Badge variant="outline" className="border-emerald-300 text-emerald-800">
-                    {selectedPatient.cardNumber}
+                    {manualEntryActive ? "Qo'lda" : selectedPatient.cardNumber}
                   </Badge>
                   {selectedPaymentLabel ? (
                     <Badge className="bg-emerald-600 text-white">{selectedPaymentLabel}</Badge>
                   ) : null}
-                  {selectedPatient.phone ? (
+                  {(manualEntryActive ? manualEntry.phone : selectedPatient.phone) ? (
                     <Badge variant="outline" className="border-slate-200 text-slate-700">
-                      {formatUzPhoneDisplayFull(selectedPatient.phone)}
+                      {formatUzPhoneDisplayFull(
+                        manualEntryActive ? manualEntry.phone : selectedPatient.phone,
+                      )}
                     </Badge>
                   ) : null}
                 </div>
               </div>
             ) : null}
             {referralNote ? (
-              <div className="space-y-1 sm:col-span-2">
+              <div className="space-y-1 lg:col-span-2">
                 <Label>Yo&apos;naltirilgan shifokor</Label>
                 <p className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
                   {referralNote}
@@ -543,7 +631,7 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
               <div>
                 <CardTitle className="text-lg">Xizmatlar</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Kartochkaga bosing — supermarket/restoran kabi tanlang
+                  Qatorni bosing — tanlash; miqdorni o&apos;zgartirish mumkin
                 </p>
               </div>
             </div>
@@ -627,8 +715,10 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
               </div>
             )}
 
-            <div className="space-y-2">
-              <Label>To&apos;lov turi</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                To&apos;lov turi
+              </Label>
               {gatewayPending && selectedPayment && (
                 <p className="rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-800">
                   {selectedPayment.name}: terminal IP hali kiritilmagan — to&apos;lov turi
@@ -660,31 +750,29 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
               </div>
             </label>
 
-            {(isCash || isPartialPayment) && (
-              <>
-                <div className="space-y-2">
-                  <Label>
-                    {isPartialPayment ? "Hozir to'lanadigan summa" : "Bemor bergan summa"}
-                  </Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={amountPaid}
-                    onChange={(e) => setAmountPaid(e.target.value)}
-                    placeholder={isPartialPayment ? "0 yoki masalan: 300000" : String(total)}
-                  />
-                </div>
-                {change > 0 && (
-                  <Badge variant="success" className="w-full justify-center py-2">
-                    Qaytim: {formatMoney(change)}
-                  </Badge>
-                )}
-                {isPartialPayment && balanceDue >= 0 && total > 0 && (
-                  <Badge variant="outline" className="w-full justify-center border-rose-200 py-2 text-rose-700">
-                    Qolgan qarz: {formatMoney(balanceDue)}
-                  </Badge>
-                )}
-              </>
+            <div className="space-y-2">
+              <Label>
+                {isPartialPayment ? "Hozir to'lanadigan summa" : "Bemor bergan summa"}
+              </Label>
+              <Input
+                type="number"
+                min={0}
+                value={amountPaid}
+                onChange={(e) => setAmountPaid(e.target.value)}
+                placeholder={
+                  isPartialPayment ? "0 yoki masalan: 300000" : String(total || 0)
+                }
+              />
+            </div>
+            {change > 0 && (
+              <Badge variant="success" className="w-full justify-center py-2">
+                Qaytim: {formatMoney(change)}
+              </Badge>
+            )}
+            {isPartialPayment && balanceDue >= 0 && total > 0 && (
+              <Badge variant="outline" className="w-full justify-center border-rose-200 py-2 text-rose-700">
+                Qolgan qarz: {formatMoney(balanceDue)}
+              </Badge>
             )}
 
             {error && <p className="text-sm text-destructive">{error}</p>}

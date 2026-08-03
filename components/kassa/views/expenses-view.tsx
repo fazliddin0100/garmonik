@@ -466,6 +466,121 @@ export function ExpensesView({
         </Card>
       )}
 
+      <Card className={accent === "emerald" ? "border-emerald-200" : "border-amber-200"}>
+        <CardHeader className="border-b border-slate-100 bg-slate-50/80 pb-4">
+          <CardTitle>Xarajat kiritish</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Yangi chiqimni shu yerdan kiritasiz — ro&apos;yxat va hisobotlar pastda
+          </p>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <form onSubmit={submit} className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Kategoriya</Label>
+              <Select
+                value={category || EXPENSE_CATEGORIES[0]}
+                onValueChange={handleCategoryChange}
+              >
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Kategoriyani tanlang" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {isOtherCategory && (
+              <div className="space-y-2">
+                <Label>Boshqa xarajat turi *</Label>
+                <Input
+                  value={categoryDetail}
+                  onChange={(e) => setCategoryDetail(e.target.value)}
+                  placeholder="Masalan: Ofis jihozlari, transport..."
+                  required
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label>Jami summa (UZS) *</Label>
+              <Input
+                type="number"
+                required
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Masalan: 10000000"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Hozir to&apos;langan summa (UZS)</Label>
+              <Input
+                type="number"
+                value={amountPaidInput}
+                onChange={(e) => setAmountPaidInput(e.target.value)}
+                placeholder={amount || "To'liq to'lov"}
+              />
+            </div>
+
+            {(willHaveDebt || payeeName) && (
+              <div className="space-y-2">
+                <Label>Kimga qarz? *</Label>
+                <Input
+                  value={payeeName}
+                  onChange={(e) => setPayeeName(e.target.value)}
+                  placeholder="Masalan: Kurier, yetkazib beruvchi..."
+                  required={willHaveDebt}
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label>Xarajat sanasi</Label>
+              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            </div>
+
+            <div className="space-y-2 lg:col-span-2 xl:col-span-3">
+              <Label>Izoh</Label>
+              <Input value={description} onChange={(e) => setDescription(e.target.value)} />
+            </div>
+
+            <div className="space-y-2 lg:col-span-2 xl:col-span-3">
+              <Label>To&apos;lov turi *</Label>
+              <p className="text-xs text-muted-foreground">
+                Xarajat qaysi hisobdan to&apos;langanini tanlang (naqt, terminal, Click va h.k.)
+              </p>
+              <PaymentMethodPicker
+                types={paymentTypes}
+                value={paymentTypeId}
+                onChange={setPaymentTypeId}
+              />
+            </div>
+
+            {willHaveDebt && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 lg:col-span-2 xl:col-span-3">
+                <p className="font-medium">Qisman to&apos;lov</p>
+                <p>
+                  Jami: {formatMoney(totalAmount)} · Hozir: {formatMoney(paidNow)} ·
+                  Qolgan qarz: {formatMoney(remainingAfterCreate)}
+                </p>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center gap-3 lg:col-span-2 xl:col-span-3">
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <Button type="submit" disabled={loading}>
+                Saqlash
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-2">
@@ -722,127 +837,9 @@ export function ExpensesView({
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Xarajat kiritish</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={submit} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Kategoriya</Label>
-                <Select
-                  value={category || EXPENSE_CATEGORIES[0]}
-                  onValueChange={handleCategoryChange}
-                >
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Kategoriyani tanlang" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {isOtherCategory && (
-                <div className="space-y-2">
-                  <Label>Boshqa xarajat turi *</Label>
-                  <Input
-                    value={categoryDetail}
-                    onChange={(e) => setCategoryDetail(e.target.value)}
-                    placeholder="Masalan: Ofis jihozlari, transport..."
-                    required
-                  />
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label>To&apos;lov turi *</Label>
-                <p className="text-xs text-muted-foreground">
-                  Xarajat qaysi hisobdan to&apos;langanini tanlang (naqt, terminal, Click va h.k.)
-                </p>
-                <PaymentMethodPicker
-                  types={paymentTypes}
-                  value={paymentTypeId}
-                  onChange={setPaymentTypeId}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Jami summa (UZS) *</Label>
-                <Input
-                  type="number"
-                  required
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Masalan: 10000000"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Hozir to&apos;langan summa (UZS)</Label>
-                <p className="text-xs text-muted-foreground">
-                  Bo&apos;sh qoldirsangiz, jami summa to&apos;liq to&apos;langan deb saqlanadi
-                </p>
-                <Input
-                  type="number"
-                  value={amountPaidInput}
-                  onChange={(e) => setAmountPaidInput(e.target.value)}
-                  placeholder={amount || "To'liq to'lov"}
-                />
-              </div>
-
-              {(willHaveDebt || payeeName) && (
-                <div className="space-y-2">
-                  <Label>Kimga qarz? *</Label>
-                  <Input
-                    value={payeeName}
-                    onChange={(e) => setPayeeName(e.target.value)}
-                    placeholder="Masalan: Kurier, yetkazib beruvchi..."
-                    required={willHaveDebt}
-                  />
-                </div>
-              )}
-
-              {willHaveDebt && (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                  <p className="font-medium">Qisman to&apos;lov</p>
-                  <p>
-                    Jami: {formatMoney(totalAmount)} · Hozir: {formatMoney(paidNow)} ·
-                    Qolgan qarz: {formatMoney(remainingAfterCreate)}
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label>Xarajat sanasi</Label>
-                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-                <p className="text-xs text-muted-foreground">
-                  Bu sana xarajat qaysi kunga tegishli ekanini belgilaydi. Ro&apos;yxatni
-                  yuqoridagi &laquo;Kun&raquo; filtri orqali ko&apos;rasiz.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label>Izoh</Label>
-                <Input value={description} onChange={(e) => setDescription(e.target.value)} />
-              </div>
-
-              {error && <p className="text-sm text-destructive">{error}</p>}
-
-              <Button type="submit" disabled={loading}>
-                Saqlash
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Xarajatlar ro&apos;yxati</CardTitle>
+      <Card>
+        <CardHeader>
+          <CardTitle>Xarajatlar ro&apos;yxati</CardTitle>
             <p className="text-sm text-muted-foreground">
               {filterCategory ? `${filterCategory} · ` : ""}
               {periodLabel} · Jami: {formatMoney(total)}
@@ -978,8 +975,7 @@ export function ExpensesView({
               )}
             </ul>
           </CardContent>
-        </Card>
-      </div>
+      </Card>
     </div>
   );
 }

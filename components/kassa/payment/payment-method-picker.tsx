@@ -21,97 +21,78 @@ type PaymentType = {
 
 type PlatformMeta = {
   icon: typeof Banknote;
-  gradient: string;
-  iconShadow: string;
-  ring: string;
-  selectedBorder: string;
-  hoverBorder: string;
+  rowBg: string;
+  iconBg: string;
   labelColor: string;
 };
 
 const PLATFORM_META: Record<string, PlatformMeta> = {
   CASH: {
     icon: Banknote,
-    gradient: "from-emerald-500 to-teal-600",
-    iconShadow: "shadow-emerald-500/40",
-    ring: "ring-emerald-500/40",
-    selectedBorder: "border-emerald-400 bg-emerald-50/30",
-    hoverBorder: "hover:border-emerald-200",
+    rowBg: "bg-emerald-50/80",
+    iconBg: "bg-emerald-500 text-white",
     labelColor: "text-emerald-800",
   },
   HUMO: {
     icon: CreditCard,
-    gradient: "from-blue-600 to-indigo-700",
-    iconShadow: "shadow-blue-500/40",
-    ring: "ring-blue-500/40",
-    selectedBorder: "border-blue-400 bg-blue-50/30",
-    hoverBorder: "hover:border-blue-200",
+    rowBg: "bg-blue-50/80",
+    iconBg: "bg-blue-600 text-white",
     labelColor: "text-blue-800",
   },
   VISA: {
     icon: CreditCard,
-    gradient: "from-indigo-600 to-violet-700",
-    iconShadow: "shadow-indigo-500/40",
-    ring: "ring-indigo-500/40",
-    selectedBorder: "border-indigo-400 bg-indigo-50/30",
-    hoverBorder: "hover:border-indigo-200",
+    rowBg: "bg-indigo-50/80",
+    iconBg: "bg-indigo-600 text-white",
     labelColor: "text-indigo-800",
   },
   UZCARD: {
     icon: IdCard,
-    gradient: "from-sky-500 to-blue-600",
-    iconShadow: "shadow-sky-500/40",
-    ring: "ring-sky-500/40",
-    selectedBorder: "border-sky-400 bg-sky-50/30",
-    hoverBorder: "hover:border-sky-200",
+    rowBg: "bg-sky-50/80",
+    iconBg: "bg-sky-500 text-white",
     labelColor: "text-sky-800",
   },
   TERMINAL: {
     icon: Wallet,
-    gradient: "from-slate-600 to-slate-800",
-    iconShadow: "shadow-slate-500/40",
-    ring: "ring-slate-500/40",
-    selectedBorder: "border-slate-400 bg-slate-50/30",
-    hoverBorder: "hover:border-slate-300",
+    rowBg: "bg-slate-50/80",
+    iconBg: "bg-slate-600 text-white",
     labelColor: "text-slate-800",
   },
   CLICK: {
     icon: Smartphone,
-    gradient: "from-cyan-500 to-blue-600",
-    iconShadow: "shadow-cyan-500/40",
-    ring: "ring-cyan-500/40",
-    selectedBorder: "border-cyan-400 bg-cyan-50/30",
-    hoverBorder: "hover:border-cyan-200",
+    rowBg: "bg-cyan-50/80",
+    iconBg: "bg-cyan-500 text-white",
     labelColor: "text-cyan-900",
   },
   PAYME: {
     icon: QrCode,
-    gradient: "from-teal-500 to-emerald-600",
-    iconShadow: "shadow-teal-500/40",
-    ring: "ring-teal-500/40",
-    selectedBorder: "border-teal-400 bg-teal-50/30",
-    hoverBorder: "hover:border-teal-200",
+    rowBg: "bg-teal-50/80",
+    iconBg: "bg-teal-500 text-white",
     labelColor: "text-teal-900",
   },
   CUSTOM: {
     icon: Wallet,
-    gradient: "from-orange-500 to-amber-600",
-    iconShadow: "shadow-orange-500/40",
-    ring: "ring-orange-500/40",
-    selectedBorder: "border-orange-400 bg-orange-50/30",
-    hoverBorder: "hover:border-orange-200",
+    rowBg: "bg-orange-50/80",
+    iconBg: "bg-orange-500 text-white",
     labelColor: "text-orange-900",
   },
 };
 
 const DEFAULT_META: PlatformMeta = {
   icon: CreditCard,
-  gradient: "from-slate-500 to-slate-700",
-  iconShadow: "shadow-slate-500/30",
-  ring: "ring-slate-500/30",
-  selectedBorder: "border-slate-400 bg-slate-50/30",
-  hoverBorder: "hover:border-slate-300",
+  rowBg: "bg-slate-50/80",
+  iconBg: "bg-slate-500 text-white",
   labelColor: "text-slate-800",
+};
+
+const PLATFORM_LABEL: Record<string, string> = {
+  CASH: "Naqt",
+  HUMO: "Humo",
+  VISA: "Visa",
+  UZCARD: "UzCard",
+  TERMINAL: "Terminal",
+  CLICK: "Click",
+  PAYME: "Payme",
+  CUSTOM: "Boshqa",
 };
 
 function needsGatewaySetup(type: PaymentType): boolean {
@@ -127,77 +108,100 @@ export function PaymentMethodPicker({
   value: string;
   onChange: (id: string) => void;
 }) {
+  if (types.length === 0) {
+    return (
+      <p className="rounded-lg border border-dashed border-slate-200 px-3 py-4 text-center text-xs text-muted-foreground">
+        To&apos;lov turlari topilmadi
+      </p>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-      {types.map((pt, i) => {
-        const meta = PLATFORM_META[pt.platform] ?? DEFAULT_META;
-        const Icon = meta.icon;
-        const selected = value === pt.id;
-        const pendingIp = needsGatewaySetup(pt);
+    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <table className="w-full text-sm">
+        <thead className="border-b border-slate-200 bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+          <tr>
+            <th className="w-9 px-2 py-2" aria-label="Tanlash" />
+            <th className="w-9 px-1 py-2" aria-label="Tur" />
+            <th className="px-2 py-2">To&apos;lov turi</th>
+            <th className="hidden px-2 py-2 sm:table-cell">Platforma</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          {types.map((pt) => {
+            const meta = PLATFORM_META[pt.platform] ?? DEFAULT_META;
+            const Icon = meta.icon;
+            const selected = value === pt.id;
+            const pendingIp = needsGatewaySetup(pt);
 
-        return (
-          <button
-            key={pt.id}
-            type="button"
-            onClick={() => onChange(pt.id)}
-            title={
-              pendingIp
-                ? "IP hali kiritilmagan — to'lov turi qayd etiladi"
-                : undefined
-            }
-            className={cn(
-              "animate-fade-up group relative flex flex-col items-center gap-2 rounded-2xl border-2 px-2 py-3.5 text-center transition-all duration-300",
-              selected &&
-                cn("scale-[1.02] shadow-lg ring-2 ring-offset-2", meta.selectedBorder, meta.ring),
-              !selected &&
-                cn(
-                  "border-slate-100 bg-white/70 opacity-90 hover:-translate-y-0.5 hover:bg-white hover:opacity-100 hover:shadow-md",
-                  meta.hoverBorder
-                )
-            )}
-            style={{ animationDelay: `${i * 50}ms` }}
-          >
-            {selected && (
-              <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm">
-                <Check className="h-3 w-3 text-emerald-600" />
-              </span>
-            )}
-
-            <div
-              className={cn(
-                "flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white transition-all duration-300",
-                meta.gradient,
-                meta.iconShadow,
-                selected
-                  ? "scale-110 shadow-lg animate-[payment-icon-pulse_2s_ease-in-out_infinite]"
-                  : "shadow-md group-hover:scale-105 group-hover:shadow-lg"
-              )}
-            >
-              <Icon
+            return (
+              <tr
+                key={pt.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => onChange(pt.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onChange(pt.id);
+                  }
+                }}
+                title={
+                  pendingIp
+                    ? "IP hali kiritilmagan — to'lov turi qayd etiladi"
+                    : undefined
+                }
                 className={cn(
-                  "h-6 w-6 transition-transform duration-300",
-                  selected && "drop-shadow-sm",
-                  !selected && "group-hover:scale-110"
+                  "cursor-pointer transition-colors hover:bg-violet-50/50",
+                  selected ? meta.rowBg : "bg-white",
                 )}
-              />
-            </div>
-
-            <span
-              className={cn(
-                "max-w-full truncate px-1 text-xs font-semibold leading-tight",
-                selected && meta.labelColor,
-                !selected && "text-slate-600 group-hover:text-slate-900"
-              )}
-            >
-              {pt.name}
-            </span>
-
-            {pendingIp && (
-              <span className="text-[10px] text-amber-600">IP keyin</span>
-            )}
-          </button>
-        );
-      })}
+              >
+                <td className="px-2 py-2">
+                  <span
+                    className={cn(
+                      "flex h-4 w-4 items-center justify-center rounded border",
+                      selected
+                        ? "border-emerald-500 bg-emerald-500 text-white"
+                        : "border-slate-300 bg-white text-transparent",
+                    )}
+                    aria-hidden
+                  >
+                    <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                  </span>
+                </td>
+                <td className="px-1 py-2">
+                  <span
+                    className={cn(
+                      "flex h-7 w-7 items-center justify-center rounded-md",
+                      meta.iconBg,
+                    )}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                  </span>
+                </td>
+                <td className="px-2 py-2">
+                  <span
+                    className={cn(
+                      "font-medium leading-tight",
+                      selected ? meta.labelColor : "text-slate-800",
+                    )}
+                  >
+                    {pt.name}
+                  </span>
+                  {pendingIp ? (
+                    <span className="mt-0.5 block text-[10px] text-amber-600">
+                      IP keyin ulanadi
+                    </span>
+                  ) : null}
+                </td>
+                <td className="hidden px-2 py-2 text-xs text-slate-500 sm:table-cell">
+                  {PLATFORM_LABEL[pt.platform] ?? pt.platform}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

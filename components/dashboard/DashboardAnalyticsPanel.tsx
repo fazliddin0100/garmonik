@@ -295,7 +295,7 @@ export default function DashboardAnalyticsPanel() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         <article className="rounded-2xl border border-white/70 bg-white/75 p-5 shadow-lg backdrop-blur">
           <p className="text-sm text-slate-500">{resolvedYear} daromad</p>
           <p className="mt-2 text-3xl font-bold text-slate-800">

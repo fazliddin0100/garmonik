@@ -88,8 +88,8 @@ export default function HeadNursePortalLayout({ children }: { children: ReactNod
   }
 
   return (
-    <div className="relative mx-auto flex h-dvh w-full max-w-[1920px] overflow-hidden bg-slate-100">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden h-dvh w-56 shrink-0 flex-col overflow-hidden border-r border-white/60 bg-white/80 backdrop-blur-xl md:flex">
+    <div className="relative flex h-dvh w-full min-w-0 overflow-hidden bg-slate-100">
+      <aside className="z-30 hidden h-dvh w-56 shrink-0 flex-col overflow-hidden border-r border-white/60 bg-white/80 backdrop-blur-xl md:flex">
         <div className="shrink-0 border-b border-white/60 px-4 py-5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-rose-600/90">
             Xodim kabineti
@@ -120,9 +120,9 @@ export default function HeadNursePortalLayout({ children }: { children: ReactNod
         </nav>
       </aside>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:pl-56">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <header className="z-20 shrink-0 border-b border-white/60 bg-white/85 shadow-sm backdrop-blur-xl">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6 lg:px-8">
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Kabinet</p>
               <h1 className="text-xl font-bold text-slate-800 md:text-2xl">
@@ -149,7 +149,9 @@ export default function HeadNursePortalLayout({ children }: { children: ReactNod
             })}
           </nav>
         </header>
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain p-4 md:p-6">{children}</main>
+        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain p-4 md:p-6 lg:p-8">
+          <div className="w-full min-w-0">{children}</div>
+        </main>
       </div>
     </div>
   );

@@ -81,7 +81,7 @@ export default function FarmatsevtPortalLayout({
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-emerald-50/80 via-white to-teal-50/60">
+    <div className="flex min-h-dvh w-full min-w-0 flex-col bg-linear-to-br from-emerald-50/80 via-white to-teal-50/60">
       <header className="sticky top-0 z-30 border-b border-emerald-100/80 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
           <div className="flex min-w-0 items-center gap-3">
@@ -104,7 +104,7 @@ export default function FarmatsevtPortalLayout({
           <RoleAwareUserMenu />
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
+      <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-4 py-6 md:px-6 md:py-8">
         {children}
       </main>
     </div>

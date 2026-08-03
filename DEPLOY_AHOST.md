@@ -26,6 +26,26 @@ postgresql://USER:PASSWORD@HOST:5432/garmonik?sslmode=require
 
 Klinika (`public` schema) va kassa (`kassa` schema) **bir xil** `DATABASE_URL` da.
 
+### Eski kassa bazasi (garmonik_kassa)
+
+Serverda alohida `garmonik_kassa` bazasi bo'lsa (eski kassa ilovasi), yangi sayt **avtomatik** undan ma'lumot oladi:
+
+1. `DATABASE_URL` → `garmonik` (yangi yagona baza)
+2. `deploy:setup-db` bir xil hostdagi `garmonik_kassa` ni topib, `kassa` schema ga ko'chiradi
+3. Yoki loyiha ildizidagi `garmonik_kassa.sql` dump faylidan import qiladi
+
+Serverdan dump olish:
+
+```bash
+pg_dump -U garmonik_user -d garmonik_kassa -F p -f garmonik_kassa.sql
+```
+
+Loyihaga `garmonik_kassa.sql` ni qo'ying yoki `.env` da:
+
+```env
+KASSA_SOURCE_DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/garmonik_kassa?sslmode=require"
+```
+
 ---
 
 ## 2. Loyihani serverga yuklash
@@ -63,20 +83,30 @@ NODE_ENV=production
 
 ```bash
 npm install
-npm run deploy:preflight
-npm run db:migrate
-npx prisma db push --schema=prisma/kassa/schema.prisma
-npm run build
+cp .env.example .env
+nano .env   # DATABASE_URL, JWT_SECRET, SEED_ADMIN_LOGIN/PASSWORD
 
-# Birinchi marta (ixtiyoriy seed):
-# npm run db:seed
-# npm run db:kassa:seed
+# Bir martalik to'liq o'rnatish (migratsiya + kassa import + admin):
+npm run deploy:install
+# yoki: npm run deploy:setup-db
+
+npm run build
 
 npm install -g pm2
 pm2 start npm --name garmonik -- start
 pm2 save
 pm2 startup
 ```
+
+**Admin avtomatik yaratiladi:** `deploy:install` bazada admin yo'q bo'lsa `npm run deploy:bootstrap` orqali login/parol yaratadi. Terminalda ko'rsatiladi.
+
+Standart (`.env` da o'zgartirmasangiz):
+
+| Login | Parol |
+|-------|-------|
+| `admin` | `admin123` |
+
+Kirish: `/auth/login` → `/dashboard`
 
 Ilova `3000` portda ishlaydi.
 
@@ -107,7 +137,9 @@ cp .env.example .env
 docker compose -f docker-compose.ahost.yml up -d --build
 ```
 
-Birinchi marta seed uchun `.env` ga `RUN_DB_SEED=true` qo'shing (faqat bir marta).
+Birinchi marta Docker ishga tushganda admin **avtomatik** yaratiladi (entrypoint `bootstrap-if-empty` chaqiradi). Terminal logida login/parol chiqadi.
+
+To'liq seedni qayta ishga tushirish kerak bo'lsa (bir marta): `.env` ga `RUN_DB_SEED=true` qo'shing.
 
 ---
 

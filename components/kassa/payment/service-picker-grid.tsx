@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Minus, Plus, Search, X } from "lucide-react";
+import { CustomServiceForm } from "@/components/kassa/payment/custom-service-form";
 import { Button } from "@/components/kassa/ui/button";
 import { Input } from "@/components/kassa/ui/input";
 import { cn, formatMoney, formatServicePrice, toNumber } from "@/lib/kassa/utils";
@@ -11,8 +12,6 @@ type Service = {
   price: { toString(): string };
   category?: { name: string } | null;
 };
-
-import { CustomServiceForm } from "@/components/kassa/payment/custom-service-form";
 
 type CartItem = {
   cartKey: string;
@@ -58,6 +57,10 @@ export function ServicePickerGrid({
     selectableServices.length > 0 &&
     selectableServices.every((s) => isInCart(s.id));
 
+  const flatRows = groupedServices.flatMap(([category, items]) =>
+    items.map((service) => ({ category, service })),
+  );
+
   return (
     <div className="space-y-4">
       <CustomServiceForm onAdd={onAddCustom} />
@@ -89,11 +92,11 @@ export function ServicePickerGrid({
         )}
       </div>
 
-      <div className="max-h-[min(520px,60vh)] overflow-y-auto rounded-2xl border border-slate-100 bg-slate-50/40 p-3">
+      <div className="max-h-[min(520px,60vh)] overflow-auto rounded-xl border border-slate-200 bg-white">
         {loading ? (
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-            {[0, 1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-28 animate-shimmer rounded-2xl" />
+          <div className="divide-y divide-slate-100">
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+              <div key={i} className="h-10 animate-shimmer" />
             ))}
           </div>
         ) : error ? (
@@ -105,7 +108,7 @@ export function ServicePickerGrid({
               </Button>
             )}
           </div>
-        ) : groupedServices.length === 0 ? (
+        ) : flatRows.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-sm text-muted-foreground">
               {serviceSearch.trim()
@@ -116,100 +119,97 @@ export function ServicePickerGrid({
             </p>
           </div>
         ) : (
-          <div className="space-y-5">
-            {groupedServices.map(([category, items]) => (
-              <div key={category}>
-                <p className="mb-3 sticky top-0 z-10 rounded-lg bg-slate-50/95 px-2 py-1.5 text-xs font-bold uppercase tracking-wider text-violet-600 backdrop-blur-sm">
-                  {category}
-                </p>
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-3">
-                  {items.map((service) => {
-                    const price = toNumber(service.price);
-                    const disabled = price <= 0;
-                    const selected = isInCart(service.id);
-                    const cartItem = cart.find(
-                      (c) => c.serviceId === service.id && !c.isCustom
-                    );
-                    const qty = cartItem?.quantity ?? 0;
+          <table className="w-full min-w-[640px] text-sm">
+            <thead className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <tr>
+                <th className="w-10 px-3 py-2.5" aria-label="Tanlash" />
+                <th className="px-3 py-2.5">Turkum</th>
+                <th className="px-3 py-2.5">Xizmat</th>
+                <th className="px-3 py-2.5 text-right">Narx</th>
+                <th className="w-28 px-3 py-2.5 text-center">Miqdor</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {flatRows.map(({ category, service }) => {
+                const price = toNumber(service.price);
+                const disabled = price <= 0;
+                const selected = isInCart(service.id);
+                const cartItem = cart.find(
+                  (c) => c.serviceId === service.id && !c.isCustom,
+                );
+                const qty = cartItem?.quantity ?? 0;
 
-                    return (
-                      <div
-                        key={service.id}
+                return (
+                  <tr
+                    key={service.id}
+                    className={cn(
+                      "transition-colors",
+                      disabled && "opacity-45",
+                      selected ? "bg-emerald-50/80" : "hover:bg-violet-50/40",
+                      !disabled && "cursor-pointer",
+                    )}
+                    onClick={() => {
+                      if (!disabled) onToggle(service);
+                    }}
+                  >
+                    <td className="px-3 py-2">
+                      <span
                         className={cn(
-                          "group relative flex min-h-[108px] flex-col rounded-2xl border-2 bg-white p-3 text-left shadow-sm transition-all duration-200",
-                          disabled && "cursor-not-allowed opacity-45",
-                          !disabled && !selected && "border-slate-100 hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md",
-                          selected &&
-                            "border-emerald-400 bg-gradient-to-br from-emerald-50 to-teal-50/80 shadow-md ring-2 ring-emerald-400/30"
+                          "flex h-5 w-5 items-center justify-center rounded border",
+                          selected
+                            ? "border-emerald-500 bg-emerald-500 text-white"
+                            : "border-slate-300 bg-white text-transparent",
+                          disabled && "border-slate-200 bg-slate-50",
                         )}
+                        aria-hidden
                       >
-                        <button
-                          type="button"
-                          disabled={disabled}
-                          onClick={() => !disabled && onToggle(service)}
-                          className="flex flex-1 flex-col text-left"
-                        >
-                          {selected && (
-                            <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white shadow-md">
-                              <Check className="h-3.5 w-3.5" strokeWidth={3} />
-                            </span>
-                          )}
-
-                          <span
-                            className={cn(
-                              "line-clamp-3 pr-6 text-sm font-semibold leading-snug",
-                              selected ? "text-emerald-900" : "text-slate-800"
-                            )}
+                        <Check className="h-3 w-3" strokeWidth={3} />
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 text-xs font-medium text-violet-700">
+                      {category}
+                    </td>
+                    <td className="px-3 py-2 font-medium text-slate-800">
+                      {service.name}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 text-right font-semibold text-violet-700">
+                      {formatServicePrice(price)}
+                    </td>
+                    <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                      {selected && qty > 0 ? (
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            type="button"
+                            className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200"
+                            onClick={() => onUpdateQty(service.id, qty - 1)}
                           >
-                            {service.name}
+                            <Minus className="h-3.5 w-3.5" />
+                          </button>
+                          <span className="min-w-[1.5rem] text-center text-sm font-bold text-emerald-800">
+                            {qty}
                           </span>
-
-                          <span
-                            className={cn(
-                              "mt-auto pt-2 text-base font-bold",
-                              selected ? "text-emerald-700" : "text-violet-600"
-                            )}
+                          <button
+                            type="button"
+                            className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500 text-white hover:bg-emerald-600"
+                            onClick={() => onUpdateQty(service.id, qty + 1)}
                           >
-                            {formatServicePrice(price)}
-                          </span>
-                        </button>
-
-                        {selected && qty > 0 && (
-                          <div
-                            className="mt-2 flex items-center justify-between gap-1 rounded-xl border border-emerald-200 bg-white/90 p-1"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <button
-                              type="button"
-                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-700 transition-colors hover:bg-slate-200"
-                              onClick={() => onUpdateQty(service.id, qty - 1)}
-                            >
-                              <Minus className="h-4 w-4" />
-                            </button>
-                            <span className="min-w-[2rem] text-center text-sm font-bold text-emerald-800">
-                              {qty}
-                            </span>
-                            <button
-                              type="button"
-                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-white transition-colors hover:bg-emerald-600"
-                              onClick={() => onUpdateQty(service.id, qty + 1)}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="block text-center text-xs text-slate-400">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </div>
 
       {cart.length > 0 && (
-        <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-3">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-3">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-emerald-700">
             Tanlangan xizmatlar
           </p>

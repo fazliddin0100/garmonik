@@ -328,11 +328,11 @@ function StaffPortalShell({
     session.kind === 'staff' ? 'Xodim kabineti' : 'Administrator kabineti';
 
   return (
-    <div className="relative mx-auto flex h-dvh w-full min-w-0 max-w-[1920px] overflow-hidden bg-slate-100">
+    <div className="relative flex h-dvh w-full min-w-0 overflow-hidden bg-slate-100">
       <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-violet-400/20 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl" />
 
-      <aside className="fixed inset-y-0 left-0 z-30 hidden h-dvh w-56 min-w-56 shrink-0 flex-col overflow-hidden border-r border-white/60 bg-white/80 backdrop-blur-xl md:flex">
+      <aside className="z-30 hidden h-dvh w-56 shrink-0 flex-col overflow-hidden border-r border-white/60 bg-white/80 backdrop-blur-xl md:flex">
         <div className="shrink-0 border-b border-white/60 px-4 py-5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-600/90">
             {portalBadge}
@@ -358,9 +358,9 @@ function StaffPortalShell({
         <div className="shrink-0 border-t border-white/60 p-3" />
       </aside>
 
-      <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:pl-56">
+      <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <header className="z-20 shrink-0 border-b border-white/60 bg-white/85 shadow-sm backdrop-blur-xl">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6 lg:px-8">
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
                 Kabinet
@@ -387,7 +387,9 @@ function StaffPortalShell({
             />
           </nav>
         </header>
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain p-4 md:p-6">{children}</main>
+        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain p-4 md:p-6 lg:p-8">
+          <div className="w-full min-w-0">{children}</div>
+        </main>
       </div>
     </div>
   );

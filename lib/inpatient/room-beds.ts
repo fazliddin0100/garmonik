@@ -61,6 +61,42 @@ export function getFreeBedIndices(
   return free;
 }
 
+/** Har bir karavot indeksiga biriktirilgan yotqizish (getOccupiedBedIndices bilan mos) */
+export function getBedOccupancyMap(
+  roomId: string,
+  admissions: InpatientAdmission[],
+  capacity: number,
+): Map<number, InpatientAdmission> {
+  const map = new Map<number, InpatientAdmission>();
+  const active = admissions.filter(
+    (a) => a.status === 'admitted' && a.roomId === roomId,
+  );
+
+  for (const a of active) {
+    if (typeof a.bedIndex === 'number' && a.bedIndex >= 0 && a.bedIndex < capacity) {
+      if (!map.has(a.bedIndex)) map.set(a.bedIndex, a);
+    }
+  }
+
+  for (const a of active) {
+    if (typeof a.bedIndex === 'number') continue;
+    const parsed = parseBedIndexFromLabel(a.bedLabel);
+    if (parsed !== null && parsed >= 0 && parsed < capacity && !map.has(parsed)) {
+      map.set(parsed, a);
+    }
+  }
+
+  for (const a of active) {
+    if (typeof a.bedIndex === 'number') continue;
+    if (parseBedIndexFromLabel(a.bedLabel) !== null) continue;
+    let idx = 0;
+    while (idx < capacity && map.has(idx)) idx++;
+    if (idx < capacity) map.set(idx, a);
+  }
+
+  return map;
+}
+
 export function addDaysToIsoDate(isoDate: string, days: number): string {
   const d = new Date(`${isoDate}T12:00:00`);
   d.setDate(d.getDate() + days);

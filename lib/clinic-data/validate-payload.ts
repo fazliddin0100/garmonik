@@ -148,6 +148,50 @@ export function validateClinicResourcePayload(
       }
       break;
     }
+    case 'kadrlar-employee-profiles': {
+      const arr = assertArray(data, key);
+      for (const row of arr) {
+        const o = assertObject(row, key);
+        if (typeof o.employeeId !== 'string' || !o.employeeId.trim()) {
+          throw new Error('kadrlar-employee-profiles: employeeId kerak');
+        }
+        if (typeof o.staffKind !== 'string' || !o.staffKind.trim()) {
+          throw new Error('kadrlar-employee-profiles: staffKind kerak');
+        }
+        if (typeof o.firstName !== 'string') {
+          throw new Error('kadrlar-employee-profiles: firstName kerak');
+        }
+        if (typeof o.lastName !== 'string') {
+          throw new Error('kadrlar-employee-profiles: lastName kerak');
+        }
+        if (
+          o.birthYear !== null &&
+          o.birthYear !== undefined &&
+          (typeof o.birthYear !== 'number' ||
+            !Number.isFinite(o.birthYear) ||
+            o.birthYear < 1900 ||
+            o.birthYear > 2100)
+        ) {
+          throw new Error('kadrlar-employee-profiles: birthYear noto‘g‘ri');
+        }
+        if (o.birthDate !== undefined && typeof o.birthDate !== 'string') {
+          throw new Error('kadrlar-employee-profiles: birthDate matn bo‘lishi kerak');
+        }
+        if (typeof o.activityDirection !== 'string') {
+          throw new Error('kadrlar-employee-profiles: activityDirection kerak');
+        }
+        if (o.address !== undefined && typeof o.address !== 'string') {
+          throw new Error('kadrlar-employee-profiles: address matn bo‘lishi kerak');
+        }
+        if (typeof o.objektivkaPath !== 'string') {
+          throw new Error('kadrlar-employee-profiles: objektivkaPath kerak');
+        }
+        if (typeof o.objektivkaFileName !== 'string') {
+          throw new Error('kadrlar-employee-profiles: objektivkaFileName kerak');
+        }
+      }
+      break;
+    }
     default: {
       assertArray(data, key);
       for (const row of data as unknown[]) {

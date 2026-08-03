@@ -27,7 +27,7 @@ export default function Login() {
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden flex items-center justify-center p-8">
+    <div className="relative flex min-h-dvh w-full min-w-0 items-center justify-center overflow-hidden p-4 sm:p-8">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap');
         .font-syne { font-family: 'Syne', sans-serif; }
@@ -162,7 +162,7 @@ export default function Login() {
       <div className="absolute inset-0 -z-10 backdrop-blur-sm bg-white/30" />
 
       {/* Card */}
-      <div className="anim-card relative z-10 w-full max-w-md rounded-3xl p-10 border border-white/60 bg-white/75 backdrop-blur-xl shadow-2xl">
+      <div className="anim-card relative z-10 w-full max-w-md rounded-3xl border border-white/60 bg-white/75 p-6 shadow-2xl backdrop-blur-xl sm:p-10">
         <div className="absolute -inset-px -z-10 rounded-3xl bg-linear-to-br from-violet-200/40 via-white/10 to-emerald-100/30 opacity-60" />
 
         {/* Logo */}

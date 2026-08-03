@@ -1,6 +1,7 @@
 'use client';
 
 import type { HeadNurseData } from '@/components/head-nurse/useHeadNurseData';
+import RoomBedGrid from '@/components/rooms/RoomBedGrid';
 import { Users } from 'lucide-react';
 
 export default function HeadNurseRoomsPanel({ data }: { data: HeadNurseData }) {
@@ -26,7 +27,6 @@ export default function HeadNurseRoomsPanel({ data }: { data: HeadNurseData }) {
         {data.rooms.map((room) => {
           const free = Math.max(0, room.capacity - room.occupied);
           const pct = room.capacity > 0 ? Math.round((room.occupied / room.capacity) * 100) : 0;
-          const occupants = data.activeAdmissions.filter((a) => a.roomId === room.id);
 
           return (
             <article
@@ -49,16 +49,14 @@ export default function HeadNurseRoomsPanel({ data }: { data: HeadNurseData }) {
                 />
               </div>
               <p className="mt-2 text-xs text-emerald-700">{free} ta bo‘sh o‘rin</p>
-              {occupants.length > 0 ?
-                <ul className="mt-3 space-y-1 border-t border-slate-100 pt-3 text-sm">
-                  {occupants.map((a) => (
-                    <li key={a.id} className="text-slate-700">
-                      {a.patientName}
-                      {a.bedLabel ? ` (${a.bedLabel})` : ''}
-                    </li>
-                  ))}
-                </ul>
-              : null}
+              <div className="mt-4 border-t border-slate-100 pt-4">
+                <RoomBedGrid
+                  room={room}
+                  admissions={data.admissions}
+                  mode="view"
+                  size="sm"
+                />
+              </div>
             </article>
           );
         })}

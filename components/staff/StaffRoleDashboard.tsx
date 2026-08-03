@@ -85,10 +85,10 @@ export default function StaffRoleDashboard({ role, intro }: StaffRoleDashboardPr
           {STAFF_ROLE_LABELS[role]} kabineti
         </p>
         <h2 className="mt-2 text-2xl font-bold md:text-3xl">Xush kelibsiz</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/90">{intro}</p>
+        <p className="mt-3 text-sm leading-relaxed text-white/90 md:text-base">{intro}</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {cards.map((c) => {
           const Icon = c.icon;
           const className =

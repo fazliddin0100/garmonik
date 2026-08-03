@@ -14,6 +14,9 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import ClinicDataModulesPanel from '@/components/settings/ClinicDataModulesPanel';
+import KassaDataModulesPanel from '@/components/settings/KassaDataModulesPanel';
+import { DATA_MODULE_QUICK_GRID, DATA_MODULE_QUICK_LINK } from '@/components/settings/DataModuleCard';
 import { fetchClinicResource, saveClinicResource } from '@/lib/clinic-data/client';
 import {
   dashboardViewPath,
@@ -22,7 +25,6 @@ import {
 } from '@/lib/dashboard/views';
 import { DEFAULT_CLINIC_SETTINGS, type ClinicSettings } from '@/lib/settings/types';
 import {
-  Bell,
   Building2,
   CalendarClock,
   Coins,
@@ -39,9 +41,24 @@ import { toast } from 'sonner';
 
 export default function ClinicSettingsPanel() {
   const router = useRouter();
+  const [canImportModules, setCanImportModules] = useState(false);
   const [settings, setSettings] = useState<ClinicSettings>(() => ({
     ...DEFAULT_CLINIC_SETTINGS,
   }));
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' });
+        const me = (await res.json()) as { kind?: string; routeGroup?: string };
+        if (me?.kind === 'admin' && me.routeGroup === 'admin_only') {
+          setCanImportModules(true);
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -97,7 +114,7 @@ export default function ClinicSettingsPanel() {
               Sozlamalar markazi
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-              Rejalashtirish, moliyaviy hujjatlar, bildirishnomalar va xavfsizlik — barchasi bitta joyda.
+              Rejalashtirish, moliyaviy hujjatlar va xavfsizlik — barchasi bitta joyda.
               Qiymatlar MongoDB serverida saqlanadi.
             </p>
           </div>
@@ -141,12 +158,6 @@ export default function ClinicSettingsPanel() {
               className="rounded-xl px-4 py-2.5 data-[state=active]:bg-linear-to-r data-[state=active]:from-violet-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-md">
               <Coins className="size-4" />
               Moliya
-            </TabsTrigger>
-            <TabsTrigger
-              value="notifications"
-              className="rounded-xl px-4 py-2.5 data-[state=active]:bg-linear-to-r data-[state=active]:from-violet-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-              <Bell className="size-4" />
-              Bildirishnomalar
             </TabsTrigger>
             <TabsTrigger
               value="integrations"
@@ -440,70 +451,6 @@ export default function ClinicSettingsPanel() {
           </div>
         </TabsContent>
 
-        <TabsContent value="notifications" className={tabCard}>
-          <h2 className="text-lg font-semibold text-slate-900">Bildirishnomalar</h2>
-          <p className="mt-1 text-sm text-slate-500">SMS va ichki ogohlantirishlar (ulash keyingi bosqichda).</p>
-          <Separator className="my-5 bg-slate-200/80" />
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white px-4 py-3.5 shadow-sm">
-              <div>
-                <p className="text-sm font-medium text-slate-800">SMS eslatma</p>
-                <p className="text-xs text-slate-500">Navbatdan oldin avtomatik xabar</p>
-              </div>
-              <Switch
-                checked={settings.smsReminder}
-                onCheckedChange={(c) => patch('smsReminder', c)}
-              />
-            </div>
-            {settings.smsReminder && (
-              <div className="max-w-xs space-y-2 pl-1">
-                <Label htmlFor="smsH">Necha soat oldin</Label>
-                <Input
-                  id="smsH"
-                  type="number"
-                  min={1}
-                  max={72}
-                  value={settings.smsReminderHoursBefore}
-                  onChange={(e) =>
-                    patch('smsReminderHoursBefore', Number.parseInt(e.target.value, 10) || 1)
-                  }
-                  className="rounded-xl border-violet-200/80"
-                />
-              </div>
-            )}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white px-4 py-3.5 shadow-sm">
-              <div>
-                <p className="text-sm font-medium text-slate-800">Kunlik email digest</p>
-                <p className="text-xs text-slate-500">Hisobotlar bo‘limiga havola</p>
-              </div>
-              <Switch
-                checked={settings.emailDailyDigest}
-                onCheckedChange={(c) => patch('emailDailyDigest', c)}
-              />
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white px-4 py-3.5 shadow-sm">
-              <div>
-                <p className="text-sm font-medium text-slate-800">Ichki push-ogohlantirish</p>
-                <p className="text-xs text-slate-500">Kritik navbat va shartnomalar</p>
-              </div>
-              <Switch
-                checked={settings.internalPushAlerts}
-                onCheckedChange={(c) => patch('internalPushAlerts', c)}
-              />
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white px-4 py-3.5 shadow-sm">
-              <div>
-                <p className="text-sm font-medium text-slate-800">Ro‘yxatdan rozilik</p>
-                <p className="text-xs text-slate-500">Bemorlar modulida majburiy checkbox</p>
-              </div>
-              <Switch
-                checked={settings.patientConsentOnRegister}
-                onCheckedChange={(c) => patch('patientConsentOnRegister', c)}
-              />
-            </div>
-          </div>
-        </TabsContent>
-
         <TabsContent value="integrations" className={tabCard}>
           <h2 className="text-lg font-semibold text-slate-900">Integratsiya</h2>
           <p className="mt-1 text-sm text-slate-500">
@@ -597,8 +544,8 @@ export default function ClinicSettingsPanel() {
           <p className="mt-1 text-sm text-slate-500">
             Tezkor havolalar — sozlamalar bilan bog‘langan bo‘limlar.
           </p>
-          <Separator className="my-5 bg-slate-200/80" />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Separator className="my-3 bg-slate-200/80" />
+          <div className={DATA_MODULE_QUICK_GRID}>
             {(
               [
                 { href: '/patients', label: 'Bemorlar', desc: 'Kartoteka va rozilik' },
@@ -634,27 +581,31 @@ export default function ClinicSettingsPanel() {
                     persistDashboardInitialView(l.dashboardView);
                     router.push(dashboardViewPath(l.dashboardView));
                   }}
-                  className="rounded-2xl border border-violet-100 bg-linear-to-br from-white to-violet-50/40 p-4 text-left shadow-sm transition hover:border-violet-300 hover:shadow-md">
-                  <p className="font-semibold text-slate-800">{l.label}</p>
-                  <p className="mt-1 text-xs text-slate-500">{l.desc}</p>
+                  className={`${DATA_MODULE_QUICK_LINK} text-left`}>
+                  <p className="truncate text-xs font-semibold text-slate-800">{l.label}</p>
+                  <p className="mt-0.5 line-clamp-1 text-[10px] text-slate-500">{l.desc}</p>
                 </button>
               : <Link
                   key={l.href}
                   href={l.href}
-                  className="rounded-2xl border border-violet-100 bg-linear-to-br from-white to-violet-50/40 p-4 shadow-sm transition hover:border-violet-300 hover:shadow-md">
-                  <p className="font-semibold text-slate-800">{l.label}</p>
-                  <p className="mt-1 text-xs text-slate-500">{l.desc}</p>
+                  className={DATA_MODULE_QUICK_LINK}>
+                  <p className="truncate text-xs font-semibold text-slate-800">{l.label}</p>
+                  <p className="mt-0.5 line-clamp-1 text-[10px] text-slate-500">{l.desc}</p>
                 </Link>,
             )}
           </div>
-          <Separator className="my-6 bg-slate-200/80" />
-          <div className="rounded-2xl border border-rose-200/70 bg-rose-50/50 p-4">
-            <p className="text-sm font-semibold text-rose-900">Ehtiyot zonasi</p>
-            <p className="mt-1 text-xs text-rose-800/90">
-              Klinika ma’lumotlari serverda saqlanadi. To‘liq tiklash yoki o‘chirish uchun ma’lumotlar
-              bazasi administratoriga murojaat qiling.
-            </p>
-          </div>
+          <Separator className="my-4 bg-slate-200/80" />
+          <h3 className="text-sm font-semibold text-slate-900">Ma&apos;lumotlar bazasi modullari</h3>
+          <p className="mt-0.5 mb-2 text-xs text-slate-500">
+            Har bir modulni alohida JSON fayl sifatida yuklab oling yoki tiklang.
+          </p>
+          <ClinicDataModulesPanel canImport={canImportModules} />
+          <Separator className="my-4 bg-slate-200/80" />
+          <h3 className="text-sm font-semibold text-slate-900">Kassa tizimi modullari</h3>
+          <p className="mt-0.5 mb-2 text-xs text-slate-500">
+            Kassa bazasi — alohida eksport va import.
+          </p>
+          <KassaDataModulesPanel canImport={canImportModules} />
         </TabsContent>
       </Tabs>
     </div>

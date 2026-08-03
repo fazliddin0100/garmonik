@@ -17,11 +17,11 @@ import {
 } from '@/lib/inpatient/admission-eligibility';
 import { getRoomPaymentFromRequest } from '@/lib/inpatient/room-payment-status';
 import type { InpatientAdmission } from '@/lib/inpatient/types';
+import RoomBedGrid from '@/components/rooms/RoomBedGrid';
 import {
   addDaysToIsoDate,
   bedLabelForIndex,
   getFreeBedIndices,
-  getOccupiedBedIndices,
 } from '@/lib/inpatient/room-beds';
 import { formatAdmissionDate, todayDateIso } from '@/lib/inpatient/utils';
 import type { InpatientRoomPayment } from '@/lib/kassa/inpatient-room-payment';
@@ -122,46 +122,6 @@ function RoomPickerCard({
         />
       </div>
     </button>
-  );
-}
-
-function BedSlotPicker({
-  room,
-  admissions,
-  selectedIndex,
-  onSelect,
-}: {
-  room: ClinicRoom;
-  admissions: InpatientAdmission[];
-  selectedIndex: number | null;
-  onSelect: (index: number) => void;
-}) {
-  const occupied = getOccupiedBedIndices(room.id, admissions, room.capacity);
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {Array.from({ length: room.capacity }, (_, i) => {
-        const isTaken = occupied.has(i);
-        const isSelected = selectedIndex === i;
-        return (
-          <button
-            key={i}
-            type="button"
-            disabled={isTaken}
-            onClick={() => onSelect(i)}
-            title={isTaken ? 'Band' : bedLabelForIndex(i)}
-            className={`flex size-10 items-center justify-center rounded-lg text-xs font-semibold transition ${
-              isTaken ?
-                'cursor-not-allowed bg-linear-to-br from-rose-500 to-violet-600 text-white opacity-80'
-              : isSelected ?
-                'bg-rose-600 text-white ring-2 ring-rose-400'
-              : 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-300 hover:bg-emerald-200'
-            }`}>
-            {i + 1}
-          </button>
-        );
-      })}
-    </div>
   );
 }
 
@@ -420,10 +380,15 @@ export default function PendingAdmissionsPanel({
 
                   {selectedRoom ?
                     <div className="grid gap-2">
-                      <Label>{selectedRoom.name} — bo‘sh karavot</Label>
-                      <BedSlotPicker
+                      <Label>{selectedRoom.name} — karavotni tanlang</Label>
+                      <p className="text-xs text-slate-500">
+                        Bo‘sh karavot ustiga bosing — yashil karavot bo‘sh, rangli
+                        karavot band.
+                      </p>
+                      <RoomBedGrid
                         room={selectedRoom}
                         admissions={data.admissions}
+                        mode="select"
                         selectedIndex={bedIndex}
                         onSelect={setBedIndex}
                       />

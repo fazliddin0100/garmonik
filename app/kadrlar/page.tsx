@@ -1,13 +1,6 @@
-import PortalGate from '@/components/auth/PortalGate';
-import DashboardLayout from '@/components/layout';
-import KadrlarStaffPanel from '@/components/kadrlar/KadrlarStaffPanel';
+import { redirect } from 'next/navigation';
 
-export default function KadrlarPage() {
-  return (
-    <PortalGate allowedAdminRouteGroups={['admin_only', 'hr']}>
-      <DashboardLayout title="Kadrlar bo‘limi">
-        <KadrlarStaffPanel />
-      </DashboardLayout>
-    </PortalGate>
-  );
+/** Kadrlar bosh sahifasi — xodimlar ro‘yxatiga yo‘naltirish */
+export default function KadrlarIndexPage() {
+  redirect('/kadrlar/xodimlar');
 }

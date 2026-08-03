@@ -31,6 +31,7 @@ export function defaultPayloadForKey(key: ClinicResourceKey): unknown {
     case 'inpatient-admissions':
     case 'supply-orders':
     case 'supply-purchases':
+    case 'kadrlar-employee-profiles':
       return [];
     default: {
       const _exhaustive: never = key;

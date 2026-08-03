@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireSession, logAudit } from "@/lib/kassa/auth";
+import { ensureKassaServicesAvailable } from "@/lib/kassa/ensure-services";
 import { prisma } from "@/lib/kassa/prisma";
 import { z } from "zod";
 
@@ -8,6 +9,8 @@ export async function GET() {
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  await ensureKassaServicesAvailable();
 
   const services = await prisma.service.findMany({
     where: { isActive: true },

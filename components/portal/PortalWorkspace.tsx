@@ -29,9 +29,9 @@ export default function PortalWorkspace() {
       case 'appointments':
         return (
           <Tabs defaultValue="queue" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="queue">Navbat</TabsTrigger>
-              <TabsTrigger value="requests">Instagram arizalari</TabsTrigger>
+            <TabsList className="flex h-auto w-full flex-wrap gap-1">
+              <TabsTrigger value="queue" className="flex-1 sm:flex-none">Navbat</TabsTrigger>
+              <TabsTrigger value="requests" className="flex-1 sm:flex-none">Instagram arizalari</TabsTrigger>
             </TabsList>
             <TabsContent value="queue">
               <QueueLivePanel />

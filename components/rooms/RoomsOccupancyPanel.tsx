@@ -20,22 +20,23 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import RoomBedGrid from "@/components/rooms/RoomBedGrid";
 import { fetchClinicResource, saveClinicResource } from "@/lib/clinic-data/client";
 import { type ClinicRoom } from "@/lib/clinic-rooms/types";
-import { Armchair, Minus, Pencil, Plus, Trash2, Users } from "lucide-react";
 import {
-  startTransition,
+  normalizeInpatientAdmission,
+  type InpatientAdmission,
+} from "@/lib/inpatient/types";
+import { syncRoomsWithAdmissions } from "@/lib/inpatient/utils";
+import { Armchair, Pencil, Plus, Trash2, Users } from "lucide-react";
+import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { toast } from "sonner";
-
-const OCCUPIED_FROM = "from-rose-500";
-const OCCUPIED_TO = "to-violet-600";
-const FREE_BG = "bg-emerald-100";
-const FREE_RING = "ring-emerald-400/50";
 
 type RoomFormState = {
   name: string;
@@ -59,105 +60,11 @@ function clampOccupied(capacity: number, occupied: number) {
   return Math.max(0, Math.min(capacity, Math.round(occupied)));
 }
 
-function RoomOccupancyVisual({
-  capacity,
-  occupied,
-  animateKey,
-}: {
-  capacity: number;
-  occupied: number;
-  animateKey: string;
-}) {
-  const free = Math.max(0, capacity - occupied);
-  const pct =
-    capacity > 0 ? Math.min(100, Math.round((occupied / capacity) * 100)) : 0;
-
-  const showDiscrete = capacity <= 20;
-  const slots = showDiscrete ? capacity : 20;
-  const occupiedVisual = showDiscrete
-    ? occupied
-    : Math.round((occupied / capacity) * slots);
-
-  return (
-    <div className="space-y-3">
-      <div
-        className="relative h-3 overflow-hidden rounded-full bg-emerald-100/90 ring-1 ring-emerald-200/60"
-        key={`bar-${animateKey}`}>
-        <div
-          className={`absolute inset-y-0 left-0 rounded-full bg-linear-to-r ${OCCUPIED_FROM} ${OCCUPIED_TO} shadow-sm transition-[width] duration-700 ease-out motion-reduce:transition-none`}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-
-      {showDiscrete ?
-        <div className="flex flex-wrap gap-1.5">
-          {Array.from({ length: capacity }, (_, i) => {
-            const isOccupied = i < occupied;
-            return (
-              <span
-                key={`${animateKey}-slot-${i}`}
-                className={`size-3.5 rounded-md motion-safe:animate-in motion-safe:zoom-in-95 motion-safe:fade-in motion-reduce:animate-none ${
-                  isOccupied ?
-                    `bg-linear-to-br ${OCCUPIED_FROM} ${OCCUPIED_TO} shadow-sm shadow-rose-500/20`
-                  : `${FREE_BG} ring-2 ring-inset ${FREE_RING}`
-                }`}
-                style={{
-                  animationDelay: `${Math.min(i, 24) * 35}ms`,
-                  animationDuration: "380ms",
-                  animationFillMode: "backwards",
-                }}
-                title={isOccupied ? "Band o‘rin" : "Bosh o‘rin"}
-              />
-            );
-          })}
-        </div>
-      : <div className="flex flex-wrap gap-1.5">
-          {Array.from({ length: slots }, (_, i) => {
-            const isOccupied = i < occupiedVisual;
-            return (
-              <span
-                key={`${animateKey}-mini-${i}`}
-                className={`size-2.5 rounded-sm motion-safe:animate-in motion-safe:zoom-in motion-safe:fade-in motion-reduce:animate-none ${
-                  isOccupied ?
-                    `bg-linear-to-br ${OCCUPIED_FROM} ${OCCUPIED_TO}`
-                  : `${FREE_BG} ring-1 ${FREE_RING}`
-                }`}
-                style={{
-                  animationDelay: `${Math.min(i, 24) * 25}ms`,
-                  animationDuration: "320ms",
-                  animationFillMode: "backwards",
-                }}
-              />
-            );
-          })}
-          <span className="self-center text-[10px] text-slate-400">
-            ({capacity} o‘rin — qisqacha ko‘rinish)
-          </span>
-        </div>
-      }
-
-      <div className="flex flex-wrap gap-4 text-xs">
-        <span className="inline-flex items-center gap-1.5 font-medium text-rose-700">
-          <span
-            className={`inline-block size-2.5 rounded-sm bg-linear-to-br ${OCCUPIED_FROM} ${OCCUPIED_TO}`}
-          />
-          Band: {occupied}
-        </span>
-        <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700">
-          <span
-            className={`inline-block size-2.5 rounded-sm ${FREE_BG} ring-2 ring-emerald-400/50`}
-          />
-          Bosh: {free}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 export default function RoomsOccupancyPanel() {
   const [rooms, setRooms] = useState<ClinicRoom[]>([]);
+  const [admissions, setAdmissions] = useState<InpatientAdmission[]>([]);
   const [hydrated, setHydrated] = useState(false);
-  const skipFirstPersist = useRef(true);
+  const shouldPersistRooms = useRef(false);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -165,37 +72,46 @@ export default function RoomsOccupancyPanel() {
   const [formError, setFormError] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
+  const reload = useCallback(async () => {
+    try {
+      const [roomsRaw, admissionsRaw] = await Promise.all([
+        fetchClinicResource<ClinicRoom[]>("rooms"),
+        fetchClinicResource<InpatientAdmission[]>("inpatient-admissions"),
+      ]);
+      const normalizedRooms = Array.isArray(roomsRaw) ? roomsRaw : [];
+      const normalizedAdmissions = (Array.isArray(admissionsRaw) ? admissionsRaw : [])
+        .map(normalizeInpatientAdmission)
+        .filter((x): x is InpatientAdmission => x !== null);
+      setAdmissions(normalizedAdmissions);
+      setRooms(syncRoomsWithAdmissions(normalizedRooms, normalizedAdmissions));
+      setHydrated(true);
+    } catch {
+      setRooms([]);
+      setAdmissions([]);
+      setHydrated(true);
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     queueMicrotask(() => {
       void (async () => {
-        try {
-          const next = await fetchClinicResource<ClinicRoom[]>("rooms");
-          startTransition(() => {
-            if (cancelled) return;
-            setRooms(Array.isArray(next) ? next : []);
-            setHydrated(true);
-          });
-        } catch {
-          startTransition(() => {
-            if (cancelled) return;
-            setRooms([]);
-            setHydrated(true);
-          });
-        }
+        await reload();
+        if (cancelled) return;
       })();
     });
+    const id = setInterval(() => {
+      void reload();
+    }, 12_000);
     return () => {
       cancelled = true;
+      clearInterval(id);
     };
-  }, []);
+  }, [reload]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    if (skipFirstPersist.current) {
-      skipFirstPersist.current = false;
-      return;
-    }
+    if (!hydrated || !shouldPersistRooms.current) return;
+    shouldPersistRooms.current = false;
     void (async () => {
       try {
         await saveClinicResource("rooms", rooms);
@@ -219,29 +135,6 @@ export default function RoomsOccupancyPanel() {
     () => rooms.find((r) => r.id === deleteId) ?? null,
     [rooms, deleteId],
   );
-
-  function bumpOccupied(id: string, delta: number) {
-    setRooms((prev) =>
-      prev.map((r) => {
-        if (r.id !== id) return r;
-        const next = clampOccupied(r.capacity, r.occupied + delta);
-        return { ...r, occupied: next };
-      }),
-    );
-  }
-
-  function setOccupiedDirect(id: string, value: string) {
-    const n = parseInt(value, 10);
-    setRooms((prev) =>
-      prev.map((r) => {
-        if (r.id !== id) return r;
-        return {
-          ...r,
-          occupied: Number.isFinite(n) ? clampOccupied(r.capacity, n) : r.occupied,
-        };
-      }),
-    );
-  }
 
   function openCreate() {
     setEditingId(null);
@@ -276,17 +169,21 @@ export default function RoomsOccupancyPanel() {
     }
 
     if (editingId) {
+      shouldPersistRooms.current = true;
       setRooms((prev) =>
-        prev.map((r) => {
-          if (r.id !== editingId) return r;
-          return {
-            ...r,
-            name,
-            kind,
-            capacity,
-            occupied: clampOccupied(capacity, r.occupied),
-          };
-        }),
+        syncRoomsWithAdmissions(
+          prev.map((r) => {
+            if (r.id !== editingId) return r;
+            return {
+              ...r,
+              name,
+              kind,
+              capacity,
+              occupied: clampOccupied(capacity, r.occupied),
+            };
+          }),
+          admissions,
+        ),
       );
       toast.success("Xona yangilandi");
     } else {
@@ -297,6 +194,7 @@ export default function RoomsOccupancyPanel() {
         capacity,
         occupied: 0,
       };
+      shouldPersistRooms.current = true;
       setRooms((prev) => [...prev, payload]);
       toast.success("Xona qo‘shildi");
     }
@@ -306,6 +204,7 @@ export default function RoomsOccupancyPanel() {
 
   function confirmDelete() {
     if (!deleteId) return;
+    shouldPersistRooms.current = true;
     setRooms((prev) => prev.filter((r) => r.id !== deleteId));
     setDeleteId(null);
     toast.success("Xona o‘chirildi");
@@ -355,6 +254,11 @@ export default function RoomsOccupancyPanel() {
       : <div className="grid gap-4 lg:grid-cols-2">
           {rooms.map((room) => {
             const free = Math.max(0, room.capacity - room.occupied);
+            const pct =
+              room.capacity > 0 ?
+                Math.min(100, Math.round((room.occupied / room.capacity) * 100))
+              : 0;
+
             return (
               <article
                 key={room.id}
@@ -397,60 +301,34 @@ export default function RoomsOccupancyPanel() {
                   </div>
                 </div>
 
-                <div className="mt-4">
-                  <RoomOccupancyVisual
-                    capacity={room.capacity}
-                    occupied={room.occupied}
-                    animateKey={`${room.id}-${room.occupied}`}
-                  />
-                </div>
-
-                <div className="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-end">
-                  <div className="grid flex-1 gap-1.5">
-                    <Label
-                      htmlFor={`occ-${room.id}`}
-                      className="text-xs text-slate-500">
-                      Bemorlar soni
-                    </Label>
-                    <Input
-                      id={`occ-${room.id}`}
-                      type="number"
-                      min={0}
-                      max={room.capacity}
-                      value={room.occupied}
-                      onChange={(e) =>
-                        setOccupiedDirect(room.id, e.target.value)
-                      }
-                      className="h-9 max-w-[120px]"
+                <div className="mt-4 space-y-4">
+                  <div className="relative h-2 overflow-hidden rounded-full bg-emerald-100/90 ring-1 ring-emerald-200/60">
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-rose-500 to-violet-600 shadow-sm transition-[width] duration-700 ease-out"
+                      style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="gap-1"
-                      disabled={room.occupied <= 0}
-                      onClick={() => bumpOccupied(room.id, -1)}>
-                      <Minus className="size-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="gap-1"
-                      disabled={room.occupied >= room.capacity}
-                      onClick={() => bumpOccupied(room.id, 1)}>
-                      <Plus className="size-4" />
-                    </Button>
+
+                  <RoomBedGrid
+                    room={room}
+                    admissions={admissions}
+                    mode="view"
+                  />
+
+                  <div className="flex flex-wrap gap-4 text-xs">
+                    <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700">
+                      <span className="inline-block size-2.5 rounded-sm bg-emerald-200 ring-2 ring-emerald-400/50" />
+                      Bo‘sh: {free}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 font-medium text-rose-700">
+                      <span className="inline-block size-2.5 rounded-sm bg-linear-to-br from-rose-500 to-violet-600" />
+                      Band: {room.occupied}
+                    </span>
                   </div>
                 </div>
 
                 <p className="mt-3 text-center text-xs text-slate-400">
-                  Bosh joylar:{" "}
-                  <span className="font-semibold text-emerald-600 tabular-nums">
-                    {free}
-                  </span>
+                  Karavotlar yotqizilgan bemorlar bo‘yicha avtomatik yangilanadi
                 </p>
               </article>
             );
@@ -494,11 +372,16 @@ export default function RoomsOccupancyPanel() {
                 id="room-capacity"
                 type="number"
                 min={1}
+                max={4}
                 value={form.capacity}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, capacity: e.target.value }))
                 }
               />
+              <p className="text-xs text-slate-500">
+                Har bir o‘rin alohida karavot ko‘rinishida ko‘rsatiladi (masalan 4
+                o‘rinli xona — 4 ta karavot).
+              </p>
             </div>
             {formError ?
               <p className="text-sm text-rose-600">{formError}</p>

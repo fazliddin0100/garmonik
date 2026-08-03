@@ -24,6 +24,8 @@ export function getFullSeedPayloads(): Record<ClinicResourceKey, unknown> {
     partners: [],
     contracts: [],
     'pharmacy-products': [],
+    'kitchen-products': [],
+    'kitchen-staff': [],
     doctors: [],
     nurses: [],
     'laboratory-staff': [],

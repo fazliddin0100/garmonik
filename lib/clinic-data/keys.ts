@@ -24,6 +24,7 @@ export const CLINIC_RESOURCE_KEYS = [
   'inpatient-admissions',
   'supply-orders',
   'supply-purchases',
+  'kadrlar-employee-profiles',
 ] as const;
 
 export type ClinicResourceKey = (typeof CLINIC_RESOURCE_KEYS)[number];

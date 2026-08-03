@@ -7,8 +7,28 @@ config({ path: ".env" });
 
 const prisma = new PrismaClient();
 
+const DEFAULT_CATEGORIES = [
+  "Diagnostika",
+  "Laboratoriya",
+  "Terapiya",
+  "Jarrohlik",
+  "Stomatologiya",
+];
+
+const DEFAULT_SERVICES = [
+  { name: "Umumiy qon tahlili", price: 85000, category: "Laboratoriya" },
+  { name: "EKG", price: 120000, category: "Diagnostika" },
+  { name: "UZI qorin", price: 180000, category: "Diagnostika" },
+  { name: "Rentgen o'pkalar", price: 150000, category: "Diagnostika" },
+  { name: "Terapevt konsultatsiya", price: 100000, category: "Terapiya" },
+  { name: "Stomatolog konsultatsiya", price: 80000, category: "Stomatologiya" },
+  { name: "Tish tozalash", price: 200000, category: "Stomatologiya" },
+  { name: "IV droppa", price: 75000, category: "Terapiya" },
+];
+
 async function main() {
   const adminHash = await bcrypt.hash("admin123", 12);
+  const cashierHash = await bcrypt.hash("kassir123", 12);
 
   await prisma.clinicSettings.upsert({
     where: { id: "default" },
@@ -43,6 +63,24 @@ async function main() {
     },
   });
 
+  await prisma.user.upsert({
+    where: { login: "kassir1" },
+    update: {
+      passwordHash: cashierHash,
+      fullName: "Dilnoza Karimova",
+      role: UserRole.CASHIER,
+      isActive: true,
+      failedLoginCount: 0,
+      lockedUntil: null,
+    },
+    create: {
+      login: "kassir1",
+      passwordHash: cashierHash,
+      fullName: "Dilnoza Karimova",
+      role: UserRole.CASHIER,
+    },
+  });
+
   const paymentTypes = [
     { name: "Naqt pul", platform: PaymentPlatform.CASH, sortOrder: 1 },
     { name: "Terminal (Humo)", platform: PaymentPlatform.HUMO, sortOrder: 2 },
@@ -61,8 +99,42 @@ async function main() {
     }
   }
 
-  console.log("Seed muvaffaqiyatli yakunlandi (demo xizmatlar/kassir yo‘q).");
+  const catMap = new Map<string, string>();
+  for (const name of DEFAULT_CATEGORIES) {
+    const cat = await prisma.serviceCategory.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+    catMap.set(name, cat.id);
+  }
+
+  for (const s of DEFAULT_SERVICES) {
+    const exists = await prisma.service.findFirst({ where: { name: s.name } });
+    if (!exists) {
+      await prisma.service.create({
+        data: {
+          name: s.name,
+          price: s.price,
+          categoryId: catMap.get(s.category),
+          isActive: true,
+        },
+      });
+      continue;
+    }
+    await prisma.service.update({
+      where: { id: exists.id },
+      data: {
+        price: s.price,
+        categoryId: catMap.get(s.category) ?? exists.categoryId,
+        isActive: true,
+      },
+    });
+  }
+
+  console.log("Seed muvaffaqiyatli yakunlandi.");
   console.log("Admin: admin@klinika / admin123");
+  console.log("Kassir: kassir1 / kassir123");
 }
 
 main()

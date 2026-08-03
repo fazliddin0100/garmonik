@@ -1,5 +1,6 @@
 'use client';
 
+import DashboardMobileNav from '@/components/DashboardMobileNav';
 import { DashboardViewProvider, useDashboardViewOptional } from '@/components/dashboard/DashboardViewContext';
 import {
   PortalNavProvider,
@@ -40,15 +41,18 @@ function DashboardLayoutInner({
   })();
 
   return (
-    <div className="relative flex h-dvh overflow-hidden bg-slate-100">
+    <div className="relative flex h-dvh w-full min-w-0 overflow-hidden bg-slate-100">
       <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-violet-400/20 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl" />
       <Sidebar />
       <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col md:pl-45">
-        <TopBar title={displayTitle} />
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain p-6 pt-20">
-          {children}
+        <header className="fixed top-0 right-0 left-0 z-50 shrink-0 md:left-45">
+          <TopBar title={displayTitle} />
+          <DashboardMobileNav />
+        </header>
+        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-3 pb-4 pt-[7.25rem] sm:px-4 md:p-6 md:pt-20">
+          <div className="mx-auto w-full min-w-0 max-w-[1920px]">{children}</div>
         </main>
       </div>
     </div>
