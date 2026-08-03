@@ -38,6 +38,7 @@ export function getFullSeedPayloads(): Record<ClinicResourceKey, unknown> {
     'inpatient-admissions': [],
     'supply-orders': [],
     'supply-purchases': [],
+    'kadrlar-employee-profiles': [],
   };
 }
 

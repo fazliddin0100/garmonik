@@ -1,4 +1,6 @@
 import { getVerifiedSessionFromRequest } from '@/lib/auth/request-session';
+import type { ClinicPortalSession } from '@/lib/auth/session-guards';
+import { sessionPersonName } from '@/lib/auth/session-guards';
 import { readClinicResourcePayload } from '@/lib/db/clinic-json-resources';
 import { listPatientsByClinic } from '@/lib/db/patients';
 import type { QueueRow } from '@/lib/queue/types';
@@ -113,8 +115,8 @@ function countByField(
 
 function canViewKabinetReports(
   session: Awaited<ReturnType<typeof getVerifiedSessionFromRequest>>,
-): session is NonNullable<typeof session> {
-  if (!session) return false;
+): session is ClinicPortalSession {
+  if (!session || session.kind === 'kassa') return false;
   if (session.kind === 'staff' && session.role === 'kabinet') return true;
   if (session.kind === 'admin' && session.routeGroup === 'office') return true;
   return false;
@@ -221,7 +223,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     period: { id: period, label, from: from.toISOString(), to: to.toISOString() },
-    operator: { id: session.id, fullName: session.fullName },
+    operator: { id: session.id, fullName: sessionPersonName(session) },
     summary: {
       registeredInPeriod: inPeriod.length,
       queuedInPeriod,

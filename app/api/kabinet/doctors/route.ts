@@ -1,10 +1,11 @@
 import { getVerifiedSessionFromRequest } from '@/lib/auth/request-session';
+import { isClinicPortalSession } from '@/lib/auth/session-guards';
 import { listDoctorsInClinic } from '@/lib/db/portal-profiles';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const session = await getVerifiedSessionFromRequest(request);
-  if (!session) {
+  if (!isClinicPortalSession(session)) {
     return NextResponse.json({ error: 'Ruxsat yoq' }, { status: 403 });
   }
 

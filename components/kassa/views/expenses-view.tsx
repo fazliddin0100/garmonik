@@ -39,6 +39,7 @@ import { formatUzDateRangeLabel, getLocalDateString } from "@/lib/kassa/date";
 import { ReportDayCalendar } from "@/components/kassa/reports/report-day-calendar";
 import { PaymentMethodPicker } from "@/components/kassa/payment/payment-method-picker";
 import { formatMoney, toNumber, cn } from "@/lib/kassa/utils";
+import { chartMoneyFormatter } from "@/lib/kassa/chart-formatters";
 
 type PaymentType = {
   id: string;
@@ -735,15 +736,17 @@ export function ExpensesView({
                     cx="50%"
                     cy="50%"
                     outerRadius={90}
-                    label={({ name, percent }) =>
-                      `${name.length > 12 ? `${name.slice(0, 12)}…` : name} ${(percent * 100).toFixed(0)}%`
-                    }
+                    label={({ name, percent }) => {
+                      const label = name ?? "";
+                      const pct = percent ?? 0;
+                      return `${label.length > 12 ? `${label.slice(0, 12)}…` : label} ${(pct * 100).toFixed(0)}%`;
+                    }}
                   >
                     {pieData.map((_, i) => (
                       <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v: number) => formatMoney(v)} />
+                  <Tooltip formatter={chartMoneyFormatter} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -766,7 +769,7 @@ export function ExpensesView({
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                   <YAxis tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(v: number) => formatMoney(v)} />
+                  <Tooltip formatter={chartMoneyFormatter} />
                   <Bar
                     dataKey="amount"
                     fill={accent === "emerald" ? "#10b981" : "#f59e0b"}

@@ -41,6 +41,7 @@ import { getClinicName } from "@/lib/kassa/receipt-branding";
 import { formatPaidByMethodLabel } from "@/lib/kassa/debts";
 import { exportReportExcel, exportReportPdf } from "@/lib/kassa/export-report";
 import { formatDate, formatMoney } from "@/lib/kassa/utils";
+import { chartMoneyFormatter } from "@/lib/kassa/chart-formatters";
 import { formatUzDateRangeLabel, getLocalDateString } from "@/lib/kassa/date";
 import { PERIOD_OPTIONS, PLATFORM_LABELS } from "./report-utils";
 import { ReportDayCalendar } from "./report-day-calendar";
@@ -653,7 +654,7 @@ export function ReportsDashboard() {
                       <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v: number) => formatMoney(v)} />
+                  <Tooltip formatter={chartMoneyFormatter} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -677,7 +678,7 @@ export function ReportsDashboard() {
                       <Cell key={i} fill={CHART_COLORS[(i + 2) % CHART_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v: number) => formatMoney(v)} />
+                  <Tooltip formatter={chartMoneyFormatter} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -699,7 +700,7 @@ export function ReportsDashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                   <YAxis tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(v: number) => formatMoney(v)} />
+                  <Tooltip formatter={chartMoneyFormatter} />
                   <Legend />
                   <Line type="monotone" dataKey="kirim" name="Kirim" stroke="#10b981" strokeWidth={2} />
                   <Line type="monotone" dataKey="chiqim" name="Chiqim" stroke="#f97316" strokeWidth={2} />

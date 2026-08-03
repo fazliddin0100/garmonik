@@ -125,14 +125,14 @@ export async function handleClinicAdminLogin(
           role: kassaRole,
         });
         const kassaSession = sessionUserToVerifiedSession(kassaUser);
-        let jsonRes = NextResponse.json(
+        const jsonRes = NextResponse.json(
           {
             message: 'Muvaffaqiyatli kirildi',
             redirect: kassaHomePathForBridgeRole(kassaRole),
           },
           { status: 200 },
         );
-        jsonRes = await attachSessionCookie(jsonRes, kassaSession);
+        await attachSessionCookie(jsonRes, kassaSession);
         await logSecurityEvent({
           request,
           session: kassaSession,
@@ -160,7 +160,7 @@ export async function handleClinicAdminLogin(
         { ...verified, routeGroup: rg, roleLabel: roleLabel || verified.roleLabel }
       : verified;
 
-    let jsonRes = NextResponse.json(
+    const jsonRes = NextResponse.json(
       {
         message: 'Muvaffaqiyatli kirildi',
         redirect: redirectPath,
@@ -169,7 +169,7 @@ export async function handleClinicAdminLogin(
       { status: 200 },
     );
 
-    jsonRes = await attachSessionCookie(jsonRes, sessionForCookie);
+    await attachSessionCookie(jsonRes, sessionForCookie);
 
     await logSecurityEvent({
       request,

@@ -55,6 +55,8 @@ async function main() {
 
   run("node scripts/deploy/preflight-production.mjs", "Preflight tekshiruv");
 
+  run("node scripts/deploy/validate-seed-payloads.mjs", "Seed payload tekshiruvi");
+
   run("npm run db:migrate", "Klinika migratsiyalari");
 
   await ensureKassaSchema(targetUrl);

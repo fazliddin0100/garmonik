@@ -7,6 +7,7 @@ import {
   type AppointmentRequestStatus,
 } from '@/lib/appointment-requests/types';
 import { getVerifiedSessionFromRequest } from '@/lib/auth/request-session';
+import type { ClinicPortalSession } from '@/lib/auth/session-guards';
 import { parseAppointmentRequestIntake } from '@/lib/appointment-requests/intake';
 import {
   countAppointmentRequestsByClinic,
@@ -21,8 +22,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 type Session = Awaited<ReturnType<typeof getVerifiedSessionFromRequest>>;
 
-function canManageRequests(session: Session): session is NonNullable<Session> {
-  if (!session) return false;
+function canManageRequests(session: Session): session is ClinicPortalSession {
+  if (!session || session.kind === 'kassa') return false;
   if (session.kind === 'admin') {
     return (
       session.routeGroup === 'admin_only' ||

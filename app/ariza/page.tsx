@@ -114,7 +114,7 @@ export default function ArizaPage() {
           phone,
           address: address.trim(),
           diseaseType: diseaseType.trim(),
-          preferredTime: preferredTime.trim() || undefined,
+          preferredTime: preferredTime?.trim() || undefined,
         }),
       });
       const json = (await res.json()) as {

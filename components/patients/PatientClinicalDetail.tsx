@@ -417,20 +417,19 @@ export default function PatientClinicalDetail({
   async function handleSave() {
     if (!onSaveResults) return;
     const now = new Date().toISOString();
-    const next: LaboratoryResultEntry[] = orders
-      .map((o) => {
-        const value = draftValues[o.key]?.trim() ?? '';
-        if (!value) return null;
-        const prev = resultByOrderKey(patient.laboratoryResults, o.key);
-        return {
-          orderKey: o.key,
-          value,
-          enteredAt: prev?.value === value ? prev.enteredAt : now,
-          enteredByName: prev?.value === value ? prev.enteredByName : actorName || undefined,
-          enteredByLogin: prev?.value === value ? prev.enteredByLogin : actorLogin || undefined,
-        };
-      })
-      .filter((x): x is LaboratoryResultEntry => x !== null);
+    const next: LaboratoryResultEntry[] = [];
+    for (const o of orders) {
+      const value = draftValues[o.key]?.trim() ?? '';
+      if (!value) continue;
+      const prev = resultByOrderKey(patient.laboratoryResults, o.key);
+      next.push({
+        orderKey: o.key,
+        value,
+        enteredAt: prev?.value === value ? prev.enteredAt : now,
+        enteredByName: prev?.value === value ? prev.enteredByName : actorName || undefined,
+        enteredByLogin: prev?.value === value ? prev.enteredByLogin : actorLogin || undefined,
+      });
+    }
     await onSaveResults(next.length > 0 ? next : []);
   }
 

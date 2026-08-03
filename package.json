@@ -35,6 +35,7 @@
     "merge:smoke-kassa-phase-7": "node scripts/merge/smoke-kassa-phase-7.mjs",
     "merge:verify-phase-8": "powershell -ExecutionPolicy Bypass -File scripts/merge/verify-phase-8.ps1",
     "deploy:preflight": "node scripts/deploy/preflight-production.mjs",
+    "deploy:validate-seed": "node scripts/deploy/validate-seed-payloads.mjs",
     "deploy:bootstrap": "tsx scripts/deploy/bootstrap-if-empty.ts",
     "deploy:setup-db": "node scripts/deploy/setup-database.mjs",
     "deploy:import-kassa": "node scripts/deploy/kassa-import-only.mjs --force",

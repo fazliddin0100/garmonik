@@ -1,4 +1,5 @@
 import { getVerifiedSessionFromRequest } from '@/lib/auth/request-session';
+import type { ClinicPortalSession } from '@/lib/auth/session-guards';
 import { readClinicResourcePayload } from '@/lib/db/clinic-json-resources';
 import { buildLaboratoryWorkReport } from '@/lib/laboratory/build-work-report';
 import type { LabCategory } from '@/lib/laboratory/catalog-types';
@@ -10,16 +11,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 function isLaboratorySession(
   session: Awaited<ReturnType<typeof getVerifiedSessionFromRequest>>,
-) {
-  if (!session) return false;
+): session is ClinicPortalSession {
+  if (!session || session.kind === 'kassa') return false;
   if (session.kind === 'staff' && session.role === 'laboratory') return true;
   if (session.kind === 'admin' && session.routeGroup === 'laboratory') return true;
   return false;
 }
 
-function sessionStaffIdentity(
-  session: NonNullable<Awaited<ReturnType<typeof getVerifiedSessionFromRequest>>>,
-) {
+function sessionStaffIdentity(session: ClinicPortalSession) {
   if (session.kind === 'staff') {
     return { login: session.login, fullName: session.fullName, clinicId: session.clinicId };
   }

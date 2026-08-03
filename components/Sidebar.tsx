@@ -194,6 +194,7 @@ function DashboardSubMenuPanel({
   return (
     <div className="ml-2 space-y-0.5 border-l-2 border-violet-200/80 py-1 pl-3">
       {dashboardSubNavItems.map((sub) => {
+        if (sub.view === 'overview') return null;
         const subActive = activeView === sub.view;
         const SubIcon = dashboardSubIcons[sub.view];
         return (

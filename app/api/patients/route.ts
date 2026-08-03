@@ -1,4 +1,5 @@
 import { getVerifiedSessionFromRequest } from '@/lib/auth/request-session';
+import type { ClinicPortalSession } from '@/lib/auth/session-guards';
 import {
   deletePatient,
   insertPatient,
@@ -18,14 +19,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 type Session = Awaited<ReturnType<typeof getVerifiedSessionFromRequest>>;
 
-function canViewPatients(session: Session): session is NonNullable<Session> {
-  if (!session) return false;
-  if (session.kind === 'staff') return true;
+function canViewPatients(session: Session): session is ClinicPortalSession {
+  if (!session || session.kind === 'kassa') return false;
   return true;
 }
 
-function canManagePatients(session: Session): session is NonNullable<Session> {
-  if (!session) return false;
+function canManagePatients(session: Session): session is ClinicPortalSession {
+  if (!session || session.kind === 'kassa') return false;
   if (session.kind === 'staff') return session.role === 'kabinet';
   return session.routeGroup === 'office' || session.routeGroup === 'superadmin';
 }

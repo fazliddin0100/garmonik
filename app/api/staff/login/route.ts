@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     const redirect = portalLoginRedirect(row, key);
     const isStaff = row.account_kind === 'staff' && isStaffRole(row.staff_role || '');
 
-    let jsonRes = NextResponse.json({
+    const jsonRes = NextResponse.json({
       ok: true,
       redirect,
       role: roleKey,
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       login: loginLabel,
       fullName: row.display_name,
     });
-    jsonRes = await attachSessionCookie(jsonRes, verified);
+    await attachSessionCookie(jsonRes, verified);
 
     await logSecurityEvent({
       request,

@@ -44,9 +44,10 @@ export default function StaffRoleDashboard({ role, intro }: StaffRoleDashboardPr
   const portalNav = useStaffPortalViewOptional();
   const base = portalNav?.basePath ?? `/doctor`;
 
-  const cards: DashCard[] = [
-    {
-      view: 'bemorlar',
+  const cards = (
+    [
+      {
+        view: 'bemorlar' as const,
       title: 'Bemorlar',
       desc:
         role === 'laboratory' ?
@@ -56,26 +57,27 @@ export default function StaffRoleDashboard({ role, intro }: StaffRoleDashboardPr
       hidden: portalNav ? !portalNav.showPatientsNav : false,
     },
     {
-      view: 'navbat',
+      view: 'navbat' as const,
       title: 'Navbat',
       desc: 'Jonli navbat ro‘yxati',
       icon: ClipboardList,
       hidden: portalNav ? !portalNav.showQueueNav : false,
     },
     {
-      view: 'xizmatlar',
+      view: 'xizmatlar' as const,
       title: role === 'laboratory' ? 'Tahlillar narxlari' : 'Xizmatlar katalogi',
       desc: 'Narxlar va kodlar',
       icon: FlaskConical,
       hidden: portalNav ? !portalNav.showServicesNav : false,
     },
     {
-      view: 'hisobotlar',
+      view: 'hisobotlar' as const,
       title: 'Hisobotlar',
       desc: 'Tushum va xarajatlar',
       icon: FileBarChart2,
     },
-  ].filter((c) => !c.hidden);
+  ] satisfies DashCard[]
+  ).filter((c) => !c.hidden);
 
   return (
     <div className="space-y-6">

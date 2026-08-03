@@ -1,4 +1,6 @@
 import { getVerifiedSessionFromRequest } from '@/lib/auth/request-session';
+import type { ClinicPortalSession } from '@/lib/auth/session-guards';
+import { sessionPersonName } from '@/lib/auth/session-guards';
 import { readClinicResourcePayload } from '@/lib/db/clinic-json-resources';
 import { listPatientSummariesByClinic } from '@/lib/db/patients';
 import { normalizePatientRow } from '@/lib/patients/normalize-patient-row';
@@ -30,8 +32,8 @@ type DoctorServiceRecord = {
 
 function isDoctorSession(
   session: Awaited<ReturnType<typeof getVerifiedSessionFromRequest>>,
-) {
-  if (!session) return false;
+): session is ClinicPortalSession {
+  if (!session || session.kind === 'kassa') return false;
   if (session.kind === 'staff') {
     return session.role === 'doctor' || session.role === 'shifokor';
   }
@@ -48,8 +50,7 @@ export async function GET(request: NextRequest) {
   }
 
   const doctorId = session.id;
-  const doctorName =
-    session.kind === 'staff' ? session.fullName : session.displayName;
+  const doctorName = sessionPersonName(session);
   const { from, to, period, label } = parseReportPeriod(request.nextUrl.searchParams);
 
   const [supaPatients, jsonPatientsRaw] = await Promise.all([

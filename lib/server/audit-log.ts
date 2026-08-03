@@ -132,30 +132,22 @@ export async function logClinicDataDeniedAccess(input: DeniedAuditInput): Promis
 
 
 
+    if (input.session.kind === 'kassa') {
+      return;
+    }
+
     await insertAccessAuditLog({
-
       clinic_id: input.session.clinicId,
-
       actor_kind: 'staff',
-
       actor_id: input.session.id,
-
       actor_login: input.session.login,
-
       actor_role: input.session.role,
-
       resource_key: input.resourceKey,
-
       method: input.method,
-
       pathname: input.request.nextUrl.pathname,
-
       ip,
-
       user_agent: userAgent,
-
       reason: input.reason,
-
     });
 
   } catch (e) {

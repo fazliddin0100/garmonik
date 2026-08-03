@@ -5,8 +5,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   const session = await getVerifiedSessionFromRequest(request);
-  let res = NextResponse.json({ ok: true });
-  res = clearSessionCookie(res);
+  const res = NextResponse.json({ ok: true });
+  clearSessionCookie(res);
   await logSecurityEvent({
     request,
     session,

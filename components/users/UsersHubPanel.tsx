@@ -124,7 +124,9 @@ export default function UsersHubPanel() {
             <button
               key={s.view}
               type="button"
-              onClick={() => openView(s.view)}
+              onClick={() => {
+                if (s.view !== 'kadrlar') openView(s.view);
+              }}
               className={`${cardClass} text-left`}>
               <span className="flex size-11 items-center justify-center rounded-xl bg-violet-100 text-violet-700 transition group-hover:bg-violet-600 group-hover:text-white">
                 <Icon className="size-5" />

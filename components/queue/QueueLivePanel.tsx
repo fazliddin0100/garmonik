@@ -479,6 +479,7 @@ export default function QueueLivePanel({
           cardNumber: item.cardNumber,
           fullName: item.fullName,
           diseaseType: item.diseaseType,
+          referredDoctorUserId: undefined,
           referredDoctorName: item.referredDoctorName || assignedDoctorName || '—',
           isNew,
           paymentMeta: {
