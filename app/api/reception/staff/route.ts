@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
     const item = await createReceptionStaffAccount({
       fullName: String(body?.fullName ?? ''),
       roleName: String(body?.roleName ?? ''),
+      department: body?.department ? String(body.department) : undefined,
       login: String(body?.login ?? ''),
       password: body?.password ? String(body.password) : undefined,
       email: body?.email ? String(body.email) : undefined,
@@ -61,6 +62,7 @@ export async function PATCH(request: NextRequest) {
       id,
       fullName: String(body?.fullName ?? ''),
       roleName: String(body?.roleName ?? ''),
+      department: body?.department ? String(body.department) : undefined,
       login: String(body?.login ?? ''),
       password: body?.password ? String(body.password) : undefined,
       email: body?.email ? String(body.email) : undefined,

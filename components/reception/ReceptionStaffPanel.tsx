@@ -23,6 +23,8 @@ import {
   USERS_STAFF_FIELD_CLASS,
   UsersSortableHead,
   UsersStaffActionsCell,
+  UsersStaffDepartmentCell,
+  UsersStaffDepartmentSelect,
   UsersStaffEmptyRow,
   UsersStaffFieldLabel,
   UsersStaffFormDialog,
@@ -32,17 +34,18 @@ import {
   UsersStaffNameCell,
   UsersStaffPasswordField,
   UsersStaffPortalHint,
-  UsersStaffSpecialtyBadge,
   UsersStaffTableSection,
   type UsersStaffSortState,
 } from '@/components/users/users-staff-ui';
+import { useClinicDepartments } from '@/hooks/useClinicDepartments';
+import type { DepartmentGroup } from '@/lib/clinic-departments/types';
 import {
   type ReceptionSortKey,
   type ReceptionUser,
 } from '@/lib/reception/types';
 import { generateStaffPassword } from '@/lib/staff-portal/generate-password';
 import { cn } from '@/lib/utils';
-import { IdCard, KeyRound, Shield, UserRound } from 'lucide-react';
+import { Building2, IdCard, KeyRound, UserRound } from 'lucide-react';
 import { startTransition, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -50,7 +53,7 @@ type SortState = UsersStaffSortState<ReceptionSortKey>;
 
 type ReceptionFormState = {
   fullName: string;
-  roleName: string;
+  departmentId: string;
   login: string;
   password: string;
 };
@@ -58,13 +61,28 @@ type ReceptionFormState = {
 function emptyForm(): ReceptionFormState {
   return {
     fullName: '',
-    roleName: '',
+    departmentId: '',
     login: '',
     password: generateStaffPassword(),
   };
 }
 
+function resolveDepartmentId(
+  row: ReceptionUser,
+  departments: DepartmentGroup[],
+): string {
+  const stored = row.department?.trim();
+  if (stored && departments.some((d) => d.id === stored)) return stored;
+  const title = row.roleName.trim();
+  if (title) {
+    const match = departments.find((d) => d.title === title);
+    if (match) return match.id;
+  }
+  return '';
+}
+
 export default function ReceptionStaffPanel() {
+  const { byId, departments } = useClinicDepartments();
   const [rows, setRows] = useState<ReceptionUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -114,6 +132,17 @@ export default function ReceptionStaffPanel() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!editingId || !dialogOpen || departments.length === 0) return;
+    const row = rows.find((r) => r.id === editingId);
+    if (!row) return;
+    setForm((f) => {
+      if (f.departmentId) return f;
+      const resolved = resolveDepartmentId(row, departments);
+      return resolved ? { ...f, departmentId: resolved } : f;
+    });
+  }, [departments, dialogOpen, editingId, rows]);
 
   const sorted = useMemo(() => {
     const factor = sort.direction === 'asc' ? 1 : -1;
@@ -174,7 +203,7 @@ export default function ReceptionStaffPanel() {
     setFormError('');
     setForm({
       fullName: row.shortName,
-      roleName: row.roleName,
+      departmentId: resolveDepartmentId(row, departments),
       login: row.username,
       password: '',
     });
@@ -184,16 +213,18 @@ export default function ReceptionStaffPanel() {
 
   async function saveUser() {
     const fullName = form.fullName.trim();
-    const roleName = form.roleName.trim();
+    const departmentId = form.departmentId.trim();
     const login = form.login.trim().toLowerCase();
     const password = form.password.trim();
+    const department = byId.get(departmentId);
+    const roleName = department?.title ?? '';
 
     if (!fullName) {
       setFormError('F.I.Sh majburiy.');
       return;
     }
-    if (!roleName) {
-      setFormError('Lavozim majburiy.');
+    if (!departmentId || !roleName) {
+      setFormError('Lavozim (bo‘lim) tanlang.');
       return;
     }
     if (!login) {
@@ -218,12 +249,14 @@ export default function ReceptionStaffPanel() {
               id: editingId,
               fullName,
               roleName,
+              department: departmentId,
               login,
               password: password || undefined,
             }
           : {
               fullName,
               roleName,
+              department: departmentId,
               login,
               password,
             },
@@ -328,7 +361,9 @@ export default function ReceptionStaffPanel() {
                 key={row.id}
                 className="border-slate-100 transition-colors hover:bg-violet-50/40">
                 <UsersStaffNameCell fullName={row.shortName} />
-                <UsersStaffSpecialtyBadge specialty={row.roleName} />
+                <UsersStaffDepartmentCell
+                  department={row.department?.trim() || row.roleName}
+                />
                 <UsersStaffLoginCode login={row.username} />
                 <UsersStaffActionsCell
                   onEdit={() => openEdit(row)}
@@ -390,16 +425,14 @@ export default function ReceptionStaffPanel() {
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <UsersStaffFieldLabel htmlFor="r-role" icon={Shield}>
-                Lavozim
+              <UsersStaffFieldLabel icon={Building2}>
+                Lavozim (bo&apos;lim)
               </UsersStaffFieldLabel>
-              <Input
-                id="r-role"
+              <UsersStaffDepartmentSelect
+                value={form.departmentId}
                 className={USERS_STAFF_FIELD_CLASS}
-                placeholder="Masalan: Registrator"
-                value={form.roleName}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, roleName: e.target.value }))
+                onChange={(departmentId) =>
+                  setForm((f) => ({ ...f, departmentId }))
                 }
               />
             </div>

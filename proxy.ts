@@ -43,6 +43,17 @@ function isHeadDoctorRoleLabel(roleLabel: string): boolean {
 }
 
 export async function proxy(request: NextRequest) {
+  try {
+    return await handleProxy(request);
+  } catch (error) {
+    console.error('[proxy]', error);
+    return NextResponse.next({
+      request: { headers: request.headers },
+    });
+  }
+}
+
+async function handleProxy(request: NextRequest) {
   const sessionResponse = NextResponse.next({
     request: { headers: request.headers },
   });
@@ -134,6 +145,14 @@ export async function proxy(request: NextRequest) {
       return sessionResponse;
     }
 
+    if (
+      session?.kind === 'admin' &&
+      group === 'office' &&
+      session.routeGroup === 'reception'
+    ) {
+      return sessionResponse;
+    }
+
     if (session?.kind === 'admin' && session.routeGroup !== 'admin_only') {
       return redirect(
         new URL(adminHomePathForRouteGroup(session.routeGroup), request.url),
@@ -194,6 +213,7 @@ export const config = {
     '/labaratoriya/:path*',
     '/hamshiralar/:path*',
     '/bosh-hamshira/:path*',
+    '/kabinet',
     '/kabinet/:path*',
     '/mutaxassis/:path*',
     '/farmatsevt/:path*',

@@ -97,7 +97,7 @@ export function toReceptionMember(row: ReceptionUser): StaffTeamMember {
     id: row.id,
     fullName: row.shortName.trim(),
     role: row.roleName.trim() || 'Registrator',
-    department: 'Qabulxona',
+    department: row.department?.trim() || row.roleName.trim() || 'Qabulxona',
     login: row.username.trim(),
     contact: row.email.trim(),
   };

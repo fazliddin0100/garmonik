@@ -7,7 +7,7 @@ export default function KabinetLayout({ children }: { children: ReactNode }) {
   return (
     <StaffPortalLayout
       allowedRoles={['kabinet']}
-      allowAdminRouteGroup="office"
+      allowAdminRouteGroups={['office', 'reception']}
       showPatientsNav={false}
       showServicesNav={false}
       showOnlineNavbatBadge

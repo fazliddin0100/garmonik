@@ -3,6 +3,8 @@ export type ReceptionUser = {
   username: string;
   shortName: string;
   roleName: string;
+  /** Bo‘limlar katalogi id (masalan dep-grp-…) */
+  department?: string;
   lastAccess: string;
   email: string;
   status: string;

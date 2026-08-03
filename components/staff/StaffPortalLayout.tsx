@@ -88,11 +88,10 @@ type PortalSession = MeStaff | MeAdminPortal;
 type StaffPortalLayoutProps = {
   /** Ushbu marshrutlar guruhi uchun ruxsat etilgan xodim rollari */
   allowedRoles: readonly StaffRole[];
-  /**
-   * Mongo admin (`AdminUser`) ushbu kabinetga kirishi: JWT `routeGroup` bilan mos kelishi kerak.
-   * Masalan, shifokorlar uchun `clinical`.
-   */
+  /** Mongo admin (`AdminUser`) ushbu kabinetga kirishi: JWT `routeGroup` bilan mos kelishi kerak. */
   allowAdminRouteGroup?: StaffRouteGroup;
+  /** Bir nechta admin routeGroup (masalan kabinet: office + reception) */
+  allowAdminRouteGroups?: readonly StaffRouteGroup[];
   title: string;
   showPatientsNav?: boolean;
   showServicesNav?: boolean;
@@ -398,6 +397,7 @@ function StaffPortalShell({
 export default function StaffPortalLayout({
   allowedRoles,
   allowAdminRouteGroup,
+  allowAdminRouteGroups,
   title,
   showPatientsNav = true,
   showServicesNav = true,
@@ -413,6 +413,16 @@ export default function StaffPortalLayout({
   const [session, setSession] = useState<PortalSession | null>(null);
 
   const allowedSet = useMemo(() => new Set<StaffRole>(allowedRoles), [allowedRoles]);
+
+  const allowedAdminGroups = useMemo(() => {
+    const groups = new Set<string>();
+    for (const g of allowAdminRouteGroups ?? []) groups.add(g);
+    if (allowAdminRouteGroup) groups.add(allowAdminRouteGroup);
+    if (allowAdminRouteGroups?.includes('office') || allowAdminRouteGroup === 'office') {
+      groups.add('reception');
+    }
+    return groups;
+  }, [allowAdminRouteGroup, allowAdminRouteGroups]);
 
   useEffect(() => {
     let cancelled = false;
@@ -433,20 +443,24 @@ export default function StaffPortalLayout({
         }
 
         if (
-          allowAdminRouteGroup &&
           me?.kind === 'admin' &&
-          me.routeGroup === allowAdminRouteGroup &&
+          typeof me.routeGroup === 'string' &&
+          allowedAdminGroups.has(me.routeGroup) &&
           typeof me.login === 'string' &&
           typeof me.fullName === 'string' &&
           typeof me.roleLabel === 'string'
         ) {
+          const adminRoute = me.routeGroup as string;
+          const portalRouteGroup: StaffRouteGroup =
+            adminRoute === 'reception' ? 'office' : (adminRoute as StaffRouteGroup);
           setSession({
             kind: 'admin_portal',
             login: me.login,
             fullName: me.fullName,
             roleLabel: me.roleLabel,
-            routeGroup: allowAdminRouteGroup,
-            basePath: staffGroupBasePath(allowAdminRouteGroup),
+            routeGroup: portalRouteGroup,
+            basePath:
+              portalRouteGroup === 'office' ? '/kabinet' : staffGroupBasePath(portalRouteGroup),
           });
           return;
         }
@@ -464,7 +478,7 @@ export default function StaffPortalLayout({
     return () => {
       cancelled = true;
     };
-  }, [allowAdminRouteGroup, allowedSet, router]);
+  }, [allowedAdminGroups, allowedSet, router]);
 
   if (!session) {
     return (

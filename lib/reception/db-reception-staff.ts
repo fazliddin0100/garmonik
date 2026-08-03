@@ -28,6 +28,7 @@ export type ReceptionStaffInput = {
   id?: string;
   fullName: string;
   roleName: string;
+  department?: string;
   login: string;
   password?: string;
   email?: string;
@@ -49,6 +50,7 @@ function rowFromProfile(profile: PortalProfileRow): ReceptionUser {
     id: profile.legacy_external_id || profile.user_id,
     shortName: profile.display_name,
     roleName: profile.role_label?.trim() || 'Registrator',
+    department: profile.department?.trim() || '',
     username: (profile.staff_login || profile.auth_email).toLowerCase(),
     lastAccess: '',
     email: profile.phone?.trim() || '',
@@ -221,6 +223,9 @@ export async function createReceptionStaffAccount(
   const email = staffAuthEmail(login);
   const created = await createPortalAuthUser({ email, password });
 
+  const department = input.department?.trim() || '';
+  const roleLabel = input.roleName.trim() || 'Registrator';
+
   await insertPortalProfile({
     user_id: created.id,
     clinic_id: clinicId,
@@ -229,10 +234,10 @@ export async function createReceptionStaffAccount(
     admin_route_group: null,
     staff_role: 'kabinet',
     display_name: input.fullName.trim(),
-    role_label: input.roleName.trim() || 'Registrator',
+    role_label: roleLabel,
     staff_login: login,
     legacy_external_id: id,
-    department: 'Qabulxona',
+    department: department || roleLabel,
     phone: input.email?.trim() || null,
     is_active: true,
   });
@@ -240,7 +245,8 @@ export async function createReceptionStaffAccount(
   const row: ReceptionUser = {
     id,
     shortName: input.fullName.trim(),
-    roleName: input.roleName.trim() || 'Registrator',
+    roleName: roleLabel,
+    department,
     username: login,
     lastAccess: '',
     email: input.email?.trim() || '',
@@ -288,13 +294,16 @@ export async function updateReceptionStaffAccount(
     }
   }
 
+  const department = input.department?.trim() || '';
+  const roleLabel = input.roleName.trim() || 'Registrator';
+
   await updatePortalProfile(clinicId, profile.user_id, {
     display_name: input.fullName.trim(),
-    role_label: input.roleName.trim() || 'Registrator',
+    role_label: roleLabel,
     staff_login: login,
     auth_email: staffAuthEmail(login),
     phone: input.email?.trim() || null,
-    department: 'Qabulxona',
+    department: department || roleLabel,
     is_active: true,
     account_kind: 'staff',
     staff_role: 'kabinet',
@@ -312,7 +321,8 @@ export async function updateReceptionStaffAccount(
   const row: ReceptionUser = {
     id: input.id,
     shortName: input.fullName.trim(),
-    roleName: input.roleName.trim() || 'Registrator',
+    roleName: roleLabel,
+    department,
     username: login,
     lastAccess: '',
     email: input.email?.trim() || '',
