@@ -66,25 +66,46 @@ postgresql://USER:PASSWORD@HOST:5432/garmonik?sslmode=require
 
 Klinika (`public` schema) va kassa (`kassa` schema) **bir xil** `DATABASE_URL` da.
 
-### Eski kassa bazasi (garmonik_kassa.sql)
+### Eski kassa bazasi (garmonik_kassa.dump / .sql)
 
-Loyiha ildiziga `garmonik_kassa.sql` qo'ying — `npm run deploy:install` **avtomatik** yuklaydi:
+**Maqsad:** yangi ilova + eski kassa ma'lumotlari birga ishlashi.
 
+| Schema | Vazifa |
+|--------|--------|
+| `public.patients` (uuid) | Klinika bemorlari |
+| `kassa.*` | Kassa (cheklar, kassirlar, xizmatlar) |
+
+Eski dump `public.users`, `public.invoices` ishlatadi — **to'g'ridan-to'g'ri pg_restore ishlamaydi**.
+
+Skript avtomatik qiladi:
+
+1. Dump → vaqtinchalik baza (`public` schema)
+2. Ma'lumot → `kassa.users`, `kassa.invoices`, ...
+3. Noto'g'ri `public.users`, `public.invoices` ... o'chiriladi
+4. `public.patients` (klinika, uuid) **saqlanadi**
+
+Fayl joylari (avtomatik qidiriladi):
+
+- `/root/garmonik/garmonik_kassa.dump`
+- `/root/garmonik/garmonik_kassa.sql`
+- `/root/garmonik_kassa.dump`
+
+```bash
+# Dump ni loyiha yoki home ga qo'ying
+cp ~/garmonik_kassa.dump ~/garmonik/
+
+# Import (public -> kassa)
+npm run deploy:import-kassa
+
+# Faqat public dagi noto'g'ri kassa jadvallarini tozalash
+npm run deploy:cleanup-public-kassa
 ```
-/root/garmonik/garmonik_kassa.sql  →  kassa schema
-```
 
-`.env` (ixtiyoriy, default shunday):
+`.env` (ixtiyoriy):
 
 ```env
 KASSA_AUTO_IMPORT=true
-KASSA_IMPORT_SQL=./garmonik_kassa.sql
-```
-
-Qo'lda import (mavjud ma'lumotni almashtirish):
-
-```bash
-npm run deploy:import-kassa
+KASSA_IMPORT_SQL=/root/garmonik_kassa.dump
 ```
 
 Serverdan dump olish:

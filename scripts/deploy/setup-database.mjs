@@ -15,7 +15,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import pg from "pg";
-import { autoImportKassaIfEmpty, kassaUsersCount, maskUrl, resolveBundledKassaSqlDump } from "./kassa-import-lib.mjs";
+import { autoImportKassaIfEmpty, kassaUsersCount, maskUrl, resolveBundledKassaDump } from "./kassa-import-lib.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..", "..");
@@ -104,11 +104,11 @@ async function main() {
 
   console.log("[setup-db] Maqsad DB:", maskUrl(targetUrl));
 
-  const bundledSql = resolveBundledKassaSqlDump(root);
+  const bundledSql = resolveBundledKassaDump(root);
   if (bundledSql) {
-    console.log("[setup-db] Kassa dump (avtomatik):", bundledSql);
+    console.log("[setup-db] Kassa dump (avtomatik public→kassa):", bundledSql);
   } else {
-    console.log("[setup-db] garmonik_kassa.sql topilmadi — faqat seed yoki garmonik_kassa DB");
+    console.log("[setup-db] garmonik_kassa.dump/sql topilmadi");
   }
 
   run("node scripts/deploy/preflight-production.mjs", "Preflight tekshiruv");

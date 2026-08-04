@@ -39,6 +39,7 @@
     "deploy:bootstrap": "tsx scripts/deploy/bootstrap-if-empty.ts",
     "deploy:setup-db": "node scripts/deploy/setup-database.mjs",
     "deploy:import-kassa": "node scripts/deploy/kassa-import-only.mjs --force",
+    "deploy:cleanup-public-kassa": "node scripts/deploy/cleanup-public-kassa-tables.mjs",
     "deploy:install": "node scripts/deploy/setup-database.mjs",
     "postinstall": "node scripts/merge/prisma-generate-kassa.mjs"
   },

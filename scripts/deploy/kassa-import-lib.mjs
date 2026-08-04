@@ -1,9 +1,12 @@
 /**
- * Kassa ma'lumotlarini serverdagi garmonik_kassa (public schema) dan
- * yagona garmonik bazasidagi kassa schema ga ko'chirish.
+ * Kassa ma'lumotlarini eski dump/bazadan kassa schema ga ko'chirish.
+ *
+ * Eski kassa: public.users, public.invoices, ...
+ * Yangi ilova: kassa.users, kassa.invoices, ...
+ * Klinika: public.patients (uuid) — alohida, tegilmaydi.
  *
  * Avtomatik manba (deploy:install):
- *   1. Loyiha ildizi: garmonik_kassa.sql  (KASSA_IMPORT_SQL)
+ *   1. garmonik_kassa.dump yoki garmonik_kassa.sql (loyiha / KASSA_IMPORT_SQL)
  *   2. Server DB: garmonik_kassa
  */
 import { execSync } from "child_process";
@@ -29,6 +32,22 @@ export const IMPORT_TABLES = [
   "expenses",
   "expense_payments",
   "audit_logs",
+];
+
+/** pg_restore noto'g'ri public ga tushirgan kassa jadvallari (klinika emas) */
+export const LEGACY_PUBLIC_KASSA_TABLES = [
+  "audit_logs",
+  "expense_payments",
+  "expenses",
+  "invoice_payments",
+  "invoice_items",
+  "invoices",
+  "service_price_history",
+  "services",
+  "service_categories",
+  "payment_types",
+  "users",
+  "clinic_settings",
 ];
 
 export function maskUrl(url) {
@@ -123,13 +142,81 @@ export function defaultSqlDumpPath(root) {
   return path.join(root, "garmonik_kassa.sql");
 }
 
-/** Loyiha ildizidagi garmonik_kassa.sql (mavjud bo'lsa) */
-export function resolveBundledKassaSqlDump(root) {
-  const bundled = path.join(root, "garmonik_kassa.sql");
-  if (fs.existsSync(bundled)) return bundled;
-  const configured = defaultSqlDumpPath(root);
-  if (fs.existsSync(configured)) return configured;
+/** garmonik_kassa.dump yoki .sql — loyiha ildizi, ~/, yoki KASSA_IMPORT_SQL */
+export function resolveBundledKassaDump(root) {
+  const candidates = [];
+
+  const envPath = process.env.KASSA_IMPORT_SQL?.trim();
+  if (envPath) {
+    candidates.push(path.isAbsolute(envPath) ? envPath : path.join(root, envPath));
+  }
+
+  candidates.push(
+    path.join(root, "garmonik_kassa.dump"),
+    path.join(root, "garmonik_kassa.sql"),
+    path.join(os.homedir(), "garmonik_kassa.dump"),
+    path.join(os.homedir(), "garmonik_kassa.sql"),
+  );
+
+  for (const p of candidates) {
+    if (p && fs.existsSync(p)) return p;
+  }
   return null;
+}
+
+/** @deprecated resolveBundledKassaDump ishlating */
+export function resolveBundledKassaSqlDump(root) {
+  return resolveBundledKassaDump(root);
+}
+
+async function isKassaStylePublicPatients(client) {
+  if (!(await tableExistsInSchema(client, "public", "patients"))) return false;
+  const { rows } = await client.query(`
+    select data_type
+    from information_schema.columns
+    where table_schema = 'public' and table_name = 'patients' and column_name = 'id'
+  `);
+  const t = rows[0]?.data_type ?? "";
+  return t === "text" || t === "character varying";
+}
+
+/** public schema dagi noto'g'ri kassa qoldiqlarini o'chirish */
+export async function cleanupLegacyPublicKassaArtifacts(client) {
+  console.log("[kassa-import] public schema: eski kassa qoldiqlari tozalanmoqda...");
+
+  if (await isKassaStylePublicPatients(client)) {
+    console.log("[kassa-import]   drop public.patients (kassa dump, text id)");
+    await client.query("drop table if exists public.patients cascade");
+  } else {
+    console.log("[kassa-import]   public.patients saqlanadi (klinika, uuid)");
+  }
+
+  for (const table of LEGACY_PUBLIC_KASSA_TABLES) {
+    if (!(await tableExistsInSchema(client, "public", table))) continue;
+    if (table === "users") {
+      const { rows } = await client.query(
+        `
+        select 1 from information_schema.columns
+        where table_schema = 'public' and table_name = 'users' and column_name = 'login'
+        `,
+      );
+      if (rows.length === 0) {
+        console.log("[kassa-import]   skip public.users (login ustuni yo'q)");
+        continue;
+      }
+    }
+    console.log(`[kassa-import]   drop public.${table}`);
+    await client.query(`drop table if exists public."${table}" cascade`);
+  }
+
+  for (const typeName of [
+    "ExpenseStatus",
+    "InvoiceStatus",
+    "PaymentPlatform",
+    "UserRole",
+  ]) {
+    await client.query(`drop type if exists public."${typeName}" cascade`);
+  }
 }
 
 function isAutoImportEnabled() {
@@ -245,17 +332,43 @@ async function dropTempImportDatabase(tempDb) {
   runShell(`sudo -u postgres dropdb --if-exists "${tempDb}"`, `vaqtinchalik baza o'chirildi: ${tempDb}`);
 }
 
-function loadSqlDumpIntoDatabase(tempDb, sqlPath) {
-  const sanitized = prepareSanitizedKassaDump(sqlPath);
-  const abs = path.resolve(sanitized);
+function loadDumpIntoTempDatabase(tempDb, dumpPath) {
+  const abs = path.resolve(dumpPath);
+  const isCustom = abs.toLowerCase().endsWith(".dump");
+
+  if (isCustom) {
+    if (process.platform === "win32") {
+      const tempUrl = replaceDatabaseName(process.env.DATABASE_URL?.trim() || "", tempDb);
+      try {
+        runShell(
+          `pg_restore --no-owner --no-acl -d "${tempUrl}" "${abs}"`,
+          `pg_restore: ${abs}`,
+        );
+      } catch {
+        console.warn("[kassa-import] pg_restore ogohlantirishlar bilan tugadi — tekshiruv davom etadi");
+      }
+      return;
+    }
+    try {
+      runShell(
+        `sudo -u postgres pg_restore --no-owner --no-acl -d "${tempDb}" "${abs}"`,
+        `pg_restore: ${abs}`,
+      );
+    } catch {
+      console.warn("[kassa-import] pg_restore ogohlantirishlar bilan tugadi — tekshiruv davom etadi");
+    }
+    return;
+  }
+
+  const sanitized = prepareSanitizedKassaDump(abs);
   if (process.platform === "win32") {
     const tempUrl = replaceDatabaseName(process.env.DATABASE_URL?.trim() || "", tempDb);
-    runShell(`psql "${tempUrl}" -v ON_ERROR_STOP=0 -f "${abs}"`, `SQL yuklash: ${abs}`);
+    runShell(`psql "${tempUrl}" -v ON_ERROR_STOP=0 -f "${sanitized}"`, `SQL: ${sanitized}`);
     return;
   }
   runShell(
-    `sudo -u postgres psql -d "${tempDb}" -v ON_ERROR_STOP=0 -f "${abs}"`,
-    `SQL yuklash: ${abs}`,
+    `sudo -u postgres psql -d "${tempDb}" -v ON_ERROR_STOP=0 -f "${sanitized}"`,
+    `SQL: ${sanitized}`,
   );
 }
 
@@ -268,6 +381,19 @@ function appDbUserFromUrl(url) {
   }
 }
 
+async function getTableColumns(client, schema, table) {
+  const { rows } = await client.query(
+    `
+    select column_name
+    from information_schema.columns
+    where table_schema = $1 and table_name = $2
+    order by ordinal_position
+    `,
+    [schema, table],
+  );
+  return rows.map((r) => r.column_name);
+}
+
 async function copyTable(source, target, table) {
   if (!(await tableExistsInSchema(source, "public", table))) {
     console.log(`  o'tkazildi (manbada yo'q): ${table}`);
@@ -278,14 +404,21 @@ async function copyTable(source, target, table) {
     return 0;
   }
 
-  const { rows } = await source.query(`select * from public.${table}`);
+  const sourceCols = await getTableColumns(source, "public", table);
+  const targetCols = await getTableColumns(target, "kassa", table);
+  const cols = sourceCols.filter((c) => targetCols.includes(c));
+  if (!cols.length) {
+    console.log(`  o'tkazildi (ustun mos emas): ${table}`);
+    return 0;
+  }
+
+  const colList = cols.map((c) => `"${c}"`).join(", ");
+  const { rows } = await source.query(`select ${colList} from public.${table}`);
   if (!rows.length) {
     console.log(`  o'tkazildi (bo'sh): ${table}`);
     return 0;
   }
 
-  const cols = Object.keys(rows[0]);
-  const colList = cols.map((c) => `"${c}"`).join(", ");
   const placeholders = cols.map((_, i) => `$${i + 1}`).join(", ");
 
   let n = 0;
@@ -333,8 +466,8 @@ export async function importKassaFromPublicSource(sourceUrl, targetUrl, { force 
     return { imported: false, reason: "source-empty" };
   }
 
-  console.log(`[kassa-import] ${maskUrl(sourceUrl)} -> kassa schema`);
-  console.log(`[kassa-import] Manbadan ${sourceUsers} ta foydalanuvchi topildi`);
+  console.log(`[kassa-import] public (eski dump) -> kassa schema`);
+  console.log(`[kassa-import] Manbadan ${sourceUsers} ta kassa foydalanuvchi`);
 
   if (force && existingUsers > 0) {
     console.log("[kassa-import] Eski kassa ma'lumotlari tozalanmoqda...");
@@ -373,9 +506,9 @@ export async function importKassaFromPublicSource(sourceUrl, targetUrl, { force 
   return { imported: true, sourceUsers };
 }
 
-export async function importKassaFromSqlDump(targetUrl, sqlPath, { force = false } = {}) {
-  if (!fs.existsSync(sqlPath)) {
-    return { imported: false, reason: "sql-not-found", path: sqlPath };
+export async function importKassaFromDumpFile(targetUrl, dumpPath, { force = false } = {}) {
+  if (!fs.existsSync(dumpPath)) {
+    return { imported: false, reason: "dump-not-found", path: dumpPath };
   }
 
   const tempDb = `garmonik_kassa_import_${Date.now()}`;
@@ -386,18 +519,26 @@ export async function importKassaFromSqlDump(targetUrl, sqlPath, { force = false
 
   const appUser = appDbUserFromUrl(targetUrl);
 
+  const targetPrep = new pg.Client({ connectionString: targetUrl });
+  await targetPrep.connect();
   try {
-    console.log(`[kassa-import] SQL dump -> vaqtinchalik baza -> kassa schema`);
-    console.log(`[kassa-import] Manba fayl: ${path.resolve(sqlPath)}`);
+    await cleanupLegacyPublicKassaArtifacts(targetPrep);
+  } finally {
+    await targetPrep.end();
+  }
+
+  try {
+    console.log(`[kassa-import] Eski dump -> vaqtinchalik baza -> kassa schema`);
+    console.log(`[kassa-import] Fayl: ${path.resolve(dumpPath)}`);
     await createTempImportDatabase(tempDb, appUser);
-    loadSqlDumpIntoDatabase(tempDb, sqlPath);
+    loadDumpIntoTempDatabase(tempDb, dumpPath);
 
     const loadedUsers = countPublicUsersAsPostgres(tempDb);
     if (loadedUsers >= 0) {
       console.log(`[kassa-import] Vaqtinchalik bazada ${loadedUsers} ta kassa foydalanuvchi`);
       if (loadedUsers === 0) {
         throw new Error(
-          "garmonik_kassa.sql yuklandi, lekin public.users bo'sh — dump faylini tekshiring",
+          "Dump yuklandi, lekin public.users bo'sh — fayl formatini tekshiring",
         );
       }
     }
@@ -411,6 +552,11 @@ export async function importKassaFromSqlDump(targetUrl, sqlPath, { force = false
       console.warn(`[kassa-import] Vaqtinchalik bazani o'chirishda xato: ${e.message}`);
     }
   }
+}
+
+/** @deprecated importKassaFromDumpFile ishlating */
+export async function importKassaFromSqlDump(targetUrl, sqlPath, options) {
+  return importKassaFromDumpFile(targetUrl, sqlPath, options);
 }
 
 /**
@@ -427,26 +573,26 @@ export async function autoImportKassaIfEmpty(targetUrl, root, { force = false } 
     }
   })();
 
-  const sqlPath = resolveBundledKassaSqlDump(root);
-  const hasSqlDump = Boolean(sqlPath);
+  const dumpPath = resolveBundledKassaDump(root);
+  const hasDump = Boolean(dumpPath);
 
-  if (hasSqlDump) {
-    console.log(`[kassa-import] Loyiha dump: ${sqlPath}`);
+  if (hasDump) {
+    console.log(`[kassa-import] Kassa dump topildi: ${dumpPath}`);
   }
 
-  const shouldForceFromSql =
+  const shouldForceFromDump =
     force ||
     existing === 0 ||
-    (hasSqlDump && existing > 0 && existing <= SEED_USER_CEILING);
+    (hasDump && existing > 0 && existing <= SEED_USER_CEILING);
 
-  if (existing > 0 && !shouldForceFromSql) {
+  if (existing > 0 && !shouldForceFromDump) {
     console.log(`[kassa-import] Kassa allaqachon to'ldirilgan (${existing} foydalanuvchi).`);
     return { imported: false, reason: "already-has-data", count: existing };
   }
 
-  if (existing > 0 && shouldForceFromSql && hasSqlDump && !force) {
+  if (existing > 0 && shouldForceFromDump && hasDump && !force) {
     console.log(
-      `[kassa-import] ${existing} foydalanuvchi (seed?) — garmonik_kassa.sql dan qayta import...`,
+      `[kassa-import] ${existing} foydalanuvchi — dump dan qayta import (public -> kassa)...`,
     );
   }
 
@@ -455,24 +601,24 @@ export async function autoImportKassaIfEmpty(targetUrl, root, { force = false } 
     return { imported: false, reason: "disabled" };
   }
 
-  if (hasSqlDump) {
-    console.log(`[kassa-import] garmonik_kassa.sql avtomatik yuklanmoqda...`);
+  if (hasDump) {
+    console.log(`[kassa-import] Avtomatik import boshlandi...`);
     try {
-      const fromSql = await importKassaFromSqlDump(targetUrl, sqlPath, {
-        force: shouldForceFromSql,
+      const fromDump = await importKassaFromDumpFile(targetUrl, dumpPath, {
+        force: shouldForceFromDump,
       });
-      if (fromSql.imported) return fromSql;
-      console.log(`[kassa-import] SQL dump natija: ${fromSql.reason ?? "import bo'lmadi"}`);
+      if (fromDump.imported) return fromDump;
+      console.log(`[kassa-import] Dump natija: ${fromDump.reason ?? "import bo'lmadi"}`);
     } catch (e) {
       console.error(
-        "[kassa-import] SQL dump import xato:",
+        "[kassa-import] Dump import xato:",
         e instanceof Error ? e.message : e,
       );
-      if (hasSqlDump) throw e;
+      throw e;
     }
   } else {
     console.log(
-      `[kassa-import] garmonik_kassa.sql topilmadi (${defaultSqlDumpPath(root)})`,
+      `[kassa-import] Dump topilmadi (garmonik_kassa.dump / garmonik_kassa.sql)`,
     );
   }
 
