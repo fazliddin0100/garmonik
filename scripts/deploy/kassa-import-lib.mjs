@@ -556,7 +556,10 @@ export async function importKassaFromDumpFile(targetUrl, dumpPath, { force = fal
     }
 
     grantAppUserReadTempDb(tempDb, appUser);
-    return importKassaFromPublicSource(tempUrl, targetUrl, { force: true });
+    const result = await importKassaFromPublicSource(tempUrl, targetUrl, {
+      force: true,
+    });
+    return result;
   } finally {
     try {
       await dropTempImportDatabase(tempDb);
