@@ -66,13 +66,26 @@ postgresql://USER:PASSWORD@HOST:5432/garmonik?sslmode=require
 
 Klinika (`public` schema) va kassa (`kassa` schema) **bir xil** `DATABASE_URL` da.
 
-### Eski kassa bazasi (garmonik_kassa)
+### Eski kassa bazasi (garmonik_kassa.sql)
 
-Serverda alohida `garmonik_kassa` bazasi bo'lsa (eski kassa ilovasi), yangi sayt **avtomatik** undan ma'lumot oladi:
+Loyiha ildiziga `garmonik_kassa.sql` qo'ying — `npm run deploy:install` **avtomatik** yuklaydi:
 
-1. `DATABASE_URL` → `garmonik` (yangi yagona baza)
-2. `deploy:setup-db` bir xil hostdagi `garmonik_kassa` ni topib, `kassa` schema ga ko'chiradi
-3. Yoki loyiha ildizidagi `garmonik_kassa.sql` dump faylidan import qiladi
+```
+/root/garmonik/garmonik_kassa.sql  →  kassa schema
+```
+
+`.env` (ixtiyoriy, default shunday):
+
+```env
+KASSA_AUTO_IMPORT=true
+KASSA_IMPORT_SQL=./garmonik_kassa.sql
+```
+
+Qo'lda import (mavjud ma'lumotni almashtirish):
+
+```bash
+npm run deploy:import-kassa
+```
 
 Serverdan dump olish:
 
@@ -214,6 +227,7 @@ bash scripts/deploy/server-update-pm2.sh
 | Belgisi | Yechim |
 |---------|--------|
 | Kassa 401 | `/kassa/login` dan qayta kiring |
-| DB ulanmaydi | `DATABASE_URL`, `sslmode=require` |
+| DB ulanmaydi | `DATABASE_URL`, `DATABASE_SSL=false` (localhost) |
+| `permission denied to create role` | `sudo -u postgres psql -d garmonik -f scripts/deploy/postgres-stub-roles.sql` keyin `npm run deploy:install` |
 | Build xato | `npm run db:kassa:generate` keyin `npm run build` |
 | Eski kassa domeni | nginx redirect yoki `KASSA_LEGACY_HOST` |

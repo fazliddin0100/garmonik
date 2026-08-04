@@ -1,7 +1,12 @@
 /**
  * Kassa ma'lumotlarini serverdagi garmonik_kassa (public schema) dan
  * yagona garmonik bazasidagi kassa schema ga ko'chirish.
+ *
+ * Avtomatik manba (deploy:install):
+ *   1. Loyiha ildizi: garmonik_kassa.sql  (KASSA_IMPORT_SQL)
+ *   2. Server DB: garmonik_kassa
  */
+import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import pg from "pg";
@@ -114,6 +119,97 @@ export function defaultSqlDumpPath(root) {
   return path.join(root, "garmonik_kassa.sql");
 }
 
+function isAutoImportEnabled() {
+  const v = process.env.KASSA_AUTO_IMPORT?.trim().toLowerCase();
+  if (v === "false" || v === "0" || v === "no") return false;
+  return true;
+}
+
+function runShell(cmd, label) {
+  console.log(`[kassa-import] ${label}`);
+  execSync(cmd, { stdio: "inherit", env: process.env, shell: true });
+}
+
+/** Linux VPS: postgres superuser (peer) orqali createdb/psql */
+function runAsPostgres(args) {
+  if (process.platform === "win32") {
+    runShell(`psql ${args}`, `psql ${args}`);
+    return;
+  }
+  runShell(`sudo -u postgres psql ${args}`, `sudo postgres psql ${args}`);
+}
+
+async function createTempImportDatabase(tempDb, appUser) {
+  if (process.platform === "win32") {
+    const adminUrl = process.env.DATABASE_URL?.trim();
+    const postgresUrl = postgresAdminUrl(adminUrl || "");
+    if (!postgresUrl) throw new Error("DATABASE_URL noto'g'ri");
+    const admin = new pg.Client({ connectionString: postgresUrl });
+    await admin.connect();
+    try {
+      await admin.query(`create database "${tempDb}"`);
+    } finally {
+      await admin.end();
+    }
+    return;
+  }
+
+  runShell(`sudo -u postgres createdb "${tempDb}"`, `vaqtinchalik baza: ${tempDb}`);
+
+  if (appUser) {
+    runAsPostgres(
+      `-v ON_ERROR_STOP=1 -d "${tempDb}" -c "GRANT CONNECT ON DATABASE \\"${tempDb}\\" TO \\"${appUser}\\"; GRANT USAGE ON SCHEMA public TO \\"${appUser}\\"; GRANT SELECT ON ALL TABLES IN SCHEMA public TO \\"${appUser}\\";"`,
+    );
+  }
+}
+
+async function dropTempImportDatabase(tempDb) {
+  if (process.platform === "win32") {
+    const adminUrl = postgresAdminUrl(process.env.DATABASE_URL?.trim() || "");
+    if (!adminUrl) return;
+    const admin = new pg.Client({ connectionString: adminUrl });
+    await admin.connect();
+    try {
+      await admin.query(`
+        select pg_terminate_backend(pid)
+        from pg_stat_activity
+        where datname = $1 and pid <> pg_backend_pid()
+      `, [tempDb]);
+      await admin.query(`drop database if exists "${tempDb}"`);
+    } finally {
+      await admin.end();
+    }
+    return;
+  }
+
+  runAsPostgres(
+    `-v ON_ERROR_STOP=1 -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '${tempDb}' and pid <> pg_backend_pid();"`,
+  );
+  runShell(`sudo -u postgres dropdb --if-exists "${tempDb}"`, `vaqtinchalik baza o'chirildi: ${tempDb}`);
+}
+
+function loadSqlDumpIntoDatabase(tempDb, sqlPath) {
+  const abs = path.resolve(sqlPath);
+  if (process.platform === "win32") {
+    const tempUrl = replaceDatabaseName(process.env.DATABASE_URL?.trim() || "", tempDb);
+    runShell(`psql "${tempUrl}" -v ON_ERROR_STOP=1 -f "${abs}"`, `SQL yuklash: ${abs}`);
+    return;
+  }
+  runShell(
+    `sudo -u postgres psql -d "${tempDb}" -v ON_ERROR_STOP=1 -f "${abs}"`,
+    `SQL yuklash: ${abs}`,
+  );
+}
+
+function appDbUserFromUrl(url) {
+  try {
+    const normalized = url.replace(/^postgresql:/, "http:").replace(/^postgres:/, "http:");
+    return decodeURIComponent(new URL(normalized).username || "");
+  } catch {
+    return "";
+  }
+}
+
 async function copyTable(source, target, table) {
   const { rows } = await source.query(`select * from public.${table}`);
   if (!rows.length) {
@@ -215,55 +311,31 @@ export async function importKassaFromSqlDump(targetUrl, sqlPath, { force = false
     return { imported: false, reason: "sql-not-found", path: sqlPath };
   }
 
-  const adminUrl = postgresAdminUrl(targetUrl);
-  if (!adminUrl) {
-    return { imported: false, reason: "invalid-url" };
-  }
-
   const tempDb = `garmonik_kassa_import_${Date.now()}`;
   const tempUrl = replaceDatabaseName(targetUrl, tempDb);
   if (!tempUrl) {
     return { imported: false, reason: "invalid-temp-url" };
   }
 
-  const admin = new pg.Client({ connectionString: adminUrl });
-  await admin.connect();
+  const appUser = appDbUserFromUrl(targetUrl);
 
   try {
-    console.log(`[kassa-import] Vaqtinchalik baza: ${tempDb}`);
-    await admin.query(`create database "${tempDb}"`);
-
-    const { execSync } = await import("child_process");
-    const psqlCmd = process.platform === "win32" ? "psql.exe" : "psql";
-    try {
-      execSync(`"${psqlCmd}" "${tempUrl}" -v ON_ERROR_STOP=1 -f "${sqlPath}"`, {
-        stdio: "inherit",
-        env: process.env,
-      });
-    } catch (e) {
-      console.error("[kassa-import] psql bilan SQL yuklash muvaffaqiyatsiz.");
-      console.error("  psql o'rnatilganligini tekshiring yoki KASSA_SOURCE_DATABASE_URL ishlating.");
-      throw e;
-    }
-
+    console.log(`[kassa-import] SQL dump -> vaqtinchalik baza -> kassa schema`);
+    console.log(`[kassa-import] Fayl: ${path.resolve(sqlPath)}`);
+    await createTempImportDatabase(tempDb, appUser);
+    loadSqlDumpIntoDatabase(tempDb, sqlPath);
     return importKassaFromPublicSource(tempUrl, targetUrl, { force });
   } finally {
     try {
-      await admin.query(`
-        select pg_terminate_backend(pid)
-        from pg_stat_activity
-        where datname = $1 and pid <> pg_backend_pid()
-      `, [tempDb]);
-      await admin.query(`drop database if exists "${tempDb}"`);
+      await dropTempImportDatabase(tempDb);
     } catch (e) {
       console.warn(`[kassa-import] Vaqtinchalik bazani o'chirishda xato: ${e.message}`);
     }
-    await admin.end();
   }
 }
 
 /**
- * Avtomatik import: avval mavjud garmonik_kassa DB, keyin SQL dump.
+ * Avtomatik import: avval loyiha ildizidagi garmonik_kassa.sql, keyin garmonik_kassa DB.
  */
 export async function autoImportKassaIfEmpty(targetUrl, root, { force = false } = {}) {
   const existing = await (async () => {
@@ -281,9 +353,29 @@ export async function autoImportKassaIfEmpty(targetUrl, root, { force = false } 
     return { imported: false, reason: "already-has-data", count: existing };
   }
 
-  if (process.env.KASSA_AUTO_IMPORT?.trim().toLowerCase() === "false") {
+  if (!isAutoImportEnabled()) {
     console.log("[kassa-import] KASSA_AUTO_IMPORT=false — import o'tkazildi.");
     return { imported: false, reason: "disabled" };
+  }
+
+  const sqlPath = defaultSqlDumpPath(root);
+  if (fs.existsSync(sqlPath)) {
+    console.log(`[kassa-import] Loyiha dump fayli topildi — avtomatik yuklanadi.`);
+    try {
+      const fromSql = await importKassaFromSqlDump(targetUrl, sqlPath, { force });
+      if (fromSql.imported) return fromSql;
+      if (fromSql.reason !== "source-empty") {
+        console.log(`[kassa-import] SQL dump natija: ${fromSql.reason ?? "import bo'lmadi"}`);
+      }
+    } catch (e) {
+      console.warn(
+        "[kassa-import] SQL dump import xato:",
+        e instanceof Error ? e.message : e,
+      );
+      console.warn("[kassa-import] garmonik_kassa bazasidan sinab ko'riladi...");
+    }
+  } else {
+    console.log(`[kassa-import] Dump fayl yo'q (${sqlPath}) — garmonik_kassa DB qidiriladi.`);
   }
 
   const sourceUrl = deriveKassaSourceUrl(targetUrl);
@@ -304,15 +396,9 @@ export async function autoImportKassaIfEmpty(targetUrl, root, { force = false } 
         /* ignore */
       }
       console.log(
-        `[kassa-import] ${maskUrl(sourceUrl)} ga ulanib bo'lmadi — SQL dump sinab ko'riladi.`,
+        `[kassa-import] ${maskUrl(sourceUrl)} ga ulanib bo'lmadi.`,
       );
     }
-  }
-
-  const sqlPath = defaultSqlDumpPath(root);
-  if (fs.existsSync(sqlPath)) {
-    console.log(`[kassa-import] SQL dump: ${sqlPath}`);
-    return importKassaFromSqlDump(targetUrl, sqlPath, { force });
   }
 
   console.log("[kassa-import] Manba topilmadi — yangi kassa seed ishlatiladi.");

@@ -96,6 +96,10 @@ WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${PG_DB}')\gexec
 GRANT ALL PRIVILEGES ON DATABASE ${PG_DB} TO ${PG_USER};
 EOSQL
 
+  log "PostgreSQL stub rollar (RLS migratsiyalari)..."
+  sudo -u postgres psql -d "${PG_DB}" -v ON_ERROR_STOP=1 \
+    -f "${ROOT_DIR}/scripts/deploy/postgres-stub-roles.sql"
+
   export GENERATED_PG_PASS="$pg_pass"
 }
 
@@ -136,7 +140,19 @@ write_env() {
     sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=${pg_pass}|" .env
   fi
 
-  log ".env yangilandi (DATABASE_URL, JWT, domen)"
+  if grep -q '^KASSA_AUTO_IMPORT=' .env; then
+    sed -i 's|^KASSA_AUTO_IMPORT=.*|KASSA_AUTO_IMPORT=true|' .env
+  else
+    printf 'KASSA_AUTO_IMPORT=true\n' >> .env
+  fi
+
+  if grep -q '^KASSA_IMPORT_SQL=' .env; then
+    sed -i 's|^KASSA_IMPORT_SQL=.*|KASSA_IMPORT_SQL=./garmonik_kassa.sql|' .env
+  else
+    printf 'KASSA_IMPORT_SQL=./garmonik_kassa.sql\n' >> .env
+  fi
+
+  log ".env yangilandi (DATABASE_URL, JWT, domen, kassa import)"
 }
 
 install_app_deps() {
