@@ -1,0 +1,40 @@
+# Tashqi PostgreSQL (managed DB, hosting paneli) — faqat ilova konteyneri.
+# DATABASE_URL ni .env da o'zingiz berasiz.
+#
+#   cp .env.docker.example .env
+#   nano .env   # DATABASE_URL=postgresql://...
+#   docker compose -f docker-compose.external-db.yml up -d --build
+
+name: garmonik
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_CLINIC_NAME: ${NEXT_PUBLIC_CLINIC_NAME:-Garmonik Klinik}
+        NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL: ${NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL:-http://127.0.0.1:17888}
+        KASSA_LEGACY_HOST: ${KASSA_LEGACY_HOST:-}
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET .env da majburiy}
+      RUN_DB_SEED: ${RUN_DB_SEED:-false}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/public/clinic-info').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s

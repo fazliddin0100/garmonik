@@ -1,3 +1,9 @@
+/**
+ * Garmonik marshrut himoyasi (Next.js 16 `proxy.ts`).
+ *
+ * Token yo‘q yoki ruxsat yetmasa — login sahifasiga (`/auth/login?next=...`).
+ * Kassa bo‘limi uchun alohida qoidalar (`/kassa/login` yoki birlashtirilgan login).
+ */
 import {
   adminCanAccessReportsRoute,
   adminHomePathForRouteGroup,
@@ -42,11 +48,38 @@ function isHeadDoctorRoleLabel(roleLabel: string): boolean {
   return roleLabel.trim().toLowerCase() === 'bosh shifokor';
 }
 
+/** Matcher dagi yo‘llar — xatolikda ham login ga yo‘naltirish uchun */
+function isProtectedPathname(pathname: string): boolean {
+  if (underAny(pathname, SHARED_STAFF_OR_ADMIN_PREFIXES)) return true;
+  if (underAny(pathname, ADMIN_ONLY_PREFIXES)) return true;
+
+  for (const group of Object.keys(ROLE_ROUTE_PREFIXES) as StaffRouteGroup[]) {
+    if (underAny(pathname, ROLE_ROUTE_PREFIXES[group])) return true;
+  }
+
+  return isKassaProtectedPath(pathname) && !isKassaPublicPath(pathname);
+}
+
+function loginRedirectForPath(request: NextRequest, pathname: string) {
+  if (
+    isKassaProtectedPath(pathname) &&
+    !isKassaPublicPath(pathname) &&
+    !pathname.startsWith('/api/kassa')
+  ) {
+    return NextResponse.redirect(kassaLoginUrl(request, pathname));
+  }
+  return NextResponse.redirect(loginUrl(request, pathname));
+}
+
 export async function proxy(request: NextRequest) {
   try {
     return await handleProxy(request);
   } catch (error) {
     console.error('[proxy]', error);
+    const { pathname } = request.nextUrl;
+    if (isProtectedPathname(pathname)) {
+      return loginRedirectForPath(request, pathname);
+    }
     return NextResponse.next({
       request: { headers: request.headers },
     });
@@ -226,5 +259,7 @@ export const config = {
     '/kassir/:path*',
     '/kassa-admin/:path*',
     '/api/kassa/:path*',
+    '/user',
+    '/user/:path*',
   ],
 };

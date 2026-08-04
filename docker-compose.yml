@@ -1,0 +1,76 @@
+# Garmonik — to'liq Docker (PostgreSQL + Next.js ilova)
+# Har qanday VPS / hosting uchun: faqat Docker o'rnatilgan bo'lsa yetadi.
+#
+#   cp .env.docker.example .env
+#   nano .env
+#   docker compose up -d --build
+#
+# Brauzer: http://localhost:3000/auth/login
+
+name: garmonik
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-garmonik}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD .env da majburiy}
+      POSTGRES_DB: ${POSTGRES_DB:-garmonik}
+    volumes:
+      - garmonik_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_CLINIC_NAME: ${NEXT_PUBLIC_CLINIC_NAME:-Garmonik Klinik}
+        NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL: ${NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL:-http://127.0.0.1:17888}
+        KASSA_LEGACY_HOST: ${KASSA_LEGACY_HOST:-}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-garmonik}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-garmonik}
+      DATABASE_SSL: "false"
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET .env da majburiy (kamida 32 belgi)}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      NEXT_PUBLIC_CLINIC_NAME: ${NEXT_PUBLIC_CLINIC_NAME:-Garmonik Klinik}
+      NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL: ${NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL:-http://127.0.0.1:17888}
+      RECEIPT_PRINTER_ENABLED: ${RECEIPT_PRINTER_ENABLED:-true}
+      KASSA_LEGACY_HOST: ${KASSA_LEGACY_HOST:-}
+      SEED_ADMIN_LOGIN: ${SEED_ADMIN_LOGIN:-admin}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-admin123}
+      RUN_DB_SEED: ${RUN_DB_SEED:-false}
+      KASSA_AUTO_IMPORT: ${KASSA_AUTO_IMPORT:-true}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/public/clinic-info').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+volumes:
+  garmonik_pg_data:

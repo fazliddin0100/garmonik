@@ -127,19 +127,29 @@ Eski kassa domeni redirect: `deploy/nginx/kassa-legacy-redirect.conf.example`
 
 ---
 
-## 5. Docker (ixtiyoriy)
+## 5. Docker (har qanday hosting)
 
-Panel PostgreSQL + faqat ilova konteyneri:
+To'liq stack — PostgreSQL + ilova (tavsiya etiladi):
 
 ```bash
-cp .env.example .env
-# DATABASE_URL ni to'ldiring
-docker compose -f docker-compose.ahost.yml up -d --build
+cp .env.docker.example .env
+nano .env   # POSTGRES_PASSWORD, JWT_SECRET, NEXT_PUBLIC_APP_URL
+docker compose up -d --build
+```
+
+Tashqi PostgreSQL (managed DB / hosting paneli):
+
+```bash
+cp .env.docker.example .env
+nano .env   # DATABASE_URL, JWT_SECRET, NEXT_PUBLIC_APP_URL
+docker compose -f docker-compose.external-db.yml up -d --build
 ```
 
 Birinchi marta Docker ishga tushganda admin **avtomatik** yaratiladi (entrypoint `bootstrap-if-empty` chaqiradi). Terminal logida login/parol chiqadi.
 
 To'liq seedni qayta ishga tushirish kerak bo'lsa (bir marta): `.env` ga `RUN_DB_SEED=true` qo'shing.
+
+**Production domen:** `.env` da `NEXT_PUBLIC_APP_URL=https://gormonik-plus-klinik.uz` qiling, keyin `docker compose up -d --build` (build vaqtida ham shu URL ishlatiladi).
 
 ---
 

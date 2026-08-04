@@ -19,6 +19,8 @@ Write-Host ""
 
 Check "DEPLOY_AHOST.md" (Test-Path (Join-Path $root "DEPLOY_AHOST.md"))
 Check "Dockerfile" (Test-Path (Join-Path $root "Dockerfile"))
+Check "docker-compose.yml" (Test-Path (Join-Path $root "docker-compose.yml"))
+Check "docker-compose.external-db.yml" (Test-Path (Join-Path $root "docker-compose.external-db.yml"))
 Check "docker-compose.ahost.yml" (Test-Path (Join-Path $root "docker-compose.ahost.yml"))
 Check "docker-entrypoint.sh" (Test-Path (Join-Path $root "scripts\docker-entrypoint.sh"))
 Check "next.config: standalone" (Select-String -Path (Join-Path $root "next.config.ts") -Pattern "output:\s*['\`"]standalone['\`"]" -Quiet)

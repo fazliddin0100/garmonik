@@ -1,14 +1,7 @@
-# ahost: panelda yaratilgan PostgreSQL + bitta garmonik ilova (klinika + kassa)
-# Ishlatish: docker compose -f docker-compose.ahost.yml up -d --build
+# Legacy alias: tashqi PostgreSQL + faqat ilova (ahost panel DB).
+# Tavsiya: docker-compose.external-db.yml ishlating.
+#
+#   docker compose -f docker-compose.external-db.yml up -d --build
 
-services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    environment:
-      NODE_ENV: production
-      RUN_DB_SEED: "false"
-    restart: unless-stopped
+include:
+  - docker-compose.external-db.yml
