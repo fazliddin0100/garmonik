@@ -13,7 +13,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://gormonik-plus-klinik.uz}
         NEXT_PUBLIC_CLINIC_NAME: ${NEXT_PUBLIC_CLINIC_NAME:-Garmonik Klinik}
         NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL: ${NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL:-http://127.0.0.1:17888}
         KASSA_LEGACY_HOST: ${KASSA_LEGACY_HOST:-}

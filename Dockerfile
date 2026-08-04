@@ -12,7 +12,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG NEXT_PUBLIC_APP_URL=http://localhost:3000
+ARG NEXT_PUBLIC_APP_URL=https://gormonik-plus-klinik.uz
 ARG NEXT_PUBLIC_CLINIC_NAME="Garmonik Klinik"
 ARG NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL=http://127.0.0.1:17888
 ARG KASSA_LEGACY_HOST=

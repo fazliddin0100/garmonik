@@ -7,7 +7,7 @@
 #
 # Ixtiyoriy muhit o'zgaruvchilari:
 #   APP_DOMAIN=https://gormonik-plus-klinik.uz
-#   WITH_NGINX=1          — nginx o'rnatish va proxy sozlash
+#   WITH_NGINX=0          — nginx o'rnatmaslik (default: 1)
 #   SKIP_DOCKER_INSTALL=1 — Docker allaqachon o'rnatilgan bo'lsa
 
 set -euo pipefail
@@ -148,7 +148,8 @@ wait_for_app() {
 }
 
 setup_nginx() {
-  [[ "${WITH_NGINX:-0}" == "1" ]] || return 0
+  WITH_NGINX="${WITH_NGINX:-1}"
+  [[ "$WITH_NGINX" == "1" ]] || return 0
 
   need_root_for "Nginx"
   log "Nginx o'rnatilmoqda..."
