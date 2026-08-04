@@ -1,7 +1,6 @@
 /**
  * Birinchi o'rnatish: bazada admin yo'q bo'lsa avtomatik seed.
  *   npm run deploy:bootstrap
- * Docker entrypoint ham shu skriptni chaqiradi.
  */
 
 import { spawnSync } from 'child_process';

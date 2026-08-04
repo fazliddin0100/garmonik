@@ -4,53 +4,40 @@ Maqsad: **https://gormonik-plus-klinik.uz** — bitta Next.js ilova.
 
 ---
 
-## 0. Tez o'rnatish — Ubuntu VPS (Docker, PostgreSQL ichida)
-
-**Domen:** `https://gormonik-plus-klinik.uz` (default sozlangan)
-
-**Hostda PostgreSQL, Node.js yoki npm o'rnatish shart emas.** Docker ham skript o'rnatadi.
+## 0. Tez o'rnatish — Ubuntu VPS (PM2 + Nginx)
 
 ```bash
-# Serverga SSH
 sudo apt update && sudo apt install -y git
-
 git clone <repo-url> garmonik
 cd garmonik
-
-# Bir buyruq: Docker + PostgreSQL + ilova + Nginx
 sudo bash install.sh
 ```
 
-Faqat domenni qayta sozlash (Docker allaqachon o'rnatilgan bo'lsa):
+Skript avtomatik o'rnatadi: **Node.js 20**, **PostgreSQL**, **PM2**, **Nginx**, build, admin seed.
 
-```bash
-cd garmonik
-git pull
-sudo bash scripts/deploy/setup-domain.sh
-```
+Domen default: `https://gormonik-plus-klinik.uz`
 
-HTTPS (bir marta):
+HTTPS:
 
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d gormonik-plus-klinik.uz -d www.gormonik-plus-klinik.uz
 ```
 
-Skript avtomatik qiladi:
-
-| Qadam | Nima bo'ladi |
-|-------|----------------|
-| Docker | `get.docker.com` orqali o'rnatiladi |
-| PostgreSQL | `docker-compose.yml` ichidagi `db` konteyner |
-| `.env` | `.env.docker.example` dan, tasodifiy parollar bilan |
-| Migratsiya + admin | `docker-entrypoint.sh` birinchi ishga tushishda |
-| Ilova | `http://127.0.0.1:3000` |
-
-Keyingi yangilash:
+Yangilash:
 
 ```bash
 cd garmonik
-bash scripts/deploy/server-update.sh
+bash scripts/deploy/server-update-pm2.sh
+```
+
+Foydali buyruqlar:
+
+```bash
+pm2 status
+pm2 logs garmonik
+pm2 restart garmonik
+curl -I http://127.0.0.1:3000/auth/login
 ```
 
 ---
@@ -146,7 +133,7 @@ npm run deploy:install
 npm run build
 
 npm install -g pm2
-pm2 start npm --name garmonik -- start
+pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup
 ```
@@ -180,33 +167,7 @@ Eski kassa domeni redirect: `deploy/nginx/kassa-legacy-redirect.conf.example`
 
 ---
 
-## 5. Docker (har qanday hosting)
-
-To'liq stack — PostgreSQL + ilova (tavsiya etiladi):
-
-```bash
-cp .env.docker.example .env
-nano .env   # POSTGRES_PASSWORD, JWT_SECRET, NEXT_PUBLIC_APP_URL
-docker compose up -d --build
-```
-
-Tashqi PostgreSQL (managed DB / hosting paneli):
-
-```bash
-cp .env.docker.example .env
-nano .env   # DATABASE_URL, JWT_SECRET, NEXT_PUBLIC_APP_URL
-docker compose -f docker-compose.external-db.yml up -d --build
-```
-
-Birinchi marta Docker ishga tushganda admin **avtomatik** yaratiladi (entrypoint `bootstrap-if-empty` chaqiradi). Terminal logida login/parol chiqadi.
-
-To'liq seedni qayta ishga tushirish kerak bo'lsa (bir marta): `.env` ga `RUN_DB_SEED=true` qo'shing.
-
-**Production domen:** `.env` da `NEXT_PUBLIC_APP_URL=https://gormonik-plus-klinik.uz` qiling, keyin `docker compose up -d --build` (build vaqtida ham shu URL ishlatiladi).
-
----
-
-## 6. Print-agent (kassa chek printer)
+## 5. Print-agent (kassa chek printer)
 
 Kassa kompyuterida (server emas, kassir PC):
 
@@ -243,12 +204,7 @@ Local tekshiruv: `npm run merge:verify-phase-8`
 ## Yangilash (deploy)
 
 ```bash
-git pull
-npm install
-npm run db:migrate
-npx prisma db push --schema=prisma/kassa/schema.prisma
-npm run build
-pm2 restart garmonik
+bash scripts/deploy/server-update-pm2.sh
 ```
 
 ---

@@ -18,11 +18,9 @@ Write-Host "=== Bosqich 8 tekshiruvi (production deploy) ===" -ForegroundColor C
 Write-Host ""
 
 Check "DEPLOY_AHOST.md" (Test-Path (Join-Path $root "DEPLOY_AHOST.md"))
-Check "Dockerfile" (Test-Path (Join-Path $root "Dockerfile"))
-Check "docker-compose.yml" (Test-Path (Join-Path $root "docker-compose.yml"))
-Check "docker-compose.external-db.yml" (Test-Path (Join-Path $root "docker-compose.external-db.yml"))
-Check "docker-compose.ahost.yml" (Test-Path (Join-Path $root "docker-compose.ahost.yml"))
-Check "docker-entrypoint.sh" (Test-Path (Join-Path $root "scripts\docker-entrypoint.sh"))
+Check "ecosystem.config.cjs (PM2)" (Test-Path (Join-Path $root "ecosystem.config.cjs"))
+Check "install.sh (PM2)" (Test-Path (Join-Path $root "install.sh"))
+Check "server-install-pm2.sh" (Test-Path (Join-Path $root "scripts\deploy\server-install-pm2.sh"))
 Check "next.config: standalone" (Select-String -Path (Join-Path $root "next.config.ts") -Pattern "output:\s*['\`"]standalone['\`"]" -Quiet)
 Check "next.config: legacy redirect" (Select-String -Path (Join-Path $root "next.config.ts") -Pattern "KASSA_LEGACY_HOST" -Quiet)
 Check "nginx asosiy domen" (Test-Path (Join-Path $root "deploy\nginx\gormonik-plus-klinik.uz.conf.example"))
@@ -45,7 +43,7 @@ Pop-Location
 Write-Host ""
 if ($failed -eq 0) {
     Write-Host "Bosqich 8 TAYYOR - deploy fayllari joyida." -ForegroundColor Green
-    Write-Host "Serverda: DEPLOY_AHOST.md bo'yicha PM2 yoki Docker."
+    Write-Host "Serverda: DEPLOY_AHOST.md bo'yicha PM2 + Nginx."
     Write-Host "Domen: https://gormonik-plus-klinik.uz/kassa"
 } else {
     Write-Host "Bosqich 8 tugallanmagan." -ForegroundColor Yellow

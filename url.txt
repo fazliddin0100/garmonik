@@ -1,76 +1,22 @@
 # PostgreSQL (klinika + kassa bir bazada)
-# Parolda $ bo'lsa URL-da %24 deb yozing (Next.js $ ni o'zgaruvchi deb o'qiydi)
-DATABASE_URL="postgresql://postgres:Dil%24hodjon0100@localhost:5432/garmonik"
+# Parolda $ bo'lsa URL-da %24 deb yozing
+DATABASE_URL="postgresql://postgres:PAROL@localhost:5432/garmonik"
+DATABASE_SSL=false
 
-# Kamida 32 belgili tasodifiy kalit (productionda yangilang!)
-JWT_SECRET="rT8mQ2Xv7Nc5LpZk1Hs9YfWd4Bj6AeGu"
+JWT_SECRET="kamida-32-belgili-tasodifiy-kalit"
 
-# Ilova manzili (production — oxiridagi / qo'ymang)
 NEXT_PUBLIC_APP_URL="https://gormonik-plus-klinik.uz"
-
-# Birinchi o'rnatishda admin avtomatik yaratiladi (deploy:bootstrap)
-# Agar o'zgartirmasangiz, default: admin / admin123
-SEED_ADMIN_LOGIN=admin
-SEED_ADMIN_PASSWORD=admin123
-
-# Ixtiyoriy: super admin (Security Center)
- SEED_PRIMARY_ADMIN_EMAIL=superadmin@garmonik.local
- SEED_PRIMARY_ADMIN_PASSWORD=SuperSecureParol123
-
-# Klinika nomi
 NEXT_PUBLIC_CLINIC_NAME="Gormonik Plus Klinik"
-
-# Kassa (legacy domen redirect)
 KASSA_LEGACY_HOST="gormonik-plus-clinik-kassa.uz"
 
-# Chek printer (kassir kompyuterida)
- NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL=http://127.0.0.1:17888
- RECEIPT_PRINTER_ENABLED=true
+NODE_ENV=production
+PORT=3000
 
-
-
-docer
-
-# Docker: to'liq seedni majburiy qayta ishga tushirish (faqat bir marta kerak bo'lsa)
- RUN_DB_SEED=true
-
-# =============================================================================
-# Docker deploy — cp .env.docker.example .env
-# To'liq stack:     docker compose up -d --build
-# Tashqi PostgreSQL: docker compose -f docker-compose.external-db.yml up -d --build
-# =============================================================================
-
-# --- Ichki PostgreSQL (docker-compose.yml) ---
-POSTGRES_USER=garmonik
-POSTGRES_PASSWORD=ozgartiring-kuchli-parol
-POSTGRES_DB=garmonik
-
-# --- Majburiy ---
-JWT_SECRET=kamida-32-belgili-tasodifiy-kalit-bu-yerga
-
-# --- Sayt manzili (build va runtime uchun) ---
-NEXT_PUBLIC_APP_URL=https://gormonik-plus-klinik.uz
-NEXT_PUBLIC_CLINIC_NAME=Garmonik Klinik
-
-# Eski kassa domeni redirect (ixtiyoriy)
-# KASSA_LEGACY_HOST=eski-kassa.example.com
-
-# --- Port (hostda qaysi port ochilsin) ---
-APP_PORT=3000
-
-# --- Birinchi admin (bootstrap) ---
 SEED_ADMIN_LOGIN=admin
 SEED_ADMIN_PASSWORD=admin123
 
-# --- Tashqi PostgreSQL ishlatsangiz (external-db compose) ---
-# DATABASE_URL=postgresql://USER:PASSWORD@db-host:5432/garmonik?sslmode=require
-# DATABASE_SSL=true
-
-# --- Kassa chek printer (kassir kompyuterida alohida agent) ---
 NEXT_PUBLIC_RECEIPT_PRINT_AGENT_URL=http://127.0.0.1:17888
 RECEIPT_PRINTER_ENABLED=true
 
-# --- Qo'shimcha (odatda kerak emas) ---
+# To'liq seedni qayta ishga tushirish (faqat bir marta kerak bo'lsa):
 # RUN_DB_SEED=true
-# KASSA_AUTO_IMPORT=true
-# KASSA_IMPORT_SQL=./garmonik_kassa.sql

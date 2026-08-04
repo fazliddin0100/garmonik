@@ -89,7 +89,7 @@ async function main() {
   run("npx tsx scripts/deploy/bootstrap-if-empty.ts", "Bootstrap (admin seed)");
 
   console.log("\n[setup-db] Tayyor.");
-  console.log("Keyingi qadam: npm run build && pm2 start yoki docker compose up");
+  console.log("Keyingi qadam: npm run build && pm2 start ecosystem.config.cjs");
 }
 
 main().catch((e) => {

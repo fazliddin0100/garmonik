@@ -1,7 +1,0 @@
-# Legacy alias: tashqi PostgreSQL + faqat ilova (ahost panel DB).
-# Tavsiya: docker-compose.external-db.yml ishlating.
-#
-#   docker compose -f docker-compose.external-db.yml up -d --build
-
-include:
-  - docker-compose.external-db.yml

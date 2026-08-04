@@ -1,5 +1,5 @@
 # Asosiy domen: gormonik-plus-klinik.uz
-# Nginx -> 127.0.0.1:3000 (Docker yoki PM2)
+# Nginx -> 127.0.0.1:3000 (PM2)
 
 server {
     listen 80;
