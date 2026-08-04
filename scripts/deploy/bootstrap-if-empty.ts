@@ -6,18 +6,20 @@
 
 import { spawnSync } from 'child_process';
 import { config } from 'dotenv';
+import path from 'path';
 import { closePool, queryOne } from '@/lib/db';
 
 config({ path: '.env.local' });
 config({ path: '.env' });
 
+const TSX_CLI = path.join(process.cwd(), 'node_modules/tsx/dist/cli.mjs');
+
 function runSeed(label: string, script: string): void {
   console.log(`\n[bootstrap] ${label}...`);
-  const r = spawnSync(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['tsx', script],
-    { stdio: 'inherit', env: process.env, shell: process.platform === 'win32' },
-  );
+  const r = spawnSync(process.execPath, [TSX_CLI, script], {
+    stdio: 'inherit',
+    env: process.env,
+  });
   if (r.status !== 0) {
     throw new Error(`${label} muvaffaqiyatsiz (kod ${r.status ?? '?'})`);
   }

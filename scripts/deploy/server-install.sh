@@ -143,7 +143,12 @@ wait_for_app() {
     sleep 5
   done
 
-  warn "Ilova hali javob bermadi. Log: docker compose logs -f app"
+  warn "Ilova hali javob bermadi. Oxirgi loglar:"
+  if [[ "${EUID:-$(id -u)}" -eq 0 ]] || groups 2>/dev/null | grep -q docker; then
+    docker compose logs app --tail 40 || true
+  else
+    sudo docker compose logs app --tail 40 || true
+  fi
   return 1
 }
 

@@ -108,7 +108,8 @@ rebuild_app() {
     fi
     sleep 5
   done
-  log "Ilova hali javob bermadi — log: docker compose logs -f app"
+  warn "Ilova hali javob bermadi. Oxirgi loglar:"
+  compose logs app --tail 40 || true
   return 1
 }
 
