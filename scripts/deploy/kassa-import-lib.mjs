@@ -8,8 +8,12 @@
  */
 import { execSync } from "child_process";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import pg from "pg";
+
+/** Seed dan ko'p bo'lmagan foydalanuvchi — SQL dump qayta import qilinadi */
+const SEED_USER_CEILING = 4;
 
 export const IMPORT_TABLES = [
   "users",
@@ -119,6 +123,15 @@ export function defaultSqlDumpPath(root) {
   return path.join(root, "garmonik_kassa.sql");
 }
 
+/** Loyiha ildizidagi garmonik_kassa.sql (mavjud bo'lsa) */
+export function resolveBundledKassaSqlDump(root) {
+  const bundled = path.join(root, "garmonik_kassa.sql");
+  if (fs.existsSync(bundled)) return bundled;
+  const configured = defaultSqlDumpPath(root);
+  if (fs.existsSync(configured)) return configured;
+  return null;
+}
+
 function isAutoImportEnabled() {
   const v = process.env.KASSA_AUTO_IMPORT?.trim().toLowerCase();
   if (v === "false" || v === "0" || v === "no") return false;
@@ -128,6 +141,45 @@ function isAutoImportEnabled() {
 function runShell(cmd, label) {
   console.log(`[kassa-import] ${label}`);
   execSync(cmd, { stdio: "inherit", env: process.env, shell: true });
+}
+
+function runShellOutput(cmd) {
+  return execSync(cmd, { encoding: "utf8", env: process.env, shell: true }).trim();
+}
+
+/**
+ * pg_dump 16+ \restrict va garmonik_user OWNER — VPS da psql xato bermasligi uchun.
+ */
+export function prepareSanitizedKassaDump(sqlPath) {
+  const raw = fs.readFileSync(sqlPath, "utf8");
+  const sanitized = raw
+    .split(/\r?\n/)
+    .filter(
+      (line) =>
+        !/^\s*\\restrict\b/i.test(line) && !/^\s*\\unrestrict\b/i.test(line),
+    )
+    .map((line) => line.replace(/\bgarmonik_user\b/g, "postgres"))
+    .join("\n");
+
+  const out = path.join(
+    os.tmpdir(),
+    `garmonik_kassa_sanitized_${Date.now()}.sql`,
+  );
+  fs.writeFileSync(out, sanitized, "utf8");
+  console.log(`[kassa-import] Dump tozalandi: ${out}`);
+  return out;
+}
+
+function countPublicUsersAsPostgres(tempDb) {
+  if (process.platform === "win32") return -1;
+  try {
+    const out = runShellOutput(
+      `sudo -u postgres psql -d "${tempDb}" -t -A -c "select count(*)::int from public.users where login is not null"`,
+    );
+    return Number.parseInt(out, 10) || 0;
+  } catch {
+    return -1;
+  }
 }
 
 /** Linux VPS: postgres superuser (peer) orqali createdb/psql */
@@ -155,12 +207,17 @@ async function createTempImportDatabase(tempDb, appUser) {
   }
 
   runShell(`sudo -u postgres createdb "${tempDb}"`, `vaqtinchalik baza: ${tempDb}`);
+}
 
-  if (appUser) {
-    runAsPostgres(
-      `-v ON_ERROR_STOP=1 -d "${tempDb}" -c "GRANT CONNECT ON DATABASE \\"${tempDb}\\" TO \\"${appUser}\\"; GRANT USAGE ON SCHEMA public TO \\"${appUser}\\"; GRANT SELECT ON ALL TABLES IN SCHEMA public TO \\"${appUser}\\";"`,
-    );
-  }
+function grantAppUserReadTempDb(tempDb, appUser) {
+  if (!appUser || process.platform === "win32") return;
+
+  runAsPostgres(
+    `-v ON_ERROR_STOP=1 -d "${tempDb}" -c "GRANT CONNECT ON DATABASE \\"${tempDb}\\" TO \\"${appUser}\\";"`,
+  );
+  runAsPostgres(
+    `-v ON_ERROR_STOP=1 -d "${tempDb}" -c "GRANT USAGE ON SCHEMA public TO \\"${appUser}\\"; GRANT SELECT ON ALL TABLES IN SCHEMA public TO \\"${appUser}\\"; GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO \\"${appUser}\\";"`,
+  );
 }
 
 async function dropTempImportDatabase(tempDb) {
@@ -189,14 +246,15 @@ async function dropTempImportDatabase(tempDb) {
 }
 
 function loadSqlDumpIntoDatabase(tempDb, sqlPath) {
-  const abs = path.resolve(sqlPath);
+  const sanitized = prepareSanitizedKassaDump(sqlPath);
+  const abs = path.resolve(sanitized);
   if (process.platform === "win32") {
     const tempUrl = replaceDatabaseName(process.env.DATABASE_URL?.trim() || "", tempDb);
-    runShell(`psql "${tempUrl}" -v ON_ERROR_STOP=1 -f "${abs}"`, `SQL yuklash: ${abs}`);
+    runShell(`psql "${tempUrl}" -v ON_ERROR_STOP=0 -f "${abs}"`, `SQL yuklash: ${abs}`);
     return;
   }
   runShell(
-    `sudo -u postgres psql -d "${tempDb}" -v ON_ERROR_STOP=1 -f "${abs}"`,
+    `sudo -u postgres psql -d "${tempDb}" -v ON_ERROR_STOP=0 -f "${abs}"`,
     `SQL yuklash: ${abs}`,
   );
 }
@@ -211,6 +269,15 @@ function appDbUserFromUrl(url) {
 }
 
 async function copyTable(source, target, table) {
+  if (!(await tableExistsInSchema(source, "public", table))) {
+    console.log(`  o'tkazildi (manbada yo'q): ${table}`);
+    return 0;
+  }
+  if (!(await tableExistsInSchema(target, "kassa", table))) {
+    console.log(`  o'tkazildi (kassa da yo'q): ${table}`);
+    return 0;
+  }
+
   const { rows } = await source.query(`select * from public.${table}`);
   if (!rows.length) {
     console.log(`  o'tkazildi (bo'sh): ${table}`);
@@ -321,10 +388,22 @@ export async function importKassaFromSqlDump(targetUrl, sqlPath, { force = false
 
   try {
     console.log(`[kassa-import] SQL dump -> vaqtinchalik baza -> kassa schema`);
-    console.log(`[kassa-import] Fayl: ${path.resolve(sqlPath)}`);
+    console.log(`[kassa-import] Manba fayl: ${path.resolve(sqlPath)}`);
     await createTempImportDatabase(tempDb, appUser);
     loadSqlDumpIntoDatabase(tempDb, sqlPath);
-    return importKassaFromPublicSource(tempUrl, targetUrl, { force });
+
+    const loadedUsers = countPublicUsersAsPostgres(tempDb);
+    if (loadedUsers >= 0) {
+      console.log(`[kassa-import] Vaqtinchalik bazada ${loadedUsers} ta kassa foydalanuvchi`);
+      if (loadedUsers === 0) {
+        throw new Error(
+          "garmonik_kassa.sql yuklandi, lekin public.users bo'sh — dump faylini tekshiring",
+        );
+      }
+    }
+
+    grantAppUserReadTempDb(tempDb, appUser);
+    return importKassaFromPublicSource(tempUrl, targetUrl, { force: true });
   } finally {
     try {
       await dropTempImportDatabase(tempDb);
@@ -348,9 +427,27 @@ export async function autoImportKassaIfEmpty(targetUrl, root, { force = false } 
     }
   })();
 
-  if (existing > 0 && !force) {
+  const sqlPath = resolveBundledKassaSqlDump(root);
+  const hasSqlDump = Boolean(sqlPath);
+
+  if (hasSqlDump) {
+    console.log(`[kassa-import] Loyiha dump: ${sqlPath}`);
+  }
+
+  const shouldForceFromSql =
+    force ||
+    existing === 0 ||
+    (hasSqlDump && existing > 0 && existing <= SEED_USER_CEILING);
+
+  if (existing > 0 && !shouldForceFromSql) {
     console.log(`[kassa-import] Kassa allaqachon to'ldirilgan (${existing} foydalanuvchi).`);
     return { imported: false, reason: "already-has-data", count: existing };
+  }
+
+  if (existing > 0 && shouldForceFromSql && hasSqlDump && !force) {
+    console.log(
+      `[kassa-import] ${existing} foydalanuvchi (seed?) — garmonik_kassa.sql dan qayta import...`,
+    );
   }
 
   if (!isAutoImportEnabled()) {
@@ -358,24 +455,25 @@ export async function autoImportKassaIfEmpty(targetUrl, root, { force = false } 
     return { imported: false, reason: "disabled" };
   }
 
-  const sqlPath = defaultSqlDumpPath(root);
-  if (fs.existsSync(sqlPath)) {
-    console.log(`[kassa-import] Loyiha dump fayli topildi — avtomatik yuklanadi.`);
+  if (hasSqlDump) {
+    console.log(`[kassa-import] garmonik_kassa.sql avtomatik yuklanmoqda...`);
     try {
-      const fromSql = await importKassaFromSqlDump(targetUrl, sqlPath, { force });
+      const fromSql = await importKassaFromSqlDump(targetUrl, sqlPath, {
+        force: shouldForceFromSql,
+      });
       if (fromSql.imported) return fromSql;
-      if (fromSql.reason !== "source-empty") {
-        console.log(`[kassa-import] SQL dump natija: ${fromSql.reason ?? "import bo'lmadi"}`);
-      }
+      console.log(`[kassa-import] SQL dump natija: ${fromSql.reason ?? "import bo'lmadi"}`);
     } catch (e) {
-      console.warn(
+      console.error(
         "[kassa-import] SQL dump import xato:",
         e instanceof Error ? e.message : e,
       );
-      console.warn("[kassa-import] garmonik_kassa bazasidan sinab ko'riladi...");
+      if (hasSqlDump) throw e;
     }
   } else {
-    console.log(`[kassa-import] Dump fayl yo'q (${sqlPath}) — garmonik_kassa DB qidiriladi.`);
+    console.log(
+      `[kassa-import] garmonik_kassa.sql topilmadi (${defaultSqlDumpPath(root)})`,
+    );
   }
 
   const sourceUrl = deriveKassaSourceUrl(targetUrl);
