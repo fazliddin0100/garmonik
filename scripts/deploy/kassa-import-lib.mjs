@@ -265,7 +265,7 @@ function countPublicUsersAsPostgres(tempDb) {
     );
     return Number.parseInt(out, 10) || 0;
   } catch {
-    return -1;
+    return 0;
   }
 }
 
@@ -332,35 +332,49 @@ async function dropTempImportDatabase(tempDb) {
   runShell(`sudo -u postgres dropdb --if-exists "${tempDb}"`, `vaqtinchalik baza o'chirildi: ${tempDb}`);
 }
 
+function copyDumpReadableByPostgres(dumpPath) {
+  const abs = path.resolve(dumpPath);
+  if (process.platform === "win32") return abs;
+
+  const dest = path.join(
+    os.tmpdir(),
+    `garmonik_kassa_${Date.now()}${path.extname(abs) || ".dump"}`,
+  );
+  fs.copyFileSync(abs, dest);
+  fs.chmodSync(dest, 0o644);
+  console.log(`[kassa-import] Dump /tmp ga nusxalandi (postgres o'qishi uchun): ${dest}`);
+  return dest;
+}
+
 function loadDumpIntoTempDatabase(tempDb, dumpPath) {
   const abs = path.resolve(dumpPath);
   const isCustom = abs.toLowerCase().endsWith(".dump");
+  const readablePath =
+    process.platform === "win32" ? abs : copyDumpReadableByPostgres(abs);
 
   if (isCustom) {
     if (process.platform === "win32") {
       const tempUrl = replaceDatabaseName(process.env.DATABASE_URL?.trim() || "", tempDb);
-      try {
-        runShell(
-          `pg_restore --no-owner --no-acl -d "${tempUrl}" "${abs}"`,
-          `pg_restore: ${abs}`,
-        );
-      } catch {
-        console.warn("[kassa-import] pg_restore ogohlantirishlar bilan tugadi — tekshiruv davom etadi");
-      }
+      runShell(
+        `pg_restore --no-owner --no-acl -d "${tempUrl}" "${readablePath}"`,
+        `pg_restore: ${readablePath}`,
+      );
       return;
     }
     try {
       runShell(
-        `sudo -u postgres pg_restore --no-owner --no-acl -d "${tempDb}" "${abs}"`,
-        `pg_restore: ${abs}`,
+        `sudo -u postgres pg_restore --no-owner --no-acl -d "${tempDb}" "${readablePath}"`,
+        `pg_restore: ${readablePath}`,
       );
     } catch {
-      console.warn("[kassa-import] pg_restore ogohlantirishlar bilan tugadi — tekshiruv davom etadi");
+      console.warn(
+        "[kassa-import] pg_restore ba'zi ogohlantirishlar bilan tugadi — foydalanuvchi soni tekshiriladi",
+      );
     }
     return;
   }
 
-  const sanitized = prepareSanitizedKassaDump(abs);
+  const sanitized = prepareSanitizedKassaDump(readablePath);
   if (process.platform === "win32") {
     const tempUrl = replaceDatabaseName(process.env.DATABASE_URL?.trim() || "", tempDb);
     runShell(`psql "${tempUrl}" -v ON_ERROR_STOP=0 -f "${sanitized}"`, `SQL: ${sanitized}`);
@@ -534,13 +548,11 @@ export async function importKassaFromDumpFile(targetUrl, dumpPath, { force = fal
     loadDumpIntoTempDatabase(tempDb, dumpPath);
 
     const loadedUsers = countPublicUsersAsPostgres(tempDb);
-    if (loadedUsers >= 0) {
-      console.log(`[kassa-import] Vaqtinchalik bazada ${loadedUsers} ta kassa foydalanuvchi`);
-      if (loadedUsers === 0) {
-        throw new Error(
-          "Dump yuklandi, lekin public.users bo'sh — fayl formatini tekshiring",
-        );
-      }
+    console.log(`[kassa-import] Vaqtinchalik bazada ${loadedUsers} ta kassa foydalanuvchi`);
+    if (loadedUsers === 0) {
+      throw new Error(
+        "Dump yuklanmadi (public.users bo'sh). pg_restore xato bo'lgan bo'lishi mumkin — logni yuqorida tekshiring.",
+      );
     }
 
     grantAppUserReadTempDb(tempDb, appUser);
