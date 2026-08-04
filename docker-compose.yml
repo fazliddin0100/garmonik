@@ -1,11 +1,16 @@
 # Garmonik — to'liq Docker (PostgreSQL + Next.js ilova)
-# Har qanday VPS / hosting uchun: faqat Docker o'rnatilgan bo'lsa yetadi.
+# Hostda PostgreSQL yoki Node o'rnatish shart emas — hammasi konteynerda.
 #
-#   cp .env.docker.example .env
-#   nano .env
+# Tez o'rnatish (Ubuntu VPS):
+#   git clone <repo-url> garmonik && cd garmonik
+#   sudo bash install.sh
+#
+# Nginx bilan:
+#   sudo APP_DOMAIN=https://gormonik-plus-klinik.uz WITH_NGINX=1 bash install.sh
+#
+# Qo'lda:
+#   cp .env.docker.example .env && nano .env
 #   docker compose up -d --build
-#
-# Brauzer: http://localhost:3000/auth/login
 
 name: garmonik
 

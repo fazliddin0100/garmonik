@@ -2,6 +2,50 @@
 
 Maqsad: **https://gormonik-plus-klinik.uz** — bitta Next.js ilova.
 
+---
+
+## 0. Tez o'rnatish — Ubuntu VPS (Docker, PostgreSQL ichida)
+
+**Hostda PostgreSQL, Node.js yoki npm o'rnatish shart emas.** Docker ham skript o'rnatadi.
+
+```bash
+# Serverga SSH
+sudo apt update && sudo apt install -y git
+
+git clone <repo-url> garmonik
+cd garmonik
+
+# Bir buyruq: Docker + PostgreSQL + ilova
+sudo bash install.sh
+```
+
+Nginx ham kerak bo'lsa:
+
+```bash
+sudo APP_DOMAIN=https://gormonik-plus-klinik.uz WITH_NGINX=1 bash install.sh
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d gormonik-plus-klinik.uz -d www.gormonik-plus-klinik.uz
+```
+
+Skript avtomatik qiladi:
+
+| Qadam | Nima bo'ladi |
+|-------|----------------|
+| Docker | `get.docker.com` orqali o'rnatiladi |
+| PostgreSQL | `docker-compose.yml` ichidagi `db` konteyner |
+| `.env` | `.env.docker.example` dan, tasodifiy parollar bilan |
+| Migratsiya + admin | `docker-entrypoint.sh` birinchi ishga tushishda |
+| Ilova | `http://127.0.0.1:3000` |
+
+Keyingi yangilash:
+
+```bash
+cd garmonik
+bash scripts/deploy/server-update.sh
+```
+
+---
+
 | Yo'l | Vazifa |
 |------|--------|
 | `/auth/login` | Klinika xodimlari |
