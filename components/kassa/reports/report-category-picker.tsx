@@ -63,7 +63,7 @@ export const REPORT_CATEGORIES: CategoryDef[] = [
   {
     id: "debt",
     label: "Qarzdorlik",
-    description: "Bemor va xarajat qarzi",
+    description: "Bemor qarzdorligi",
     icon: HandCoins,
     accent: "text-rose-700",
     ring: "ring-rose-400",

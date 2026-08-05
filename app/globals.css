@@ -186,3 +186,31 @@
     animation: none;
   }
 }
+
+/* Barcha input placeholder — och kulrang (#909090) */
+::placeholder {
+  color: #909090 !important;
+  opacity: 1;
+}
+
+::-webkit-input-placeholder {
+  color: #909090 !important;
+  opacity: 1;
+}
+
+::-moz-placeholder {
+  color: #909090 !important;
+  opacity: 1;
+}
+
+:-ms-input-placeholder {
+  color: #909090 !important;
+  opacity: 1;
+}
+
+/* Select / combobox placeholder holati */
+[data-placeholder],
+[data-slot="select-trigger"][data-placeholder],
+[data-slot="combobox-trigger"][data-placeholder] {
+  color: #909090;
+}

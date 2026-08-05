@@ -31,6 +31,17 @@
   border-color: hsl(var(--border));
 }
 
+.kassa-root ::placeholder,
+.kassa-root ::-webkit-input-placeholder,
+.kassa-root ::-moz-placeholder {
+  color: #909090 !important;
+  opacity: 1;
+}
+
+.kassa-root [data-placeholder] {
+  color: #909090;
+}
+
 .kassa-root .mesh-admin {
   background-color: hsl(220 20% 97%);
   background-image:

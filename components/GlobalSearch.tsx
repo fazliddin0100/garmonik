@@ -190,7 +190,7 @@ export default function GlobalSearch() {
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={onKeyDown}
           placeholder="Qidirish..."
-          className="w-56 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+          className="w-56 bg-transparent text-sm text-slate-700 outline-none placeholder:text-[#909090]"
         />
       </div>
 

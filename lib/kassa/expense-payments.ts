@@ -120,6 +120,86 @@ export async function createExpenseWithPayment(params: {
   return expense;
 }
 
+/**
+ * Klinika tashqi qarzi — to‘lovsiz yoki qisman to‘lov bilan ochish.
+ * To‘liq to‘languncha Chiqim hisobotiga faqat haqiqiy to‘lovlar (expensePayment) tushadi.
+ */
+export async function createExpenseDebt(params: {
+  category: string;
+  categoryDetail?: string | null;
+  amount: number;
+  amountPaid?: number;
+  payeeName: string;
+  description?: string | null;
+  date: Date;
+  createdById: string;
+  paymentTypeId?: string;
+}) {
+  const payeeName = params.payeeName.trim();
+  if (!payeeName) {
+    throw new Error("Kimga qarz ekanligini kiriting");
+  }
+
+  const total = params.amount;
+  if (total <= 0) {
+    throw new Error("Qarz summasi 0 dan katta bo'lishi kerak");
+  }
+
+  const paid = Math.min(Math.max(0, params.amountPaid ?? 0), total);
+  if (paid >= total) {
+    throw new Error(
+      "To'liq to'langan xarajat uchun «Xarajatlar» bo'limidan foydalaning",
+    );
+  }
+
+  if (paid > 0) {
+    if (!params.paymentTypeId) {
+      throw new Error("Hozir to'lanadigan summa uchun to'lov turini tanlang");
+    }
+    return createExpenseWithPayment({
+      category: params.category,
+      categoryDetail: params.categoryDetail,
+      amount: total,
+      amountPaid: paid,
+      payeeName,
+      description: params.description,
+      date: params.date,
+      paymentTypeId: params.paymentTypeId,
+      createdById: params.createdById,
+    });
+  }
+
+  const balanceDue = total;
+  const status = computeExpenseStatus(total, 0);
+
+  return prisma.expense.create({
+    data: {
+      category: params.category,
+      categoryDetail: params.categoryDetail,
+      amount: total,
+      amountPaid: 0,
+      balanceDue,
+      payeeName,
+      status,
+      description: params.description,
+      date: params.date,
+      paymentTypeId: null,
+      createdById: params.createdById,
+    },
+    include: {
+      createdBy: { select: { fullName: true } },
+      paymentType: { select: { id: true, name: true, platform: true } },
+      payments: {
+        orderBy: { createdAt: "asc" },
+        include: {
+          paymentType: { select: { id: true, name: true, platform: true } },
+          createdBy: { select: { fullName: true } },
+        },
+      },
+    },
+  });
+}
+
 export async function applyExpensePayment(params: {
   expenseId: string;
   createdById: string;

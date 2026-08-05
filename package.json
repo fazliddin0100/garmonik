@@ -6,7 +6,7 @@
     "dev": "next dev",
     "dev:kill-stale": "powershell -ExecutionPolicy Bypass -File scripts/merge/kill-stale-next-dev.ps1",
     "dev:webpack": "next dev --webpack",
-    "build": "node scripts/merge/prisma-generate-kassa.mjs && next build",
+    "build": "next build && cp -a public .next/standalone/ && mkdir -p .next/standalone/.next && cp -a .next/static .next/standalone/.next/",
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "tsx scripts/apply-supabase-migrations.ts",

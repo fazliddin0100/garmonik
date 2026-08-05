@@ -50,7 +50,7 @@ export function UzPhoneInput({
           const d = e.target.value.replace(/\D/g, '').slice(0, 9);
           onChange(uzPhoneE164FromNational(d));
         }}
-        className="h-11 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-2 text-[15px] shadow-none placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="h-11 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-2 text-[15px] shadow-none placeholder:text-[#909090] focus-visible:ring-0 focus-visible:ring-offset-0"
       />
     </div>
   );

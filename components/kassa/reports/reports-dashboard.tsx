@@ -275,25 +275,6 @@ export function ReportsDashboard() {
       }
     | undefined;
 
-  const expenseDebts = data.expenseDebts as
-    | {
-        stats: {
-          openExpenseCount: number;
-          payeeCount: number;
-          totalDebt: number;
-          totalCommitted: number;
-          totalPaid: number;
-        };
-        debts: Array<{
-          payeeName: string;
-          totalAmount: number;
-          paidAmount: number;
-          balanceDue: number;
-          paidByMethod?: Array<{ method: string; amount: number }>;
-        }>;
-      }
-    | undefined;
-
   const expenseByPlatform = expenses.byPlatform ?? {};
 
   const paymentMethodCount = new Set([
@@ -307,7 +288,7 @@ export function ReportsDashboard() {
     (revenue.refundedServices?.length ?? 0);
 
   const totalDebtAmount =
-    (debts?.stats.totalDebt ?? 0) + (expenseDebts?.stats.totalDebt ?? 0) + periodDebt.totalDebt;
+    (debts?.stats.totalDebt ?? 0) + periodDebt.totalDebt;
 
   const categorySummaries: Record<ReportCategoryId, string> = {
     overview: formatMoney(profit),
@@ -468,15 +449,6 @@ export function ReportsDashboard() {
             icon={HandCoins}
             variant="rose"
             delay={240}
-          />
-        )}
-        {expenseDebts && expenseDebts.stats.totalDebt > 0 && (
-          <StatCard
-            label="Xarajat qarzi"
-            value={formatMoney(expenseDebts.stats.totalDebt)}
-            icon={TrendingDown}
-            variant="rose"
-            delay={300}
           />
         )}
       </div>
@@ -923,79 +895,7 @@ export function ReportsDashboard() {
       )}
 
       {showDebt && debts && <DebtsReportSection debts={debts} />}
-      {showDebt && expenseDebts && <ExpenseDebtsReportSection expenseDebts={expenseDebts} />}
     </div>
-  );
-}
-
-function ExpenseDebtsReportSection({
-  expenseDebts,
-}: {
-  expenseDebts: {
-    stats: {
-      openExpenseCount: number;
-      payeeCount: number;
-      totalDebt: number;
-    };
-    debts: Array<{
-      payeeName: string;
-      totalAmount: number;
-      paidAmount: number;
-      balanceDue: number;
-    }>;
-  };
-}) {
-  return (
-    <Card className="border-orange-200 bg-orange-50/30">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base text-orange-800">
-          <TrendingDown className="h-5 w-5" />
-          Xarajat qarzlari — joriy holat
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <SummaryItem label="Ochiq xarajatlar" value={String(expenseDebts.stats.openExpenseCount)} />
-          <SummaryItem label="Kreditorlar" value={String(expenseDebts.stats.payeeCount)} />
-          <SummaryItem label="Jami qarz" value={formatMoney(expenseDebts.stats.totalDebt)} />
-        </div>
-
-        <div className="overflow-x-auto rounded-lg border bg-white">
-          <table className="w-full min-w-[560px] text-sm">
-            <thead className="border-b bg-orange-50/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="p-3 font-medium">Kimga</th>
-                <th className="p-3 font-medium text-right">Jami</th>
-                <th className="p-3 font-medium text-right">To&apos;langan</th>
-                <th className="p-3 font-medium text-right">Qoldiq</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {expenseDebts.debts.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="p-6 text-center text-muted-foreground">
-                    Hozircha xarajat qarzi yo&apos;q
-                  </td>
-                </tr>
-              ) : (
-                expenseDebts.debts.map((d) => (
-                  <tr key={d.payeeName} className="hover:bg-orange-50/30">
-                    <td className="p-3 font-medium">{d.payeeName}</td>
-                    <td className="p-3 text-right">{formatMoney(d.totalAmount)}</td>
-                    <td className="p-3 text-right text-emerald-700">
-                      {formatMoney(d.paidAmount)}
-                    </td>
-                    <td className="p-3 text-right font-semibold text-orange-700">
-                      {formatMoney(d.balanceDue)}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 

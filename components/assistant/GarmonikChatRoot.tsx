@@ -4,7 +4,18 @@ import GarmonikChatWidget from '@/components/assistant/GarmonikChatWidget';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-const HIDDEN_PREFIXES = ['/auth', '/ariza', '/portal-unavailable'];
+const HIDDEN_PREFIXES = [
+  '/auth',
+  '/ariza',
+  '/portal-unavailable',
+  '/kassa/login',
+];
+
+function isAuthHiddenPath(pathname: string): boolean {
+  return HIDDEN_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
 
 export default function GarmonikChatRoot() {
   const pathname = usePathname();
@@ -20,7 +31,11 @@ export default function GarmonikChatRoot() {
           cache: 'no-store',
         });
         if (cancelled) return;
-        setAuthed(res.ok);
+        const data = (await res.json().catch(() => null)) as {
+          kind?: string;
+        } | null;
+        // /api/auth/me sessiya yo‘q bo‘lsa ham 200 + { kind: 'none' } qaytaradi
+        setAuthed(Boolean(data?.kind && data.kind !== 'none'));
       } catch {
         if (!cancelled) setAuthed(false);
       } finally {
@@ -32,10 +47,7 @@ export default function GarmonikChatRoot() {
     };
   }, [pathname]);
 
-  if (!checked || !authed) return null;
-  if (HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
-    return null;
-  }
+  if (!checked || !authed || isAuthHiddenPath(pathname)) return null;
 
   return <GarmonikChatWidget />;
 }

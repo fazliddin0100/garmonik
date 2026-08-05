@@ -9,6 +9,7 @@ import {
   PencilLine,
   RotateCcw,
   Settings,
+  TrendingDown,
   Users,
   Wallet,
 } from "lucide-react";
@@ -16,6 +17,7 @@ import { WorkspaceShell } from "@/components/kassa/layout/workspace-shell";
 import { AdminDashboardView } from "@/components/kassa/views/admin-dashboard-view";
 import { ReportsDashboard } from "@/components/kassa/reports/reports-dashboard";
 import { ExpensesView } from "@/components/kassa/views/expenses-view";
+import { ExpenseDebtsView } from "@/components/kassa/views/expense-debts-view";
 import { FinancialCorrectionsView } from "@/components/kassa/views/financial-corrections-view";
 import { InvoiceRefundsView } from "@/components/kassa/views/invoice-refunds-view";
 import { AuditLogsView } from "@/components/kassa/views/audit-logs-view";
@@ -33,6 +35,7 @@ const NAV = [
   { id: "refunds" as const, label: "Pul qaytarish", icon: RotateCcw },
   { id: "logs" as const, label: "Harakatlar jurnali", icon: ClipboardList },
   { id: "debts" as const, label: "Qarzdorlik", icon: HandCoins },
+  { id: "expense-debts" as const, label: "Xarajat qarzi", icon: TrendingDown },
   { id: "expenses" as const, label: "Xarajatlar", icon: Wallet },
   { id: "cashiers" as const, label: "Foydalanuvchilar", icon: Users },
   { id: "services" as const, label: "Xizmatlar", icon: Settings },
@@ -94,6 +97,11 @@ export function AdminWorkspace({
             isActive={view === "debts"}
             allowDebtCancel
           />
+        </div>
+      )}
+      {visited.has("expense-debts") && (
+        <div className={view === "expense-debts" ? "animate-fade-up" : "hidden"}>
+          <ExpenseDebtsView isActive={view === "expense-debts"} />
         </div>
       )}
       {visited.has("expenses") && (

@@ -38,30 +38,26 @@ function DashboardViewProviderInner({ children }: { children: ReactNode }) {
   const onDashboard = pathname === '/dashboard';
   const viewParam = searchParams.get('view');
 
-  const [view, setViewState] = useState<DashboardViewId>(() => {
-    return (
-      dashboardViewFromSearchParam(viewParam) ||
-      peekDashboardInitialView() ||
-      'overview'
-    );
-  });
+  // Faqat URL — sessionStorage SSR/client hydration mismatch beradi
+  const [view, setViewState] = useState<DashboardViewId>(
+    () => dashboardViewFromSearchParam(viewParam) || 'overview',
+  );
 
   useEffect(() => {
     if (!onDashboard) return;
     const fromQuery = dashboardViewFromSearchParam(viewParam);
     if (fromQuery) {
       setViewState(fromQuery);
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem(DASHBOARD_INITIAL_VIEW_KEY);
-      }
+      sessionStorage.removeItem(DASHBOARD_INITIAL_VIEW_KEY);
       return;
     }
     const pending = peekDashboardInitialView();
     if (pending) {
       setViewState(pending);
       sessionStorage.removeItem(DASHBOARD_INITIAL_VIEW_KEY);
+      router.replace(dashboardViewPath(pending));
     }
-  }, [onDashboard, viewParam]);
+  }, [onDashboard, viewParam, router]);
 
   const setView = useCallback(
     (next: DashboardViewId) => {
