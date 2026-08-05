@@ -100,10 +100,10 @@ Maqsad: bitta Next.js ilova (`garmonik`), bitta PostgreSQL, localhost → `gormo
 ## Bosqich 8 — Production deploy (bitta domen)
 
 - [x] `https://gormonik-plus-klinik.uz` — klinika + kassa bir ilovada
-- [x] `DEPLOY_AHOST.md` — PM2 va Docker yo‘riqnomasi
+- [x] `DEPLOY_AHOST.md` — PM2 + Nginx yo‘riqnomasi
 - [x] Nginx namunalari (`deploy/nginx/`)
 - [x] Eski kassa domeni redirect (`KASSA_LEGACY_HOST` + nginx)
-- [x] `next.config.ts` — `standalone` (Docker)
+- [x] `next.config.ts` — `standalone` (production build)
 - [x] `npm run deploy:preflight` — muhit tekshiruvi
 
 **Tekshiruv:** `npm run merge:verify-phase-8`  

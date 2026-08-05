@@ -15,7 +15,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import pg from "pg";
-import { autoImportKassaIfEmpty, kassaUsersCount, maskUrl } from "./kassa-import-lib.mjs";
+import { autoImportKassaIfEmpty, kassaUsersCount, maskUrl, resolveBundledKassaDump } from "./kassa-import-lib.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..", "..");
@@ -44,6 +44,57 @@ async function ensureKassaSchema(url) {
   }
 }
 
+function databaseNameFromUrl(url) {
+  try {
+    const normalized = url.replace(/^postgresql:/, "http:").replace(/^postgres:/, "http:");
+    const name = new URL(normalized).pathname.replace(/^\//, "").split("?")[0];
+    return name || "garmonik";
+  } catch {
+    return "garmonik";
+  }
+}
+
+async function ensurePostgresStubRoles(dbUrl) {
+  const client = new pg.Client({ connectionString: dbUrl });
+  await client.connect();
+  let roleCount = 0;
+  try {
+    const { rows } = await client.query(`
+      select count(*)::int as n from pg_roles
+      where rolname in ('anon', 'authenticated', 'service_role')
+    `);
+    roleCount = rows[0]?.n ?? 0;
+  } finally {
+    await client.end();
+  }
+
+  if (roleCount === 3) {
+    console.log("[setup-db] PostgreSQL stub rollari (anon, authenticated, service_role) mavjud.");
+    return;
+  }
+
+  const dbName = databaseNameFromUrl(dbUrl);
+  const sqlPath = path.join(root, "scripts", "deploy", "postgres-stub-roles.sql");
+  if (!fs.existsSync(sqlPath)) {
+    throw new Error(`postgres-stub-roles.sql topilmadi: ${sqlPath}`);
+  }
+
+  console.log("\n[setup-db] Stub rollar yaratilmoqda (postgres superuser kerak)...");
+  try {
+    execSync(`sudo -u postgres psql -d "${dbName}" -v ON_ERROR_STOP=1 -f "${sqlPath}"`, {
+      stdio: "inherit",
+      env: process.env,
+      shell: true,
+    });
+  } catch {
+    console.error(
+      `\n[setup-db] Rollarni avtomatik yaratib bo'lmadi.\n` +
+        `  Qo'lda: sudo -u postgres psql -d ${dbName} -f scripts/deploy/postgres-stub-roles.sql\n`,
+    );
+    throw new Error("PostgreSQL stub rollari yaratilmadi");
+  }
+}
+
 async function main() {
   const targetUrl = process.env.DATABASE_URL?.trim();
   if (!targetUrl) {
@@ -53,9 +104,18 @@ async function main() {
 
   console.log("[setup-db] Maqsad DB:", maskUrl(targetUrl));
 
+  const bundledSql = resolveBundledKassaDump(root);
+  if (bundledSql) {
+    console.log("[setup-db] Kassa dump (avtomatik public→kassa):", bundledSql);
+  } else {
+    console.log("[setup-db] garmonik_kassa.dump/sql topilmadi");
+  }
+
   run("node scripts/deploy/preflight-production.mjs", "Preflight tekshiruv");
 
   run("node scripts/deploy/validate-seed-payloads.mjs", "Seed payload tekshiruvi");
+
+  await ensurePostgresStubRoles(targetUrl);
 
   run("npm run db:migrate", "Klinika migratsiyalari");
 
@@ -89,7 +149,7 @@ async function main() {
   run("npx tsx scripts/deploy/bootstrap-if-empty.ts", "Bootstrap (admin seed)");
 
   console.log("\n[setup-db] Tayyor.");
-  console.log("Keyingi qadam: npm run build && pm2 start yoki docker compose up");
+  console.log("Keyingi qadam: npm run build && pm2 start ecosystem.config.cjs");
 }
 
 main().catch((e) => {

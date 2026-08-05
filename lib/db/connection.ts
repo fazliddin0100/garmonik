@@ -11,7 +11,7 @@ export function getSslConfigForDatabaseUrl(url: string): ConnectionConfig['ssl']
   try {
     const normalized = url.replace(/^postgresql:/, 'http:').replace(/^postgres:/, 'http:');
     const host = new URL(normalized).hostname.toLowerCase();
-    if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
+    if (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === 'db') {
       return undefined;
     }
   } catch {

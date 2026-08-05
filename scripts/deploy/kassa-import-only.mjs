@@ -1,5 +1,5 @@
 /**
- * Faqat kassa import (Docker entrypoint va qo'lda ishlatish).
+ * Faqat kassa import (qo'lda ishlatish).
  *   node scripts/deploy/kassa-import-only.mjs
  *   node scripts/deploy/kassa-import-only.mjs --force
  */

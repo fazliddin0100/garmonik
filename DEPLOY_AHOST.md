@@ -2,6 +2,46 @@
 
 Maqsad: **https://gormonik-plus-klinik.uz** — bitta Next.js ilova.
 
+---
+
+## 0. Tez o'rnatish — Ubuntu VPS (PM2 + Nginx)
+
+```bash
+sudo apt update && sudo apt install -y git
+git clone <repo-url> garmonik
+cd garmonik
+sudo bash install.sh
+```
+
+Skript avtomatik o'rnatadi: **Node.js 20**, **PostgreSQL**, **PM2**, **Nginx**, build, admin seed.
+
+Domen default: `https://gormonik-plus-klinik.uz`
+
+HTTPS:
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d gormonik-plus-klinik.uz -d www.gormonik-plus-klinik.uz
+```
+
+Yangilash:
+
+```bash
+cd garmonik
+bash scripts/deploy/server-update-pm2.sh
+```
+
+Foydali buyruqlar:
+
+```bash
+pm2 status
+pm2 logs garmonik
+pm2 restart garmonik
+curl -I http://127.0.0.1:3000/auth/login
+```
+
+---
+
 | Yo'l | Vazifa |
 |------|--------|
 | `/auth/login` | Klinika xodimlari |
@@ -26,13 +66,47 @@ postgresql://USER:PASSWORD@HOST:5432/garmonik?sslmode=require
 
 Klinika (`public` schema) va kassa (`kassa` schema) **bir xil** `DATABASE_URL` da.
 
-### Eski kassa bazasi (garmonik_kassa)
+### Eski kassa bazasi (garmonik_kassa.dump / .sql)
 
-Serverda alohida `garmonik_kassa` bazasi bo'lsa (eski kassa ilovasi), yangi sayt **avtomatik** undan ma'lumot oladi:
+**Maqsad:** yangi ilova + eski kassa ma'lumotlari birga ishlashi.
 
-1. `DATABASE_URL` → `garmonik` (yangi yagona baza)
-2. `deploy:setup-db` bir xil hostdagi `garmonik_kassa` ni topib, `kassa` schema ga ko'chiradi
-3. Yoki loyiha ildizidagi `garmonik_kassa.sql` dump faylidan import qiladi
+| Schema | Vazifa |
+|--------|--------|
+| `public.patients` (uuid) | Klinika bemorlari |
+| `kassa.*` | Kassa (cheklar, kassirlar, xizmatlar) |
+
+Eski dump `public.users`, `public.invoices` ishlatadi — **to'g'ridan-to'g'ri pg_restore ishlamaydi**.
+
+Skript avtomatik qiladi:
+
+1. Dump → vaqtinchalik baza (`public` schema)
+2. Ma'lumot → `kassa.users`, `kassa.invoices`, ...
+3. Noto'g'ri `public.users`, `public.invoices` ... o'chiriladi
+4. `public.patients` (klinika, uuid) **saqlanadi**
+
+Fayl joylari (avtomatik qidiriladi):
+
+- `/root/garmonik/garmonik_kassa.dump`
+- `/root/garmonik/garmonik_kassa.sql`
+- `/root/garmonik_kassa.dump`
+
+```bash
+# Dump ni loyiha yoki home ga qo'ying
+cp ~/garmonik_kassa.dump ~/garmonik/
+
+# Import (public -> kassa)
+npm run deploy:import-kassa
+
+# Faqat public dagi noto'g'ri kassa jadvallarini tozalash
+npm run deploy:cleanup-public-kassa
+```
+
+`.env` (ixtiyoriy):
+
+```env
+KASSA_AUTO_IMPORT=true
+KASSA_IMPORT_SQL=/root/garmonik_kassa.dump
+```
 
 Serverdan dump olish:
 
@@ -93,7 +167,7 @@ npm run deploy:install
 npm run build
 
 npm install -g pm2
-pm2 start npm --name garmonik -- start
+pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup
 ```
@@ -127,23 +201,7 @@ Eski kassa domeni redirect: `deploy/nginx/kassa-legacy-redirect.conf.example`
 
 ---
 
-## 5. Docker (ixtiyoriy)
-
-Panel PostgreSQL + faqat ilova konteyneri:
-
-```bash
-cp .env.example .env
-# DATABASE_URL ni to'ldiring
-docker compose -f docker-compose.ahost.yml up -d --build
-```
-
-Birinchi marta Docker ishga tushganda admin **avtomatik** yaratiladi (entrypoint `bootstrap-if-empty` chaqiradi). Terminal logida login/parol chiqadi.
-
-To'liq seedni qayta ishga tushirish kerak bo'lsa (bir marta): `.env` ga `RUN_DB_SEED=true` qo'shing.
-
----
-
-## 6. Print-agent (kassa chek printer)
+## 5. Print-agent (kassa chek printer)
 
 Kassa kompyuterida (server emas, kassir PC):
 
@@ -180,12 +238,7 @@ Local tekshiruv: `npm run merge:verify-phase-8`
 ## Yangilash (deploy)
 
 ```bash
-git pull
-npm install
-npm run db:migrate
-npx prisma db push --schema=prisma/kassa/schema.prisma
-npm run build
-pm2 restart garmonik
+bash scripts/deploy/server-update-pm2.sh
 ```
 
 ---
@@ -195,6 +248,7 @@ pm2 restart garmonik
 | Belgisi | Yechim |
 |---------|--------|
 | Kassa 401 | `/kassa/login` dan qayta kiring |
-| DB ulanmaydi | `DATABASE_URL`, `sslmode=require` |
+| DB ulanmaydi | `DATABASE_URL`, `DATABASE_SSL=false` (localhost) |
+| `permission denied to create role` | `sudo -u postgres psql -d garmonik -f scripts/deploy/postgres-stub-roles.sql` keyin `npm run deploy:install` |
 | Build xato | `npm run db:kassa:generate` keyin `npm run build` |
 | Eski kassa domeni | nginx redirect yoki `KASSA_LEGACY_HOST` |
