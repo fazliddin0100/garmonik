@@ -1,3 +1,4 @@
+import { canAccessKadrlarHr } from '@/lib/auth/department-staff-access';
 import { getAdminSessionFromRequest } from '@/lib/auth/request-session';
 import {
   listKadrlarEmployees,
@@ -27,8 +28,8 @@ function isKadrlarAccount(x: unknown): x is KadrlarEmployeeInput {
 /** Admin JWT (cookie) bilan — kadrlar xodimlarini Supabase bilan sinxronlash */
 export async function GET(request: NextRequest) {
   const admin = await getAdminSessionFromRequest(request);
-  if (!admin) {
-    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 401 });
+  if (!canAccessKadrlarHr(admin)) {
+    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
     const accounts = await listKadrlarEmployees();
@@ -41,8 +42,8 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   const admin = await getAdminSessionFromRequest(request);
-  if (!admin) {
-    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 401 });
+  if (!canAccessKadrlarHr(admin)) {
+    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
     const body = await request.json();

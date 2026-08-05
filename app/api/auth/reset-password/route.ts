@@ -1,9 +1,17 @@
 import {
+  invalidatePasswordResetChallenge,
   normalizeResetLogin,
   takePasswordResetChallenge,
 } from '@/lib/auth/password-reset-store';
 import { updatePortalAuthPassword } from '@/lib/auth/portal-session';
 import { findUserForPasswordReset } from '@/lib/db/portal-profiles';
+import {
+  authRateLimitKey,
+  checkAuthRateLimit,
+  clearAuthRateLimit,
+  recordAuthFailure,
+} from '@/lib/server/auth-rate-limit';
+import { clientIpFromRequest } from '@/lib/server/security-log';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -28,14 +36,31 @@ export async function POST(request: NextRequest) {
     }
 
     const loginNorm = normalizeResetLogin(rawLogin);
+    const rateKey = authRateLimitKey(
+      'reset-password',
+      loginNorm,
+      clientIpFromRequest(request),
+    );
+    const limited = checkAuthRateLimit(rateKey);
+    if (!limited.ok) {
+      return NextResponse.json(
+        { error: limited.error },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(limited.retryAfterSec) },
+        },
+      );
+    }
+
     const adminCandidate = await findUserForPasswordReset(loginNorm, 'admin');
     const staffCandidate =
       adminCandidate ? null : await findUserForPasswordReset(loginNorm, 'staff');
     const candidate = adminCandidate ?? staffCandidate;
     if (!candidate) {
+      const fail = recordAuthFailure(rateKey);
       return NextResponse.json(
-        { error: 'Foydalanuvchi topilmadi' },
-        { status: 404 },
+        { error: fail.ok ? 'Foydalanuvchi topilmadi' : fail.error },
+        { status: fail.ok ? 404 : 429 },
       );
     }
 
@@ -45,18 +70,34 @@ export async function POST(request: NextRequest) {
       code,
     );
     if (!accountKind) {
+      const fail = recordAuthFailure(rateKey);
+      if (!fail.ok) {
+        await invalidatePasswordResetChallenge(candidate.clinicId, loginNorm);
+        return NextResponse.json(
+          { error: fail.error },
+          {
+            status: 429,
+            headers: { 'Retry-After': String(fail.retryAfterSec) },
+          },
+        );
+      }
       return NextResponse.json(
         { error: "Kod noto'g'ri yoki muddati o'tgan" },
         { status: 400 },
       );
     }
     if ((accountKind === 'admin') !== Boolean(adminCandidate)) {
+      const fail = recordAuthFailure(rateKey);
+      if (!fail.ok) {
+        await invalidatePasswordResetChallenge(candidate.clinicId, loginNorm);
+      }
       return NextResponse.json(
         { error: "Kod noto'g'ri yoki muddati o'tgan" },
-        { status: 400 },
+        { status: fail.ok ? 400 : 429 },
       );
     }
 
+    clearAuthRateLimit(rateKey);
     await updatePortalAuthPassword(candidate.userId, newPassword);
 
     return NextResponse.json({

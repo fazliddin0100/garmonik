@@ -51,8 +51,11 @@ function normalizeItem(raw: unknown): Record<string, unknown> | null {
 /** Bemorlar kartotekasi — bulk eksport/import (faqat admin_only) */
 export async function GET(request: NextRequest) {
   const session = await getAdminSessionFromRequest(request);
-  if (!session) {
-    return NextResponse.json({ error: 'Ruxsat yo\'q' }, { status: 401 });
+  if (!session || !canManageRegistry(session)) {
+    return NextResponse.json(
+      { error: 'Faqat klinika direktori eksport qila oladi' },
+      { status: 403 },
+    );
   }
 
   try {

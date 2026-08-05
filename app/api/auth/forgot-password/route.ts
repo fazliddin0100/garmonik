@@ -3,6 +3,12 @@ import {
   savePasswordResetChallenge,
 } from '@/lib/auth/password-reset-store';
 import { findUserForPasswordReset } from '@/lib/db/portal-profiles';
+import {
+  authRateLimitKey,
+  checkAuthRateLimit,
+  recordAuthFailure,
+} from '@/lib/server/auth-rate-limit';
+import { clientIpFromRequest } from '@/lib/server/security-log';
 import { NextRequest, NextResponse } from 'next/server';
 
 async function findAccountKindForLogin(
@@ -28,6 +34,22 @@ export async function POST(request: NextRequest) {
     }
 
     const loginNorm = normalizeResetLogin(raw);
+    const rateKey = authRateLimitKey(
+      'forgot-password',
+      loginNorm,
+      clientIpFromRequest(request),
+    );
+    const limited = checkAuthRateLimit(rateKey);
+    if (!limited.ok) {
+      return NextResponse.json(
+        { error: limited.error },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(limited.retryAfterSec) },
+        },
+      );
+    }
+
     const found = await findAccountKindForLogin(loginNorm);
 
     const generic = {
@@ -35,6 +57,18 @@ export async function POST(request: NextRequest) {
       message:
         "Agar bu login tizimda mavjud bo'lsa, tasdiqlash kodi yuboriladi.",
     };
+
+    // Har bir so‘rov urinish hisoblanadi (enumeratsiya + spam cheklovi)
+    const fail = recordAuthFailure(rateKey);
+    if (!fail.ok) {
+      return NextResponse.json(
+        { error: fail.error },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(fail.retryAfterSec) },
+        },
+      );
+    }
 
     if (!found) {
       return NextResponse.json(generic);

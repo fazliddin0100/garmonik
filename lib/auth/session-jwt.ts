@@ -3,7 +3,8 @@ import type { StaffRole } from '@/lib/staff-portal/types';
 import { SignJWT, jwtVerify } from 'jose';
 import { getJwtSecret } from '@/lib/db/env';
 
-const JWT_EXPIRES = '1d';
+/** Sessiya JWT — maksimal 5 soat */
+const JWT_EXPIRES = '5h';
 const SESSION_CLAIM = 'garmonik_session';
 
 function secretKey() {

@@ -24,8 +24,8 @@ const PHONE_UZ = /^\+998\d{9}$/;
 export async function POST(request: NextRequest) {
   try {
     const session = await getAdminSessionFromRequest(request);
-    if (!session) {
-      return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 401 });
+    if (!session || session.routeGroup !== 'admin_only') {
+      return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
     }
 
     const body = await request.json();

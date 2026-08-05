@@ -1,11 +1,24 @@
+import { getAdminSessionFromRequest } from '@/lib/auth/request-session';
 import { updateClinicLogo } from '@/lib/db/clinics';
 import { getDefaultClinicId } from '@/lib/server/default-clinic';
 import { mkdir, writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 
+function canUploadLogo(
+  session: Awaited<ReturnType<typeof getAdminSessionFromRequest>>,
+): boolean {
+  if (!session) return false;
+  return session.routeGroup === 'admin_only' || session.routeGroup === 'it';
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const session = await getAdminSessionFromRequest(request);
+    if (!session || !canUploadLogo(session)) {
+      return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
+    }
+
     const formData = await request.formData();
     const logo = formData.get('logo') as File | null;
     const clinicId = formData.get('clinicId') as string | null;
@@ -34,6 +47,11 @@ export async function POST(request: NextRequest) {
     const defaultId = await getDefaultClinicId();
     if (String(clinicId) !== String(defaultId)) {
       return NextResponse.json({ error: 'Klinika topilmadi' }, { status: 404 });
+    }
+
+    // Session klinikasi bilan mos kelishi shart
+    if (String(session.clinicId) !== String(clinicId)) {
+      return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
     }
 
     const uploadDir = path.join(process.cwd(), 'public', 'logo');

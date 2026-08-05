@@ -6,8 +6,14 @@ import {
   portalLoginRoleKey,
 } from '@/lib/kadrlar/portal-login';
 import { updateProfileLastLogin } from '@/lib/db/portal-profiles';
+import {
+  authRateLimitKey,
+  checkAuthRateLimit,
+  clearAuthRateLimit,
+  recordAuthFailure,
+} from '@/lib/server/auth-rate-limit';
 import { blockedIpResponse, isRequestIpBlocked } from '@/lib/server/ip-block';
-import { logSecurityEvent } from '@/lib/server/security-log';
+import { clientIpFromRequest, logSecurityEvent } from '@/lib/server/security-log';
 import { ensureStaffPortalSeed } from '@/lib/staff-portal/db-staff';
 import { isAdminJwtRouteGroup } from '@/lib/admins/portal-routes';
 import { isStaffRole, type StaffRole } from '@/lib/staff-portal/types';
@@ -31,8 +37,25 @@ export async function POST(request: NextRequest) {
 
     await ensureStaffPortalSeed();
     const key = login.toLowerCase();
+    const rateKey = authRateLimitKey(
+      'staff-login',
+      key,
+      clientIpFromRequest(request),
+    );
+    const limited = checkAuthRateLimit(rateKey);
+    if (!limited.ok) {
+      return NextResponse.json(
+        { error: limited.error },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(limited.retryAfterSec) },
+        },
+      );
+    }
+
     const row = await findPortalLoginByCredential(key);
     if (!row) {
+      const fail = recordAuthFailure(rateKey);
       await logSecurityEvent({
         request,
         session: null,
@@ -41,13 +64,14 @@ export async function POST(request: NextRequest) {
         meta: { login: key },
       });
       return NextResponse.json(
-        { error: "Login yoki parol noto'g'ri" },
-        { status: 401 },
+        { error: fail.ok ? "Login yoki parol noto'g'ri" : fail.error },
+        { status: fail.ok ? 401 : 429 },
       );
     }
 
     const verified = await authenticatePortalCredentials(row, password);
     if (!verified) {
+      const fail = recordAuthFailure(rateKey);
       await logSecurityEvent({
         request,
         session: null,
@@ -56,10 +80,12 @@ export async function POST(request: NextRequest) {
         meta: { login: key },
       });
       return NextResponse.json(
-        { error: "Login yoki parol noto'g'ri" },
-        { status: 401 },
+        { error: fail.ok ? "Login yoki parol noto'g'ri" : fail.error },
+        { status: fail.ok ? 401 : 429 },
       );
     }
+
+    clearAuthRateLimit(rateKey);
 
     await updateProfileLastLogin(row.user_id);
 

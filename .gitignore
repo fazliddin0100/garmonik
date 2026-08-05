@@ -33,6 +33,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local notes that may contain credentials
+url.txt
+*.secrets
+credentials.txt
+
 # vercel
 .vercel
 

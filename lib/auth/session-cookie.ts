@@ -3,7 +3,8 @@ import { signVerifiedSession } from './session-jwt';
 import type { VerifiedSession } from './session-jwt';
 
 export const SESSION_COOKIE_NAME = 'garmonik_session';
-const SESSION_MAX_AGE_SEC = 86400;
+/** Cookie muddati JWT bilan bir xil — maksimal 5 soat */
+export const SESSION_MAX_AGE_SEC = 5 * 60 * 60;
 
 export function sessionCookieOptions(maxAgeSec = SESSION_MAX_AGE_SEC) {
   return {

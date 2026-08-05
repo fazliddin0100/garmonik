@@ -10,29 +10,35 @@ import {
 } from '@/lib/db/portal-profiles';
 import { queryOne } from '@/lib/db/query';
 import { getDefaultClinicId } from '@/lib/server/default-clinic';
+import { timingSafeEqual } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
+function bootstrapTokenMatches(provided: string, expected: string): boolean {
+  const a = Buffer.from(provided);
+  const b = Buffer.from(expected);
+  if (a.length === 0 || a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
+/**
+ * Birinchi admin bootstrap yoki mavjud admin_only tomonidan yaratish.
+ * Auth’siz ochiq qolmaydi: count=0 bo‘lsa BOOTSTRAP_SETUP_TOKEN majburiy.
+ */
 export async function POST(request: NextRequest) {
   try {
-    const adminCount = await queryOne<{ n: string }>(
-      `select count(*)::text as n
-       from public.portal_user_profiles
-       where account_kind = 'admin'`,
-    );
-    const count = Number.parseInt(adminCount?.n ?? '0', 10);
-
-    if (count > 0) {
-      const session = await getAdminSessionFromRequest(request);
-      if (!session) {
-        return NextResponse.json(
-          { error: 'Admin yaratish uchun administrator sessiyasi kerak' },
-          { status: 401 },
-        );
-      }
-    }
-
-    const { adminName, adminLogin, adminPassword, clinicId } =
-      await request.json();
+    const body = await request.json().catch(() => ({}));
+    const adminName =
+      typeof body.adminName === 'string' ? body.adminName.trim() : '';
+    const adminLogin =
+      typeof body.adminLogin === 'string' ? body.adminLogin.trim() : '';
+    const adminPassword =
+      typeof body.adminPassword === 'string' ? body.adminPassword : '';
+    const clinicId =
+      typeof body.clinicId === 'string' ? body.clinicId.trim() : '';
+    const bodyBootstrap =
+      typeof body.bootstrapToken === 'string' ? body.bootstrapToken.trim() : '';
+    const headerBootstrap =
+      request.headers.get('x-bootstrap-token')?.trim() || '';
 
     if (!adminName || !adminLogin || !adminPassword || !clinicId) {
       return NextResponse.json(
@@ -48,15 +54,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const adminCount = await queryOne<{ n: string }>(
+      `select count(*)::text as n
+       from public.portal_user_profiles
+       where account_kind = 'admin'`,
+    );
+    const count = Number.parseInt(adminCount?.n ?? '0', 10);
+
+    if (count > 0) {
+      const session = await getAdminSessionFromRequest(request);
+      if (!session || session.routeGroup !== 'admin_only') {
+        return NextResponse.json(
+          { error: 'Admin yaratish uchun klinika direktori sessiyasi kerak' },
+          { status: 403 },
+        );
+      }
+    } else {
+      const expected = process.env.BOOTSTRAP_SETUP_TOKEN?.trim() || '';
+      const provided = bodyBootstrap || headerBootstrap;
+      if (!expected || !bootstrapTokenMatches(provided, expected)) {
+        return NextResponse.json(
+          {
+            error:
+              'Birinchi admin uchun BOOTSTRAP_SETUP_TOKEN talab qilinadi (x-bootstrap-token yoki body.bootstrapToken)',
+          },
+          { status: 403 },
+        );
+      }
+    }
+
     const defaultClinic = await getDefaultClinicId();
     if (String(clinicId) !== String(defaultClinic)) {
       return NextResponse.json({ error: 'Klinika topilmadi' }, { status: 404 });
     }
 
     const loginNorm = String(adminLogin).trim().toLowerCase();
-    const emailNorm = loginNorm.includes('@') ?
-      loginNorm
-    : `${loginNorm}@garmonik.admin.local`;
+    const emailNorm = loginNorm.includes('@')
+      ? loginNorm
+      : `${loginNorm}@garmonik.admin.local`;
 
     if (await adminLoginExists(loginNorm, emailNorm)) {
       return NextResponse.json(
@@ -86,7 +121,8 @@ export async function POST(request: NextRequest) {
       });
     } catch (insErr) {
       await deletePortalAuthUser(created.id);
-      const message = insErr instanceof Error ? insErr.message : 'Profil yaratilmadi';
+      const message =
+        insErr instanceof Error ? insErr.message : 'Profil yaratilmadi';
       return NextResponse.json({ error: message }, { status: 400 });
     }
 

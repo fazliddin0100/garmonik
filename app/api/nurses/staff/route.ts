@@ -1,3 +1,4 @@
+import { canManageDepartmentStaff } from '@/lib/auth/department-staff-access';
 import { getAdminSessionFromRequest } from '@/lib/auth/request-session';
 import {
   createNurseStaffAccount,
@@ -12,10 +13,14 @@ function errorMessage(e: unknown): string {
   return e instanceof Error ? e.message : 'Server xatoligi';
 }
 
+function canAccess(admin: Awaited<ReturnType<typeof getAdminSessionFromRequest>>) {
+  return canManageDepartmentStaff(admin, ['nursing', 'head_nursing'] as const);
+}
+
 export async function GET(request: NextRequest) {
   const admin = await getAdminSessionFromRequest(request);
-  if (!admin) {
-    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 401 });
+  if (!canAccess(admin)) {
+    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
     const items = await listNurseStaffAccounts();
@@ -28,8 +33,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const admin = await getAdminSessionFromRequest(request);
-  if (!admin) {
-    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 401 });
+  if (!canAccess(admin)) {
+    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
     const body = await request.json();
@@ -52,8 +57,8 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   const admin = await getAdminSessionFromRequest(request);
-  if (!admin) {
-    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 401 });
+  if (!canAccess(admin)) {
+    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
     const body = await request.json();
@@ -81,8 +86,8 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   const admin = await getAdminSessionFromRequest(request);
-  if (!admin) {
-    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 401 });
+  if (!canAccess(admin)) {
+    return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   const id = request.nextUrl.searchParams.get('id')?.trim();
   if (!id) {

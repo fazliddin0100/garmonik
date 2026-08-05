@@ -62,3 +62,15 @@ export async function takePasswordResetChallenge(
   await query('delete from public.password_reset_tokens where id = $1', [data.id]);
   return data.account_kind;
 }
+
+/** Brute-force dan keyin kodni bekor qilish */
+export async function invalidatePasswordResetChallenge(
+  clinicId: string,
+  loginNorm: string,
+): Promise<void> {
+  await query(
+    `delete from public.password_reset_tokens
+     where clinic_id = $1 and login_norm = $2`,
+    [clinicId, loginNorm],
+  );
+}

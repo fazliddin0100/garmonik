@@ -19,8 +19,14 @@ import {
   resolveKassaBridgeRole,
 } from '@/lib/kassa/portal-cashier-bridge';
 import { sessionUserToVerifiedSession } from '@/lib/kassa/unified-session';
+import {
+  authRateLimitKey,
+  checkAuthRateLimit,
+  clearAuthRateLimit,
+  recordAuthFailure,
+} from '@/lib/server/auth-rate-limit';
 import { blockedIpResponse, isRequestIpBlocked } from '@/lib/server/ip-block';
-import { logSecurityEvent } from '@/lib/server/security-log';
+import { clientIpFromRequest, logSecurityEvent } from '@/lib/server/security-log';
 import { NextRequest, NextResponse } from 'next/server';
 
 function loginEquals(a: string, b: string): boolean {
@@ -48,9 +54,26 @@ export async function handleClinicAdminLogin(
 
     const loginTrim = typeof login === 'string' ? login.trim() : '';
     const loginNorm = loginTrim.toLowerCase();
+    const rateKey = authRateLimitKey(
+      'admin-login',
+      loginNorm,
+      clientIpFromRequest(request),
+    );
+    const limited = checkAuthRateLimit(rateKey);
+    if (!limited.ok) {
+      return NextResponse.json(
+        { error: limited.error },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(limited.retryAfterSec) },
+        },
+      );
+    }
+
     const profile = await findAdminProfileByLogin(loginNorm);
 
     if (!profile) {
+      const fail = recordAuthFailure(rateKey);
       await logSecurityEvent({
         request,
         session: null,
@@ -59,8 +82,8 @@ export async function handleClinicAdminLogin(
         meta: { login: loginTrim },
       });
       return NextResponse.json(
-        { error: "Login yoki parol noto'g'ri" },
-        { status: 401 },
+        { error: fail.ok ? "Login yoki parol noto'g'ri" : fail.error },
+        { status: fail.ok ? 401 : 429 },
       );
     }
 
@@ -68,6 +91,7 @@ export async function handleClinicAdminLogin(
     const verified = await authenticatePortalCredentials(profile, passwordStr);
 
     if (!verified || verified.kind !== 'admin') {
+      const fail = recordAuthFailure(rateKey);
       await logSecurityEvent({
         request,
         session: null,
@@ -76,10 +100,12 @@ export async function handleClinicAdminLogin(
         meta: { login: loginTrim },
       });
       return NextResponse.json(
-        { error: "Login yoki parol noto'g'ri" },
-        { status: 401 },
+        { error: fail.ok ? "Login yoki parol noto'g'ri" : fail.error },
+        { status: fail.ok ? 401 : 429 },
       );
     }
+
+    clearAuthRateLimit(rateKey);
 
     await updateProfileLastLogin(profile.user_id);
 
