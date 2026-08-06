@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CheckCircle2,
   FileDown,
@@ -32,6 +32,12 @@ import {
   ManualPaymentEntryPanel,
   type ManualPaymentEntry,
 } from "@/components/kassa/payment/manual-payment-entry-panel";
+import {
+  DebtWarningModal,
+  findDebtorsByManualEntry,
+  normalizePersonName,
+  type DebtWarningDebtor,
+} from "@/components/kassa/payment/debt-warning-modal";
 import type { SelectedKassaPatient } from "@/components/kassa/payment/patient-lookup-field";
 import { ServicePickerGrid } from "@/components/kassa/payment/service-picker-grid";
 
@@ -88,6 +94,9 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
   const [lastInvoice, setLastInvoice] = useState<ReceiptInvoice | null>(null);
   const [printLoading, setPrintLoading] = useState(false);
   const [printMessage, setPrintMessage] = useState("");
+  const [debtWarningOpen, setDebtWarningOpen] = useState(false);
+  const [matchedDebtors, setMatchedDebtors] = useState<DebtWarningDebtor[]>([]);
+  const dismissedDebtWarningKey = useRef("");
 
   useEffect(() => {
     let cancelled = false;
@@ -142,6 +151,52 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    const name = manualEntry.fullName.trim();
+    const normalized = normalizePersonName(name);
+    if (normalized.length < 3) {
+      setDebtWarningOpen(false);
+      setMatchedDebtors([]);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      try {
+        const res = await fetch("/api/kassa/debts");
+        const data = await res.json();
+        if (cancelled || !res.ok) return;
+
+        const matches = findDebtorsByManualEntry(
+          (data.debtors || []) as DebtWarningDebtor[],
+          name,
+          manualEntry.phone,
+        );
+        if (matches.length === 0) {
+          setMatchedDebtors([]);
+          setDebtWarningOpen(false);
+          return;
+        }
+
+        const warningKey = `${normalized}|${matches
+          .map((d) => d.patientId)
+          .sort()
+          .join(",")}`;
+        setMatchedDebtors(matches);
+        if (dismissedDebtWarningKey.current !== warningKey) {
+          setDebtWarningOpen(true);
+        }
+      } catch {
+        // Qarzdorlik tekshiruvi muvaffaqiyatsiz bo'lsa to'lovni to'xtatmaymiz
+      }
+    }, 450);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [manualEntry.fullName, manualEntry.phone]);
 
   const selectedPayment = paymentTypes.find((p) => p.id === paymentTypeId);
   const isCash = selectedPayment?.platform === "CASH";
@@ -266,6 +321,9 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
   function clearManualEntry() {
     setManualEntryActive(false);
     setManualEntry({ fullName: "", phone: "", note: "", patient: null });
+    setDebtWarningOpen(false);
+    setMatchedDebtors([]);
+    dismissedDebtWarningKey.current = "";
     if (!selectedQueueId) {
       setSelectedPatient(null);
       setPatientName("");
@@ -549,6 +607,22 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
+      <DebtWarningModal
+        open={debtWarningOpen}
+        debtors={matchedDebtors}
+        onClose={() => {
+          const normalized = normalizePersonName(manualEntry.fullName);
+          const warningKey = `${normalized}|${matchedDebtors
+            .map((d) => d.patientId)
+            .sort()
+            .join(",")}`;
+          dismissedDebtWarningKey.current = warningKey;
+          setDebtWarningOpen(false);
+        }}
+        onPaid={() => {
+          dismissedDebtWarningKey.current = "";
+        }}
+      />
       <div className="space-y-6 lg:col-span-2">
         <Card className="overflow-hidden border-sky-100">
           <CardHeader className="border-b border-sky-50 bg-gradient-to-r from-sky-50/80 to-white">
@@ -569,6 +643,11 @@ export function PaymentForm({ allowDiscount = false }: { allowDiscount?: boolean
               active={manualEntryActive}
               value={manualEntry}
               onChange={(next) => {
+                const prevName = normalizePersonName(manualEntry.fullName);
+                const nextName = normalizePersonName(next.fullName);
+                if (prevName !== nextName) {
+                  dismissedDebtWarningKey.current = "";
+                }
                 setManualEntry(next);
                 if (manualEntryActive) {
                   setPatientName(next.fullName);

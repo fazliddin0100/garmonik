@@ -7,6 +7,7 @@ import { z } from "zod";
 const schema = z.object({
   paymentTypeId: z.string(),
   amountPaid: z.number().positive(),
+  note: z.string().trim().max(500).optional(),
 });
 
 export async function POST(
@@ -31,6 +32,7 @@ export async function POST(
         amount: data.amountPaid,
       },
       patientName: "Qarz to'lovi",
+      note: data.note,
     });
 
     await logAudit(
@@ -42,6 +44,7 @@ export async function POST(
       JSON.stringify({
         amount: data.amountPaid,
         invoiceNumber: result.invoice.invoiceNumber,
+        note: data.note || undefined,
       })
     );
 

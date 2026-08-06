@@ -107,6 +107,7 @@ export async function applyInvoicePayment(params: {
   cashierId: string;
   payment: PaymentInput;
   patientName: string;
+  note?: string;
 }) {
   const invoice = await prisma.invoice.findUnique({
     where: { id: params.invoiceId },
@@ -160,6 +161,10 @@ export async function applyInvoicePayment(params: {
   const newAmountPaid = toNumber(invoice.amountPaid) + appliedAmount;
   const newBalanceDue = Math.max(0, toNumber(invoice.total) - newAmountPaid);
   const status = computeInvoiceStatus(toNumber(invoice.total), newAmountPaid);
+  const trimmedNote = params.note?.trim();
+  const referralNote = trimmedNote
+    ? [invoice.referralNote, `Qarz to'lovi: ${trimmedNote}`].filter(Boolean).join(" | ")
+    : invoice.referralNote;
 
   const [paymentRecord, updatedInvoice] = await prisma.$transaction([
     prisma.invoicePayment.create({
@@ -183,6 +188,7 @@ export async function applyInvoicePayment(params: {
         status,
         paymentTypeId: paymentType.id,
         changeAmount: isCash ? changeAmount : 0,
+        referralNote,
       },
       include: {
         patient: true,

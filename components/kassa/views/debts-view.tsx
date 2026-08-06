@@ -90,6 +90,7 @@ export function DebtsView({
   const [paymentTypes, setPaymentTypes] = useState<PaymentType[]>([]);
   const [paymentTypeId, setPaymentTypeId] = useState("");
   const [amountPaid, setAmountPaid] = useState("");
+  const [paymentNote, setPaymentNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -197,6 +198,7 @@ export function DebtsView({
         body: JSON.stringify({
           paymentTypeId,
           amountPaid: paidInput,
+          note: paymentNote.trim() || undefined,
         }),
       });
       const data = await res.json();
@@ -207,6 +209,7 @@ export function DebtsView({
 
       setPayingInvoice(null);
       setAmountPaid("");
+      setPaymentNote("");
       setSelected(null);
       loadDebts();
       notifyPaymentCompleted();
@@ -283,7 +286,14 @@ export function DebtsView({
   if (payingInvoice) {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setPayingInvoice(null)}>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            setPayingInvoice(null);
+            setPaymentNote("");
+            setError("");
+          }}
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Orqaga
         </Button>
@@ -330,6 +340,15 @@ export function DebtsView({
               <p className="text-xs text-muted-foreground">
                 Qisman yoki to&apos;liq to&apos;lashingiz mumkin
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Izoh</Label>
+              <Input
+                value={paymentNote}
+                onChange={(e) => setPaymentNote(e.target.value)}
+                placeholder="Masalan: qisman to'lov, bemor keyinroq to'laydi"
+              />
             </div>
 
             {change > 0 && (
@@ -431,6 +450,8 @@ export function DebtsView({
                         onClick={() => {
                           setPayingInvoice(inv);
                           setAmountPaid(String(toNumber(inv.balanceDue)));
+                          setPaymentNote("");
+                          setError("");
                         }}
                       >
                         To&apos;lash

@@ -13,7 +13,8 @@ type DayStats = {
 
 export function CashierTopBar({ isActive = true }: { isActive?: boolean }) {
   const [stats, setStats] = useState<DayStats | null>(null);
-  const [todayLabel, setTodayLabel] = useState(() => formatUzDateLong());
+  // Locale-formatted dates differ between Node SSR and the browser — set after mount.
+  const [todayLabel, setTodayLabel] = useState("");
 
   useEffect(() => {
     if (!isActive) return;
