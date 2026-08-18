@@ -1,13 +1,17 @@
 import type { ClinicResourceKey } from './keys';
+import { INITIAL_PHARMACY_PRODUCTS } from '@/lib/pharmacy/initial-data';
 
 /**
  * MongoDBda `ClinicJsonResource` yozuvi bo‘lmaganda qaytariladigan bo‘sh/yengil qiymatlar.
  * Demo ma’lumotlar faqat `npm run db:seed` orqali bazaga yoziladi.
+ * `pharmacy-products` — katalog kod bilan birga keladi (VPS pull uchun).
  */
 export function defaultPayloadForKey(key: ClinicResourceKey): unknown {
   switch (key) {
     case 'clinic-settings':
       return {};
+    case 'pharmacy-products':
+      return structuredClone(INITIAL_PHARMACY_PRODUCTS);
     case 'patients':
     case 'departments':
     case 'rooms':
@@ -17,7 +21,6 @@ export function defaultPayloadForKey(key: ClinicResourceKey): unknown {
     case 'service-prices':
     case 'partners':
     case 'contracts':
-    case 'pharmacy-products':
     case 'kitchen-products':
     case 'kitchen-staff':
     case 'doctors':

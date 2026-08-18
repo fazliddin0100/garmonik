@@ -5,6 +5,11 @@ import {
   readClinicResourcePayload,
   upsertClinicResourcePayload,
 } from '@/lib/db/clinic-json-resources';
+import { INITIAL_PHARMACY_PRODUCTS } from '@/lib/pharmacy/initial-data';
+import {
+  mergePharmacyCatalog,
+  type PharmacyProduct,
+} from '@/lib/pharmacy/types';
 import {
   readClinicQueueRows,
   syncQueueAfterInpatientAdmissionsWrite,
@@ -21,6 +26,23 @@ export async function readClinicResource(key: ClinicResourceKey): Promise<unknow
   }
 
   const payload = await readClinicResourcePayload(clinicId, key);
+
+  if (key === 'pharmacy-products') {
+    const existing = Array.isArray(payload) ? (payload as PharmacyProduct[]) : [];
+    const { products, added } = mergePharmacyCatalog(
+      existing,
+      INITIAL_PHARMACY_PRODUCTS,
+    );
+    if (added > 0) {
+      try {
+        await upsertClinicResourcePayload(clinicId, key, products);
+      } catch (e) {
+        console.error('pharmacy-products auto-seed', e);
+      }
+    }
+    return products;
+  }
+
   if (payload !== undefined && payload !== null) return payload;
   return defaultPayloadForKey(key);
 }
