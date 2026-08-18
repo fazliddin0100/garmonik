@@ -2,8 +2,7 @@ import type { ClinicResourceKey } from './keys';
 import { INITIAL_PHARMACY_PRODUCTS } from '@/lib/pharmacy/initial-data';
 
 /**
- * MongoDBda `ClinicJsonResource` yozuvi bo‘lmaganda qaytariladigan bo‘sh/yengil qiymatlar.
- * Demo ma’lumotlar faqat `npm run db:seed` orqali bazaga yoziladi.
+ * PostgreSQLda `clinic_json_resources` yozuvi bo‘lmaganda qaytariladigan default qiymatlar.
  * `pharmacy-products` — katalog kod bilan birga keladi (VPS pull uchun).
  */
 export function defaultPayloadForKey(key: ClinicResourceKey): unknown {
