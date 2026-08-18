@@ -23,11 +23,14 @@ import { Label } from "@/components/ui/label";
 import RoomBedGrid from "@/components/rooms/RoomBedGrid";
 import { fetchClinicResource, saveClinicResource } from "@/lib/clinic-data/client";
 import { type ClinicRoom } from "@/lib/clinic-rooms/types";
+import { enrichAdmissionsWithPatientGender } from "@/lib/inpatient/gender";
 import {
   normalizeInpatientAdmission,
   type InpatientAdmission,
 } from "@/lib/inpatient/types";
 import { syncRoomsWithAdmissions } from "@/lib/inpatient/utils";
+import { normalizePatientRow } from "@/lib/patients/normalize-patient-row";
+import type { PatientRow } from "@/lib/patients/types";
 import { Armchair, Pencil, Plus, Trash2, Users } from "lucide-react";
 import {
   useCallback,
@@ -74,16 +77,24 @@ export default function RoomsOccupancyPanel() {
 
   const reload = useCallback(async () => {
     try {
-      const [roomsRaw, admissionsRaw] = await Promise.all([
+      const [roomsRaw, admissionsRaw, patientsRaw] = await Promise.all([
         fetchClinicResource<ClinicRoom[]>("rooms"),
         fetchClinicResource<InpatientAdmission[]>("inpatient-admissions"),
+        fetchClinicResource<PatientRow[]>("patients").catch(() => []),
       ]);
       const normalizedRooms = Array.isArray(roomsRaw) ? roomsRaw : [];
       const normalizedAdmissions = (Array.isArray(admissionsRaw) ? admissionsRaw : [])
         .map(normalizeInpatientAdmission)
         .filter((x): x is InpatientAdmission => x !== null);
-      setAdmissions(normalizedAdmissions);
-      setRooms(syncRoomsWithAdmissions(normalizedRooms, normalizedAdmissions));
+      const normalizedPatients = (Array.isArray(patientsRaw) ? patientsRaw : [])
+        .map(normalizePatientRow)
+        .filter((x): x is PatientRow => x !== null);
+      const enrichedAdmissions = enrichAdmissionsWithPatientGender(
+        normalizedAdmissions,
+        normalizedPatients,
+      );
+      setAdmissions(enrichedAdmissions);
+      setRooms(syncRoomsWithAdmissions(normalizedRooms, enrichedAdmissions));
       setHydrated(true);
     } catch {
       setRooms([]);
@@ -313,6 +324,7 @@ export default function RoomsOccupancyPanel() {
                     room={room}
                     admissions={admissions}
                     mode="view"
+                    size="sm"
                   />
 
                   <div className="flex flex-wrap gap-4 text-xs">

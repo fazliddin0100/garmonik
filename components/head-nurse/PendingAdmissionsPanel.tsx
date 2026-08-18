@@ -23,6 +23,11 @@ import {
   bedLabelForIndex,
   getFreeBedIndices,
 } from '@/lib/inpatient/room-beds';
+import {
+  normalizePatientGender,
+  patientGenderLabel,
+  roomOccupancyGenderSummary,
+} from '@/lib/inpatient/gender';
 import { formatAdmissionDate, todayDateIso } from '@/lib/inpatient/utils';
 import type { InpatientRoomPayment } from '@/lib/kassa/inpatient-room-payment';
 import type { ClinicRoom } from '@/lib/clinic-rooms/types';
@@ -32,11 +37,13 @@ import {
   BedDouble,
   CheckCircle2,
   FlaskConical,
+  VenusAndMars,
   Wallet,
   Users,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 type RoomPaymentMap = Record<string, InpatientRoomPayment>;
 
@@ -78,15 +85,34 @@ function ReadinessBadges({ readiness }: { readiness: AdmissionReadiness }) {
   );
 }
 
+function GenderBadge({ gender }: { gender?: string | null }) {
+  const kind = normalizePatientGender(gender);
+  const label = patientGenderLabel(gender);
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ring-1',
+        kind === 'male' && 'bg-sky-50 text-sky-800 ring-sky-200',
+        kind === 'female' && 'bg-rose-50 text-rose-800 ring-rose-200',
+        kind === 'unknown' && 'bg-slate-100 text-slate-600 ring-slate-200',
+      )}>
+      <VenusAndMars className="size-3" />
+      {label}
+    </span>
+  );
+}
+
 function RoomPickerCard({
   room,
   admissions,
   selected,
+  patientGender,
   onSelect,
 }: {
   room: ClinicRoom;
   admissions: InpatientAdmission[];
   selected: boolean;
+  patientGender?: string | null;
   onSelect: () => void;
 }) {
   const freeBeds = getFreeBedIndices(room, admissions);
@@ -95,18 +121,30 @@ function RoomPickerCard({
     room.capacity > 0 ?
       Math.min(100, Math.round(((room.capacity - free) / room.capacity) * 100))
     : 0;
+  const genderSummary = roomOccupancyGenderSummary(
+    room.id,
+    admissions,
+    room.capacity,
+  );
+  const patientKind = normalizePatientGender(patientGender);
+  const genderMismatch =
+    patientKind !== 'unknown' &&
+    ((genderSummary.kind === 'male' && patientKind === 'female') ||
+      (genderSummary.kind === 'female' && patientKind === 'male') ||
+      genderSummary.kind === 'mixed');
 
   return (
     <button
       type="button"
       onClick={onSelect}
-      className={`w-full rounded-xl border p-3 text-left transition ${
+      className={cn(
+        'w-full rounded-xl border p-3 text-left transition',
         selected ?
           'border-rose-400 bg-rose-50 ring-2 ring-rose-300'
-        : 'border-slate-200 bg-white hover:border-rose-200 hover:bg-rose-50/40'
-      }`}>
+        : 'border-slate-200 bg-white hover:border-rose-200 hover:bg-rose-50/40',
+      )}>
       <div className="flex items-start justify-between gap-2">
-        <div>
+        <div className="min-w-0">
           <p className="font-semibold text-slate-900">{room.name}</p>
           <p className="text-xs text-slate-500">{room.kind}</p>
           <p className="mt-1 text-xs font-medium text-slate-600">
@@ -114,6 +152,29 @@ function RoomPickerCard({
           </p>
         </div>
         <Users className="size-4 shrink-0 text-slate-400" />
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <span
+          className={cn(
+            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1',
+            genderSummary.kind === 'empty' &&
+              'bg-emerald-50 text-emerald-800 ring-emerald-200',
+            genderSummary.kind === 'male' && 'bg-sky-50 text-sky-800 ring-sky-200',
+            genderSummary.kind === 'female' &&
+              'bg-rose-50 text-rose-800 ring-rose-200',
+            genderSummary.kind === 'mixed' &&
+              'bg-amber-50 text-amber-900 ring-amber-200',
+            genderSummary.kind === 'unknown' &&
+              'bg-slate-100 text-slate-600 ring-slate-200',
+          )}>
+          <VenusAndMars className="size-3" />
+          Karavotlar: {genderSummary.label}
+        </span>
+        {genderMismatch ?
+          <span className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-900 ring-1 ring-amber-200">
+            Jins mos emas
+          </span>
+        : null}
       </div>
       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-emerald-100">
         <div
@@ -211,6 +272,7 @@ export default function PendingAdmissionsPanel({
         id: crypto.randomUUID(),
         patientId: selectedPatient.id,
         patientName: selectedPatient.fullName,
+        gender: selectedPatient.gender?.trim() || undefined,
         cardNumber: selectedPatient.cardNumber,
         diseaseType: selectedPatient.diseaseType,
         contact: selectedPatient.contact,
@@ -297,7 +359,10 @@ export default function PendingAdmissionsPanel({
                   : 'border-amber-100 bg-amber-50/30'
                 }`}>
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-slate-900">{patient.fullName}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold text-slate-900">{patient.fullName}</p>
+                    <GenderBadge gender={patient.gender} />
+                  </div>
                   <p className="text-sm text-slate-500">
                     {patient.diseaseType || 'Kasallik turi ko‘rsatilmagan'}
                     {patient.cardNumber ? ` · ${patient.cardNumber}` : ''}
@@ -341,7 +406,10 @@ export default function PendingAdmissionsPanel({
           {selectedPatient && selectedReadiness ?
             <div className="grid gap-4 py-2">
               <div>
-                <p className="font-medium text-slate-900">{selectedPatient.fullName}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-medium text-slate-900">{selectedPatient.fullName}</p>
+                  <GenderBadge gender={selectedPatient.gender} />
+                </div>
                 <ReadinessBadges readiness={selectedReadiness} />
               </div>
 
@@ -371,6 +439,7 @@ export default function PendingAdmissionsPanel({
                             room={room}
                             admissions={data.admissions}
                             selected={roomId === room.id}
+                            patientGender={selectedPatient.gender}
                             onSelect={() => setRoomId(room.id)}
                           />
                         ))}
@@ -382,8 +451,10 @@ export default function PendingAdmissionsPanel({
                     <div className="grid gap-2">
                       <Label>{selectedRoom.name} — karavotni tanlang</Label>
                       <p className="text-xs text-slate-500">
-                        Bo‘sh karavot ustiga bosing — yashil karavot bo‘sh, rangli
-                        karavot band.
+                        Bo‘sh karavot (yashil) tanlanadi. Band karavotlarda jins
+                        ko‘rsatiladi: <span className="font-medium text-sky-700">Erkak</span>
+                        {' · '}
+                        <span className="font-medium text-rose-700">Ayol</span>.
                       </p>
                       <RoomBedGrid
                         room={selectedRoom}

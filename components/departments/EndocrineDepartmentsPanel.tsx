@@ -29,6 +29,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import {
   fetchClinicResource,
@@ -44,9 +52,35 @@ import {
   type DepartmentGroup,
   type DepartmentSubItem,
 } from '@/lib/clinic-departments/types';
-import { Building2, Pencil, Plus, Trash2 } from 'lucide-react';
-import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Building2, ChevronDown, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+  Fragment,
+  startTransition,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { toast } from 'sonner';
+
+const ACTION_BTN_BASE =
+  'size-8 shrink-0 rounded-lg border shadow-sm transition-all duration-150';
+
+const ACTION_ADD_CLASS = cn(
+  ACTION_BTN_BASE,
+  'border-emerald-200/80 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800',
+);
+
+const ACTION_EDIT_CLASS = cn(
+  ACTION_BTN_BASE,
+  'border-violet-200/80 bg-violet-50 text-violet-700 hover:border-violet-300 hover:bg-violet-100 hover:text-violet-800',
+);
+
+const ACTION_DELETE_CLASS = cn(
+  ACTION_BTN_BASE,
+  'border-rose-200/80 bg-rose-50 text-rose-600 hover:border-rose-300 hover:bg-rose-100 hover:text-rose-700',
+);
 
 function newGroupId() {
   return `dep-grp-${crypto.randomUUID().slice(0, 8)}`;
@@ -88,7 +122,17 @@ export default function EndocrineDepartmentsPanel() {
     groupId: string;
     itemId: string;
   } | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
   const skipFirstPersist = useRef(true);
+
+  function toggleExpanded(groupId: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
+      return next;
+    });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -258,8 +302,21 @@ export default function EndocrineDepartmentsPanel() {
   }
 
   return (
-    <div className="space-y-2 mt-3">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+    <div className="mt-3 space-y-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2.5">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
+            <Building2 className="size-4" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-slate-800">
+              {hydrated ? `${groups.length} ta bo‘lim` : 'Yuklanmoqda…'}
+            </p>
+            <p className="text-xs text-slate-500">
+              Bo‘limlar, rollar va ichki bandlar
+            </p>
+          </div>
+        </div>
         <Button
           type="button"
           size="sm"
@@ -270,109 +327,245 @@ export default function EndocrineDepartmentsPanel() {
         </Button>
       </div>
 
-      <div className="space-y-4">
-        {groups.map((gr) => (
-          <article
-            key={gr.id}
-            className="rounded-2xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur">
-            <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
-                  <Building2 className="size-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-slate-800">
-                    {gr.title}
-                  </h3>
-                  <p
-                    className={`mt-1 text-xs font-medium ${
-                      gr.roleKey ? 'text-violet-700' : 'text-amber-600'
-                    }`}>
-                    Rol: {departmentRoleLabel(gr.roleKey || null)}
-                  </p>
-                  {gr.description ?
-                    <p className="mt-1 text-sm text-slate-500">
-                      {gr.description}
-                    </p>
-                  : null}
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="gap-1"
-                  onClick={() => openNewItem(gr.id)}>
-                  <Plus className="size-3.5" />
-                  Band qo‘shish
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1 text-slate-600"
-                  onClick={() => openEditGroup(gr)}>
-                  <Pencil className="size-3.5" />
-                  Tahrirlash
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1 text-red-600 hover:bg-red-50 hover:text-red-700"
-                  onClick={() => setDeleteGroupId(gr.id)}>
-                  <Trash2 className="size-3.5" />
-                  O‘chirish
-                </Button>
-              </div>
-            </div>
-
-            {gr.items.length === 0 ?
-              <p className="mt-4 text-sm text-slate-400">
-                Hozircha bandlar yo‘q — «Band qo‘shish» orqali kiriting.
-              </p>
-            : <ul className="mt-4 space-y-2">
-                {gr.items.map((it) => (
-                  <li
-                    key={it.id}
-                    className="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-800">
-                        {it.title}
-                      </p>
-                      {it.note ?
-                        <p className="mt-1 text-xs text-slate-500">{it.note}</p>
+      <div className="overflow-hidden rounded-2xl border border-white/70 bg-white/80 shadow-lg backdrop-blur">
+        <div className="max-h-[calc(100dvh-16rem)] overflow-auto">
+          <Table>
+            <TableHeader className="sticky top-0 z-10 bg-white/95 shadow-sm backdrop-blur-md supports-backdrop-filter:bg-white/90">
+              <TableRow className="border-slate-200/80 hover:bg-transparent">
+                <TableHead className="w-12 text-xs font-semibold text-slate-600">
+                  #
+                </TableHead>
+                <TableHead className="min-w-[200px] text-xs font-semibold text-slate-600">
+                  Bo‘lim
+                </TableHead>
+                <TableHead className="min-w-[160px] text-xs font-semibold text-slate-600">
+                  Rol
+                </TableHead>
+                <TableHead className="min-w-[220px] text-xs font-semibold text-slate-600">
+                  Izoh
+                </TableHead>
+                <TableHead className="w-28 text-xs font-semibold text-slate-600">
+                  Bandlar
+                </TableHead>
+                <TableHead className="text-right text-xs font-semibold text-slate-600">
+                  Amallar
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {!hydrated ?
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="py-12 text-center text-sm text-slate-500">
+                    Bo‘limlar yuklanmoqda…
+                  </TableCell>
+                </TableRow>
+              : groups.length === 0 ?
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="py-12 text-center text-sm text-slate-500">
+                    Hozircha bo‘lim yo‘q — «Yangi bo‘lim» orqali qo‘shing.
+                  </TableCell>
+                </TableRow>
+              : groups.map((gr, index) => {
+                  const expanded = expandedIds.has(gr.id);
+                  return (
+                    <Fragment key={gr.id}>
+                      <TableRow
+                        className="border-slate-100 text-sm text-slate-700 transition-colors hover:bg-violet-50/40">
+                        <TableCell className="font-medium text-slate-400">
+                          {index + 1}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2.5">
+                            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-700">
+                              <Building2 className="size-3.5" />
+                            </span>
+                            <span className="font-semibold text-slate-800">
+                              {gr.title}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={cn(
+                              'inline-flex max-w-[220px] truncate rounded-full px-2.5 py-1 text-xs font-medium',
+                              gr.roleKey ?
+                                'bg-violet-100 text-violet-800'
+                              : 'bg-amber-100 text-amber-800',
+                            )}>
+                            {departmentRoleLabel(gr.roleKey || null)}
+                          </span>
+                        </TableCell>
+                        <TableCell className="max-w-[280px] whitespace-normal text-xs text-slate-500">
+                          {gr.description || (
+                            <span className="text-slate-300">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <button
+                            type="button"
+                            onClick={() => toggleExpanded(gr.id)}
+                            className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 transition-colors hover:bg-violet-100 hover:text-violet-800"
+                            aria-expanded={expanded}
+                            aria-label={
+                              expanded ?
+                                'Bandlarni yopish'
+                              : 'Bandlarni ochish'
+                            }>
+                            {gr.items.length}
+                            <ChevronDown
+                              className={cn(
+                                'size-3.5 transition-transform duration-200',
+                                expanded && 'rotate-180',
+                              )}
+                            />
+                          </button>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/70 bg-slate-50/80 p-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-xs"
+                              className={ACTION_ADD_CLASS}
+                              onClick={() => openNewItem(gr.id)}
+                              aria-label="Band qo‘shish"
+                              title="Band qo‘shish">
+                              <Plus className="size-3.5" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-xs"
+                              className={ACTION_EDIT_CLASS}
+                              onClick={() => openEditGroup(gr)}
+                              aria-label="Bo‘limni tahrirlash"
+                              title="Tahrirlash">
+                              <Pencil className="size-3.5" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-xs"
+                              className={ACTION_DELETE_CLASS}
+                              onClick={() => setDeleteGroupId(gr.id)}
+                              aria-label="Bo‘limni o‘chirish"
+                              title="O‘chirish">
+                              <Trash2 className="size-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      {expanded ?
+                        <TableRow className="border-slate-100 bg-slate-50/70 hover:bg-slate-50/70">
+                          <TableCell colSpan={6} className="p-0">
+                            <div className="border-t border-violet-100/80 px-4 py-3 sm:px-6">
+                              <div className="mb-2 flex items-center justify-between gap-2">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                  Ichki bandlar
+                                </p>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 gap-1 text-xs"
+                                  onClick={() => openNewItem(gr.id)}>
+                                  <Plus className="size-3" />
+                                  Band qo‘shish
+                                </Button>
+                              </div>
+                              {gr.items.length === 0 ?
+                                <p className="rounded-xl border border-dashed border-slate-200 bg-white/80 px-4 py-6 text-center text-sm text-slate-400">
+                                  Hozircha bandlar yo‘q — «Band qo‘shish»
+                                  orqali kiriting.
+                                </p>
+                              : <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white">
+                                  <table className="w-full text-sm">
+                                    <thead>
+                                      <tr className="border-b border-slate-100">
+                                        <th className="h-9 w-10 px-2 text-left text-[11px] font-semibold text-slate-500">
+                                          #
+                                        </th>
+                                        <th className="h-9 px-2 text-left text-[11px] font-semibold text-slate-500">
+                                          Nomi
+                                        </th>
+                                        <th className="h-9 px-2 text-left text-[11px] font-semibold text-slate-500">
+                                          Eslatma
+                                        </th>
+                                        <th className="h-9 px-2 text-right text-[11px] font-semibold text-slate-500">
+                                          Amallar
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {gr.items.map((it, itemIndex) => (
+                                        <tr
+                                          key={it.id}
+                                          className="border-b border-slate-100 last:border-0 hover:bg-violet-50/30">
+                                          <td className="p-2 text-xs text-slate-400">
+                                            {itemIndex + 1}
+                                          </td>
+                                          <td className="p-2 font-medium text-slate-800">
+                                            {it.title}
+                                          </td>
+                                          <td className="max-w-[320px] whitespace-normal p-2 text-xs text-slate-500">
+                                            {it.note || (
+                                              <span className="text-slate-300">
+                                                —
+                                              </span>
+                                            )}
+                                          </td>
+                                          <td className="p-2 text-right">
+                                            <div className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/70 bg-slate-50/80 p-1">
+                                              <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon-xs"
+                                                className={ACTION_EDIT_CLASS}
+                                                aria-label="Bandni tahrirlash"
+                                                title="Tahrirlash"
+                                                onClick={() =>
+                                                  openEditItem(gr.id, it)
+                                                }>
+                                                <Pencil className="size-3.5" />
+                                              </Button>
+                                              <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon-xs"
+                                                className={ACTION_DELETE_CLASS}
+                                                aria-label="Bandni o‘chirish"
+                                                title="O‘chirish"
+                                                onClick={() =>
+                                                  setDeleteItemRef({
+                                                    groupId: gr.id,
+                                                    itemId: it.id,
+                                                  })
+                                                }>
+                                                <Trash2 className="size-3.5" />
+                                              </Button>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              }
+                            </div>
+                          </TableCell>
+                        </TableRow>
                       : null}
-                    </div>
-                    <div className="flex shrink-0 gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xs"
-                        className="text-slate-600"
-                        aria-label="Bandni tahrirlash"
-                        onClick={() => openEditItem(gr.id, it)}>
-                        <Pencil className="size-3.5" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xs"
-                        className="text-red-600 hover:bg-red-50"
-                        aria-label="Bandni o‘chirish"
-                        onClick={() =>
-                          setDeleteItemRef({ groupId: gr.id, itemId: it.id })
-                        }>
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            }
-          </article>
-        ))}
+                    </Fragment>
+                  );
+                })
+              }
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <Dialog open={groupDialogOpen} onOpenChange={setGroupDialogOpen}>

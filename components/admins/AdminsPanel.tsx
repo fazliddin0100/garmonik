@@ -50,6 +50,7 @@ import { cn } from '@/lib/utils';
 import {
   ADMIN_CREATION_ROLE_OPTIONS,
   defaultAdminCreationRole,
+  isCoreAdminListRole,
 } from '@/lib/admins/roles';
 import {
   adminDisplayName,
@@ -347,13 +348,18 @@ export default function AdminsPanel() {
     })();
   }, [rows, hydrated]);
 
+  const listedRows = useMemo(
+    () => rows.filter((r) => isCoreAdminListRole(r.roleName)),
+    [rows],
+  );
+
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((r) =>
+    if (!q) return listedRows;
+    return listedRows.filter((r) =>
       adminSearchHaystack(r, lastLoginByLogin).includes(q),
     );
-  }, [rows, searchQuery, lastLoginByLogin]);
+  }, [listedRows, searchQuery, lastLoginByLogin]);
 
   const sorted = useMemo(() => {
     const factor = sort.direction === 'asc' ? 1 : -1;
@@ -782,7 +788,7 @@ export default function AdminsPanel() {
         <UsersStaffHero
           eyebrow="Tizim boshqaruvi"
           title="Administratorlar"
-          subtitle={`${rows.length} ta foydalanuvchi — admin paneli va tizim sozlamalari`}
+          subtitle={`${listedRows.length} ta foydalanuvchi — Super administrator va Administrator`}
           icon={UserRoundCog}
           addLabel="Yangi foydalanuvchi"
           onAdd={openCreate}
@@ -791,7 +797,7 @@ export default function AdminsPanel() {
         <UsersStaffTableSection
           title="Foydalanuvchilar (admin) ro‘yxati"
           filteredCount={filtered.length}
-          totalCount={rows.length}
+          totalCount={listedRows.length}
           query={searchQuery}
           onQueryChange={setSearchQuery}
           searchPlaceholder="Qidirish: ism, familiya, rol, login, telefon...">
@@ -862,12 +868,12 @@ export default function AdminsPanel() {
                   description=""
                   loading
                 />
-              : rows.length === 0 ?
+              : listedRows.length === 0 ?
                 <UsersStaffEmptyRow
                   colSpan={9}
                   icon={UserRoundCog}
                   title="Hozircha yozuv yo‘q"
-                  description="Birinchi administratorni qo‘shing — login va parol bilan tizimga kira oladi."
+                  description="Birinchi administratorni qo‘shing — Super administrator yoki Administrator roli bilan."
                   addLabel="Yangi foydalanuvchi"
                   onAdd={openCreate}
                 />

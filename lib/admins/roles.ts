@@ -1,6 +1,7 @@
 import { KADRLAR_ROLE_OPTIONS } from '@/lib/kadrlar/roles';
 import {
   BUILTIN_ADMIN_SUPPORT_ROLES,
+  isSuperAdminRoleName,
   rolesMatch,
 } from '@/lib/users/admin-support-roles';
 
@@ -22,6 +23,18 @@ export const ADMIN_ROLE_VALUES = new Set(
 export function isAllowedAdminCreationRole(roleName: string): boolean {
   const t = roleName.trim();
   return ADMIN_CREATION_ROLE_OPTIONS.some((o) => o.value === t);
+}
+
+/**
+ * Administratorlar ro‘yxatida ko‘rsatiladigan rollar:
+ * Super administrator va Administrator (admin).
+ */
+export function isCoreAdminListRole(roleName: string): boolean {
+  const t = roleName.trim();
+  if (!t) return false;
+  if (isSuperAdminRoleName(t)) return true;
+  if (rolesMatch(t, 'Administrator') || rolesMatch(t, 'admin')) return true;
+  return ADMIN_CREATION_ROLE_OPTIONS.some((o) => rolesMatch(o.value, t));
 }
 
 /**

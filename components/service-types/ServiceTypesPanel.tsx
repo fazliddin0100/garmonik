@@ -389,27 +389,6 @@ export default function ServiceTypesPanel() {
         onAdd={openCreate}
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <article className="rounded-2xl border border-violet-100 bg-white/90 p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-violet-600">
-            Jami xizmatlar
-          </p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">{rows.length}</p>
-        </article>
-        <article className="rounded-2xl border border-sky-100 bg-white/90 p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-sky-600">
-            Guruhlar
-          </p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">{groupTabs.length}</p>
-        </article>
-        <article className="rounded-2xl border border-emerald-100 bg-white/90 p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
-            Lab katalogi mos
-          </p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">{matchedLabCount}</p>
-        </article>
-      </div>
-
       <section className="rounded-3xl border border-white/70 bg-white/85 p-4 shadow-lg backdrop-blur md:p-6">
         <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>

@@ -59,13 +59,6 @@ function emptyForm(): FormState {
   };
 }
 
-function isActiveStatus(status: string) {
-  const normalized = status.trim().toLowerCase();
-  return (
-    normalized === 'active' || normalized === 'aktiv' || normalized === 'актив'
-  );
-}
-
 function rowSearchHaystack(r: ContractRow): string {
   return [
     r.id,
@@ -119,7 +112,6 @@ export default function ContractsPanel() {
   const [formError, setFormError] = useState('');
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const statusActive = isActiveStatus(form.status);
   const skipFirstPersist = useRef(true);
 
   useEffect(() => {
@@ -209,13 +201,43 @@ export default function ContractsPanel() {
     setDialogOpen(true);
   }
 
+  function nextContractId(existing: ContractRow[]): string {
+    const nums = existing
+      .map((r) => Number.parseInt(r.id.replace(/\D/g, ''), 10))
+      .filter((n) => Number.isFinite(n));
+    const max = nums.length > 0 ? Math.max(...nums) : 0;
+    return String(max + 1);
+  }
+
+  function nextOrderNo(existing: ContractRow[]): string {
+    const nums = existing
+      .map((r) => Number.parseInt(String(r.orderNo).replace(/\D/g, ''), 10))
+      .filter((n) => Number.isFinite(n));
+    const max = nums.length > 0 ? Math.max(...nums) : 0;
+    return String(max + 1);
+  }
+
   function saveRow() {
+    const supplierName = form.supplierName.trim();
+    if (!supplierName) {
+      setFormError('Shartnomachi nomi majburiy.');
+      return;
+    }
+
+    const id =
+      editingId ?
+        editingId
+      : form.id.trim() || nextContractId(rows);
+
     const payload: ContractRow = {
       ...form,
-      id: form.id.trim(),
+      id,
       accountNumber: form.accountNumber.trim(),
-      supplierName: form.supplierName.trim(),
-      orderNo: form.orderNo.trim(),
+      supplierName,
+      orderNo:
+        editingId ?
+          form.orderNo.trim()
+        : form.orderNo.trim() || nextOrderNo(rows),
       contact: form.contact.trim(),
       date: form.date.trim(),
       endDate: form.endDate.trim(),
@@ -223,11 +245,6 @@ export default function ContractsPanel() {
       note: form.note.trim(),
       status: form.status.trim() || 'Актив',
     };
-
-    if (!payload.id || !payload.supplierName) {
-      setFormError("ID va Yetkazib beruvchi ro'yxati majburiy.");
-      return;
-    }
 
     const dup = rows.some(
       (r) => r.id === payload.id && (!editingId || r.id !== editingId),
@@ -293,7 +310,7 @@ export default function ContractsPanel() {
                   onSort={changeSort}
                 />
                 <Head
-                  title="Yetkazib beruvchi ro'yxati"
+                  title="Shartnomachi nomi"
                   sortKey="supplierName"
                   className="min-w-70"
                   onSort={changeSort}
@@ -394,28 +411,8 @@ export default function ContractsPanel() {
             </DialogTitle>
           </DialogHeader>
           <div className="grid gap-3 py-2 sm:grid-cols-2">
-            <div className="grid gap-1.5">
-              <Label htmlFor="c-id">ID</Label>
-              <Input
-                id="c-id"
-                value={form.id}
-                onChange={(e) => setForm((f) => ({ ...f, id: e.target.value }))}
-              />
-            </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="c-account">Hisob raqam (L/S)</Label>
-              <Input
-                id="c-account"
-                value={form.accountNumber}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, accountNumber: e.target.value }))
-                }
-              />
-            </div>
             <div className="grid gap-1.5 sm:col-span-2">
-              <Label htmlFor="c-supplier">
-                Yetkazib beruvchi ro&apos;yxati
-              </Label>
+              <Label htmlFor="c-supplier">Shartnomachi nomi</Label>
               <Input
                 id="c-supplier"
                 value={form.supplierName}
@@ -425,12 +422,12 @@ export default function ContractsPanel() {
               />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="c-order">T/r</Label>
+              <Label htmlFor="c-account">Hisob raqam (L/S)</Label>
               <Input
-                id="c-order"
-                value={form.orderNo}
+                id="c-account"
+                value={form.accountNumber}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, orderNo: e.target.value }))
+                  setForm((f) => ({ ...f, accountNumber: e.target.value }))
                 }
               />
             </div>
@@ -485,29 +482,6 @@ export default function ContractsPanel() {
                   setForm((f) => ({ ...f, note: e.target.value }))
                 }
               />
-            </div>
-            <div
-              className={`grid gap-1.5 rounded-lg border p-3 transition-colors sm:col-span-2 ${
-                statusActive ?
-                  'border-emerald-300 bg-emerald-100/70 text-emerald-900'
-                : 'border-rose-300 bg-rose-100/70 text-rose-900'
-              }`}>
-              <Label htmlFor="c-status">Holati</Label>
-              <Input
-                id="c-status"
-                value={form.status}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, status: e.target.value }))
-                }
-                className={
-                  statusActive ?
-                    'border-emerald-300 bg-white/90'
-                  : 'border-rose-300 bg-white/90'
-                }
-              />
-              <p className="text-xs">
-                {statusActive ? 'Holat: Aktiv' : 'Holat: Noaktiv'}
-              </p>
             </div>
             {formError ?
               <p className="text-sm text-red-600 sm:col-span-2">{formError}</p>

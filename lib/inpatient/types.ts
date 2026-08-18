@@ -44,6 +44,8 @@ export type InpatientAdmission = {
   id: string;
   patientId: string;
   patientName: string;
+  /** Bemor jinsi (Erkak / Ayol) — karavot bandligida ko‘rsatiladi */
+  gender?: string;
   cardNumber?: string;
   diseaseType?: string;
   contact?: string;
@@ -90,6 +92,8 @@ export function normalizeInpatientAdmission(raw: unknown): InpatientAdmission | 
     id,
     patientId,
     patientName,
+    gender:
+      typeof r.gender === 'string' && r.gender.trim() ? r.gender.trim() : undefined,
     cardNumber: typeof r.cardNumber === 'string' ? r.cardNumber : undefined,
     diseaseType: typeof r.diseaseType === 'string' ? r.diseaseType : undefined,
     contact: typeof r.contact === 'string' ? r.contact : undefined,

@@ -41,9 +41,12 @@ import {
 } from '@/lib/clinic-data/client';
 import {
   PHARMACY_CATEGORY_DEFS,
+  mergePharmacyCatalog,
+  normalizePharmacyCategory,
   type PharmacyCategoryId,
   type PharmacyProduct,
 } from '@/lib/pharmacy/types';
+import { INITIAL_PHARMACY_PRODUCTS } from '@/lib/pharmacy/initial-data';
 import {
   Boxes,
   Layers,
@@ -61,6 +64,19 @@ import { toast } from 'sonner';
 
 const ALL_TAB = 'all';
 
+const ACTION_BTN_BASE =
+  'size-8 shrink-0 rounded-lg border shadow-sm transition-all duration-150';
+
+const ACTION_EDIT_CLASS = cn(
+  ACTION_BTN_BASE,
+  'border-violet-200/80 bg-violet-50 text-violet-700 hover:border-violet-300 hover:bg-violet-100 hover:text-violet-800',
+);
+
+const ACTION_DELETE_CLASS = cn(
+  ACTION_BTN_BASE,
+  'border-rose-200/80 bg-rose-50 text-rose-600 hover:border-rose-300 hover:bg-rose-100 hover:text-rose-700',
+);
+
 type PharmacyProductForm = {
   name: string;
   unit: string;
@@ -77,7 +93,7 @@ function emptyForm(): PharmacyProductForm {
     group: '',
     type: '',
     packageCount: '',
-    category: 'diabetes',
+    category: 'infusions',
   };
 }
 
@@ -126,15 +142,27 @@ export default function PharmacyProductsPanel() {
         try {
           const next =
             await fetchClinicResource<PharmacyProduct[]>('pharmacy-products');
+          const existing = Array.isArray(next) ? next : [];
+          const { products: merged, added } = mergePharmacyCatalog(
+            existing,
+            INITIAL_PHARMACY_PRODUCTS,
+          );
           startTransition(() => {
             if (cancelled) return;
-            setProducts(Array.isArray(next) ? next : []);
+            setProducts(merged);
             setHydrated(true);
           });
+          if (added > 0) {
+            try {
+              await saveClinicResource('pharmacy-products', merged);
+            } catch {
+              /* keyingi persist effect saqlashi mumkin */
+            }
+          }
         } catch {
           startTransition(() => {
             if (cancelled) return;
-            setProducts([]);
+            setProducts([...INITIAL_PHARMACY_PRODUCTS]);
             setHydrated(true);
           });
         }
@@ -171,6 +199,14 @@ export default function PharmacyProductsPanel() {
     return tabFiltered.filter((p) => productSearchHaystack(p).includes(q));
   }, [tabFiltered, searchQuery]);
 
+  const categoryCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const p of products) {
+      map.set(p.category, (map.get(p.category) ?? 0) + 1);
+    }
+    return map;
+  }, [products]);
+
   const deleteTarget = useMemo(
     () => products.find((p) => p.id === deleteId) ?? null,
     [products, deleteId],
@@ -182,7 +218,7 @@ export default function PharmacyProductsPanel() {
     setForm({
       ...emptyForm(),
       category:
-        activeTab !== ALL_TAB ? (activeTab as PharmacyCategoryId) : 'diabetes',
+        activeTab !== ALL_TAB ? (activeTab as PharmacyCategoryId) : 'infusions',
     });
     setEditOpen(true);
   }
@@ -196,7 +232,7 @@ export default function PharmacyProductsPanel() {
       group: p.group,
       type: p.type,
       packageCount: String(p.packageCount),
-      category: p.category,
+      category: normalizePharmacyCategory(p.category),
     });
     setEditOpen(true);
   }
@@ -252,7 +288,7 @@ export default function PharmacyProductsPanel() {
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Qidirish: nom, shtrix kod, guruh, tur, holat, kategoriya…"
+            placeholder="Qidirish: nom, guruh, tur, holat, kategoriya…"
             className="h-10 rounded-xl border-violet-200/80 bg-white pl-9 shadow-sm"
             aria-label="Mahsulotlar bo‘yicha qidiruv"
             autoComplete="off"
@@ -268,25 +304,32 @@ export default function PharmacyProductsPanel() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-4">
-        <div className="overflow-x-auto pb-1">
-          <TabsList
-            variant="line"
-            className="h-auto min-h-8 w-max flex-wrap justify-start gap-1 bg-transparent p-0">
-            <TabsTrigger
-              value={ALL_TAB}
-              className="rounded-lg border border-violet-200/80 bg-white/80 px-3 py-1.5 text-xs data-[state=active]:border-violet-500 data-[state=active]:bg-violet-600 data-[state=active]:text-black">
-              Barchasi
-            </TabsTrigger>
-            {PHARMACY_CATEGORY_DEFS.map((c) => (
+        <TabsList
+          variant="line"
+          className="!h-auto !w-full flex-wrap justify-start gap-2 overflow-visible bg-transparent p-0">
+          <TabsTrigger
+            value={ALL_TAB}
+            className="group inline-flex !h-auto min-h-10 !flex-none items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:border-violet-200 hover:bg-violet-50/60 data-[state=active]:border-violet-600 data-[state=active]:bg-violet-600 data-[state=active]:!text-black data-active:!text-black data-[state=active]:shadow-md">
+            Barchasi
+            <span className="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-slate-100 px-1.5 text-[10px] font-semibold text-slate-600 group-data-[state=active]:bg-white/90 group-data-[state=active]:!text-black group-data-active:!text-black">
+              {products.length}
+            </span>
+          </TabsTrigger>
+          {PHARMACY_CATEGORY_DEFS.map((c) => {
+            const count = categoryCounts.get(c.id) ?? 0;
+            return (
               <TabsTrigger
                 key={c.id}
                 value={c.id}
-                className="rounded-lg border border-violet-200/80 bg-white/80 px-3 py-1.5 text-xs data-[state=active]:border-violet-500 data-[state=active]:bg-violet-600 data-[state=active]:text-black">
+                className="group inline-flex !h-auto min-h-10 !flex-none items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:border-violet-200 hover:bg-violet-50/60 data-[state=active]:border-violet-600 data-[state=active]:bg-violet-600 data-[state=active]:!text-black data-active:!text-black data-[state=active]:shadow-md">
                 {c.label}
+                <span className="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-slate-100 px-1.5 text-[10px] font-semibold text-slate-600 group-data-[state=active]:bg-white/90 group-data-[state=active]:!text-black group-data-active:!text-black">
+                  {count}
+                </span>
               </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
+            );
+          })}
+        </TabsList>
       </Tabs>
 
       <div className="overflow-hidden rounded-2xl border border-white/70 bg-white/75 shadow-lg backdrop-blur">
@@ -294,9 +337,6 @@ export default function PharmacyProductsPanel() {
           <Table>
             <TableHeader className="sticky top-0 z-10 bg-white/95 shadow-sm backdrop-blur-md supports-backdrop-filter:bg-white/90">
             <TableRow className="border-slate-200/80 hover:bg-transparent">
-              <TableHead className="whitespace-nowrap text-xs font-semibold text-slate-600">
-                Shtrix kod
-              </TableHead>
               <TableHead className="whitespace-nowrap text-xs font-semibold text-slate-600">
                 T/r
               </TableHead>
@@ -327,7 +367,7 @@ export default function PharmacyProductsPanel() {
             {products.length === 0 ?
               <TableRow>
                 <TableCell
-                  colSpan={9}
+                  colSpan={8}
                   className="py-10 text-center text-sm text-slate-500">
                   Hozircha mahsulot yozuvi yo&apos;q.
                 </TableCell>
@@ -335,7 +375,7 @@ export default function PharmacyProductsPanel() {
             : tabFiltered.length === 0 ?
               <TableRow>
                 <TableCell
-                  colSpan={9}
+                  colSpan={8}
                   className="py-10 text-center text-sm text-slate-500">
                   Bu kategoriyada yozuv yo&apos;q.
                 </TableCell>
@@ -343,7 +383,7 @@ export default function PharmacyProductsPanel() {
             : filtered.length === 0 ?
               <TableRow>
                 <TableCell
-                  colSpan={9}
+                  colSpan={8}
                   className="py-10 text-center text-sm text-slate-500">
                   Qidiruv bo‘yicha natija yo‘q.
                 </TableCell>
@@ -352,7 +392,6 @@ export default function PharmacyProductsPanel() {
                 <TableRow
                   key={p.id}
                   className="border-slate-100 text-sm text-slate-700">
-                  <TableCell className="text-xs">{p.barcode || '—'}</TableCell>
                   <TableCell className="tabular-nums">{p.rowNum}</TableCell>
                   <TableCell className="font-medium">{p.name}</TableCell>
                   <TableCell className="text-xs">{p.unit}</TableCell>
@@ -367,13 +406,14 @@ export default function PharmacyProductsPanel() {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
+                    <div className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/70 bg-slate-50/80 p-1">
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon-xs"
-                        className="text-slate-600 hover:bg-violet-50 hover:text-violet-700"
+                        className={ACTION_EDIT_CLASS}
                         aria-label="Tahrirlash"
+                        title="Tahrirlash"
                         onClick={() => openEdit(p)}>
                         <Pencil className="size-3.5" />
                       </Button>
@@ -381,8 +421,9 @@ export default function PharmacyProductsPanel() {
                         type="button"
                         variant="ghost"
                         size="icon-xs"
-                        className="text-red-600 hover:bg-red-50"
+                        className={ACTION_DELETE_CLASS}
                         aria-label="Ochirish"
+                        title="O‘chirish"
                         onClick={() => setDeleteId(p.id)}>
                         <Trash2 className="size-3.5" />
                       </Button>

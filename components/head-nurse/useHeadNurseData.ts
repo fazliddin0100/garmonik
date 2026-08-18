@@ -6,6 +6,7 @@ import {
   normalizeInpatientAdmission,
   type InpatientAdmission,
 } from '@/lib/inpatient/types';
+import { enrichAdmissionsWithPatientGender } from '@/lib/inpatient/gender';
 import { syncRoomsWithAdmissions } from '@/lib/inpatient/utils';
 import type { InpatientRoomPayment } from '@/lib/kassa/inpatient-room-payment';
 import { filterQueueExcludingInpatients } from '@/lib/queue/inpatient-exclusion';
@@ -39,10 +40,14 @@ export function useHeadNurseData() {
       const normalizedAdmissions = (Array.isArray(admissionsRaw) ? admissionsRaw : [])
         .map(normalizeInpatientAdmission)
         .filter((x): x is InpatientAdmission => x !== null);
+      const enrichedAdmissions = enrichAdmissionsWithPatientGender(
+        normalizedAdmissions,
+        normalizedPatients,
+      );
       const normalizedRooms = Array.isArray(roomsRaw) ? roomsRaw : [];
       setPatients(normalizedPatients);
-      setAdmissions(normalizedAdmissions);
-      setRooms(syncRoomsWithAdmissions(normalizedRooms, normalizedAdmissions));
+      setAdmissions(enrichedAdmissions);
+      setRooms(syncRoomsWithAdmissions(normalizedRooms, enrichedAdmissions));
     } catch {
       if (!options?.silent) toast.error('Ma’lumotlarni yuklab bo‘lmadi');
     } finally {

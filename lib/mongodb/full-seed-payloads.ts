@@ -6,6 +6,7 @@
 import type { ClinicResourceKey } from '@/lib/clinic-data/keys';
 import { CLINIC_RESOURCE_KEYS } from '@/lib/clinic-data/keys';
 import type { AdminUser } from '@/lib/admins/types';
+import { INITIAL_PHARMACY_PRODUCTS } from '@/lib/pharmacy/initial-data';
 import { DEFAULT_CLINIC_SETTINGS } from '@/lib/settings/types';
 
 export function getSeedAdminsJson(): AdminUser[] {
@@ -23,7 +24,7 @@ export function getFullSeedPayloads(): Record<ClinicResourceKey, unknown> {
     'service-prices': [],
     partners: [],
     contracts: [],
-    'pharmacy-products': [],
+    'pharmacy-products': structuredClone(INITIAL_PHARMACY_PRODUCTS),
     'kitchen-products': [],
     'kitchen-staff': [],
     doctors: [],

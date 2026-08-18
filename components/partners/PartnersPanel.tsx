@@ -54,13 +54,6 @@ function emptyForm(): FormState {
   };
 }
 
-function isActiveStatus(status: string) {
-  const normalized = status.trim().toLowerCase();
-  return (
-    normalized === 'active' || normalized === 'aktiv' || normalized === 'актив'
-  );
-}
-
 function rowSearchHaystack(r: Partner): string {
   return [r.id, r.name, r.stir, r.contact, r.status]
     .map((x) => String(x ?? '').toLowerCase())
@@ -79,7 +72,6 @@ export default function PartnersPanel() {
   const [formError, setFormError] = useState('');
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const statusActive = isActiveStatus(form.status);
   const skipFirstPersist = useRef(true);
 
   useEffect(() => {
@@ -169,19 +161,33 @@ export default function PartnersPanel() {
     setDialogOpen(true);
   }
 
+  function nextPartnerId(existing: Partner[]): string {
+    const nums = existing
+      .map((r) => Number.parseInt(r.id.replace(/\D/g, ''), 10))
+      .filter((n) => Number.isFinite(n));
+    const max = nums.length > 0 ? Math.max(...nums) : 0;
+    return String(max + 1);
+  }
+
   function saveRow() {
+    const name = form.name.trim();
+    if (!name) {
+      setFormError('Nom majburiy.');
+      return;
+    }
+
+    const id =
+      editingId ?
+        editingId
+      : form.id.trim() || nextPartnerId(rows);
+
     const payload: Partner = {
-      id: form.id.trim(),
-      name: form.name.trim(),
+      id,
+      name,
       stir: form.stir.trim(),
       contact: form.contact.trim(),
       status: form.status.trim() || 'Актив',
     };
-
-    if (!payload.id || !payload.name) {
-      setFormError('ID va nom majburiy.');
-      return;
-    }
 
     const dup = rows.some(
       (r) => r.id === payload.id && (!editingId || r.id !== editingId),
@@ -346,25 +352,6 @@ export default function PartnersPanel() {
           </DialogHeader>
 
           <div className="grid gap-3 py-2 sm:grid-cols-2">
-            <div className="grid gap-1.5">
-              <Label htmlFor="p-id">ID</Label>
-              <Input
-                id="p-id"
-                value={form.id}
-                onChange={(e) => setForm((f) => ({ ...f, id: e.target.value }))}
-              />
-            </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="p-stir">STIR</Label>
-              <Input
-                id="p-stir"
-                value={form.stir}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, stir: e.target.value }))
-                }
-              />
-            </div>
-
             <div className="grid gap-1.5 sm:col-span-2">
               <Label htmlFor="p-name">Nomi</Label>
               <Input
@@ -372,6 +359,16 @@ export default function PartnersPanel() {
                 value={form.name}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, name: e.target.value }))
+                }
+              />
+            </div>
+            <div className="grid gap-1.5 sm:col-span-2">
+              <Label htmlFor="p-stir">INN</Label>
+              <Input
+                id="p-stir"
+                value={form.stir}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, stir: e.target.value }))
                 }
               />
             </div>
@@ -384,30 +381,6 @@ export default function PartnersPanel() {
                   setForm((f) => ({ ...f, contact: e.target.value }))
                 }
               />
-            </div>
-
-            <div
-              className={`grid gap-1.5 rounded-lg border p-3 transition-colors sm:col-span-2 ${
-                statusActive ?
-                  'border-emerald-300 bg-emerald-100/70 text-emerald-900'
-                : 'border-rose-300 bg-rose-100/70 text-rose-900'
-              }`}>
-              <Label htmlFor="p-status">Holati</Label>
-              <Input
-                id="p-status"
-                value={form.status}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, status: e.target.value }))
-                }
-                className={
-                  statusActive ?
-                    'border-emerald-300 bg-white/90'
-                  : 'border-rose-300 bg-white/90'
-                }
-              />
-              <p className="text-xs">
-                {statusActive ? 'Holat: Aktiv' : 'Holat: Noaktiv'}
-              </p>
             </div>
 
             {formError ?

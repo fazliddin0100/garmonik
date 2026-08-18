@@ -1,6 +1,11 @@
 'use client';
 
 import type { ClinicRoom } from '@/lib/clinic-rooms/types';
+import {
+  normalizePatientGender,
+  patientGenderLabel,
+  patientGenderShort,
+} from '@/lib/inpatient/gender';
 import type { InpatientAdmission } from '@/lib/inpatient/types';
 import {
   bedLabelForIndex,
@@ -8,19 +13,21 @@ import {
 } from '@/lib/inpatient/room-beds';
 import { cn } from '@/lib/utils';
 
-const OCCUPIED_GRADIENTS = [
-  'from-rose-500 to-rose-700',
-  'from-violet-500 to-violet-700',
-  'from-fuchsia-500 to-fuchsia-700',
-  'from-pink-500 to-pink-700',
-] as const;
-
-function BedIcon({ occupied, selected }: { occupied: boolean; selected: boolean }) {
+function BedIcon({
+  occupied,
+  selected,
+  size,
+}: {
+  occupied: boolean;
+  selected: boolean;
+  size: 'sm' | 'md';
+}) {
   return (
     <svg
       viewBox="0 0 72 52"
       className={cn(
-        'h-11 w-[4.5rem] drop-shadow-sm transition-transform',
+        'drop-shadow-sm transition-transform',
+        size === 'sm' ? 'h-6 w-10' : 'h-9 w-[3.75rem]',
         selected && 'scale-105',
         !occupied && 'group-hover:scale-[1.03]',
       )}
@@ -67,6 +74,32 @@ function BedIcon({ occupied, selected }: { occupied: boolean; selected: boolean 
   );
 }
 
+function occupiedBedStyle(gender: string | undefined): {
+  shell: string;
+  badge: string;
+} {
+  const kind = normalizePatientGender(gender);
+  if (kind === 'male') {
+    return {
+      shell:
+        'border-transparent bg-linear-to-br from-sky-500 to-blue-700 text-white shadow-sm shadow-sky-500/25',
+      badge: 'bg-sky-100 text-sky-800 ring-sky-200',
+    };
+  }
+  if (kind === 'female') {
+    return {
+      shell:
+        'border-transparent bg-linear-to-br from-rose-500 to-pink-700 text-white shadow-sm shadow-rose-500/25',
+      badge: 'bg-rose-100 text-rose-800 ring-rose-200',
+    };
+  }
+  return {
+    shell:
+      'border-transparent bg-linear-to-br from-slate-500 to-slate-700 text-white shadow-sm shadow-slate-500/20',
+    badge: 'bg-slate-100 text-slate-700 ring-slate-200',
+  };
+}
+
 type RoomBedGridProps = {
   room: ClinicRoom;
   admissions: InpatientAdmission[];
@@ -88,12 +121,13 @@ export default function RoomBedGrid({
 }: RoomBedGridProps) {
   const occupancy = getBedOccupancyMap(room.id, admissions, room.capacity);
   const selectable = mode === 'select';
+  const compact = size === 'sm';
 
   return (
     <div
       className={cn(
         'flex flex-wrap',
-        size === 'sm' ? 'gap-2' : 'gap-3',
+        compact ? 'gap-1.5' : 'gap-2.5',
         className,
       )}
       role={selectable ? 'listbox' : 'group'}
@@ -103,52 +137,81 @@ export default function RoomBedGrid({
         const occupied = Boolean(admission);
         const isSelected = selectedIndex === index;
         const label = bedLabelForIndex(index);
-        const gradientClass = OCCUPIED_GRADIENTS[index % OCCUPIED_GRADIENTS.length];
+        const genderLabel = patientGenderLabel(admission?.gender);
+        const genderShort = patientGenderShort(admission?.gender);
+        const occupiedStyle = occupiedBedStyle(admission?.gender);
 
         const content = (
           <>
             <div
               className={cn(
-                'relative flex items-center justify-center rounded-xl border-2 p-2 transition-all',
+                'relative flex items-center justify-center border-2 transition-all',
+                compact ? 'rounded-lg p-1' : 'rounded-xl p-1.5',
                 occupied ?
                   cn(
-                    'border-transparent bg-linear-to-br text-white shadow-md',
-                    gradientClass,
-                    isSelected && 'ring-2 ring-white ring-offset-2 ring-offset-rose-600',
+                    occupiedStyle.shell,
+                    isSelected && 'ring-2 ring-white ring-offset-1 ring-offset-slate-600',
                   )
                 : isSelected ?
-                  'border-rose-500 bg-emerald-100 text-emerald-700 ring-2 ring-rose-400 ring-offset-2'
+                  'border-rose-500 bg-emerald-100 text-emerald-700 ring-2 ring-rose-400 ring-offset-1'
                 : 'border-emerald-300 bg-emerald-50 text-emerald-600 group-hover:border-emerald-400 group-hover:bg-emerald-100',
               )}>
-              <BedIcon occupied={occupied} selected={isSelected} />
+              <BedIcon occupied={occupied} selected={isSelected} size={size} />
+              {occupied ?
+                <span
+                  className={cn(
+                    'absolute flex items-center justify-center rounded-full bg-white font-bold text-slate-800 shadow ring-1 ring-black/5',
+                    compact ?
+                      '-right-0.5 -top-0.5 size-3.5 text-[8px]'
+                    : '-right-1 -top-1 size-4 text-[9px]',
+                  )}
+                  title={genderLabel}>
+                  {genderShort}
+                </span>
+              : null}
             </div>
             <span
               className={cn(
-                'max-w-[5.5rem] truncate text-center font-semibold',
-                size === 'sm' ? 'text-[10px]' : 'text-xs',
+                'truncate text-center font-semibold',
+                compact ? 'max-w-[3.75rem] text-[9px]' : 'max-w-[4.75rem] text-[11px]',
                 occupied ? 'text-slate-700' : 'text-emerald-800',
               )}>
               {label}
             </span>
             {occupied && admission ?
-              <span
-                className={cn(
-                  'max-w-[5.5rem] truncate text-center text-slate-600',
-                  size === 'sm' ? 'text-[9px]' : 'text-[10px]',
-                )}
-                title={admission.patientName}>
-                {admission.patientName}
-              </span>
+              <>
+                <span
+                  className={cn(
+                    'inline-flex rounded-full text-center font-semibold ring-1',
+                    compact ? 'px-1 py-px text-[8px]' : 'px-1.5 py-0.5 text-[9px]',
+                    occupiedStyle.badge,
+                  )}>
+                  {genderLabel}
+                </span>
+                <span
+                  className={cn(
+                    'truncate text-center text-slate-600',
+                    compact ? 'max-w-[3.75rem] text-[8px]' : 'max-w-[4.75rem] text-[9px]',
+                  )}
+                  title={admission.patientName}>
+                  {admission.patientName}
+                </span>
+              </>
             : !occupied ?
               <span
                 className={cn(
                   'text-center font-medium text-emerald-600',
-                  size === 'sm' ? 'text-[9px]' : 'text-[10px]',
+                  compact ? 'text-[8px]' : 'text-[9px]',
                 )}>
                 Bo‘sh
               </span>
             : null}
           </>
+        );
+
+        const cellClass = cn(
+          'flex flex-col items-center',
+          compact ? 'min-w-[3.75rem] gap-0.5' : 'min-w-[4.75rem] gap-1',
         );
 
         if (selectable && !occupied) {
@@ -160,7 +223,10 @@ export default function RoomBedGrid({
               aria-selected={isSelected}
               title={`${label} — tanlash`}
               onClick={() => onSelect?.(index)}
-              className="group flex min-w-[5.5rem] flex-col items-center gap-1 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-rose-400">
+              className={cn(
+                cellClass,
+                'group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-rose-400',
+              )}>
               {content}
             </button>
           );
@@ -172,8 +238,8 @@ export default function RoomBedGrid({
               key={index}
               role="option"
               aria-disabled
-              title={`${label} — band (${admission?.patientName ?? ''})`}
-              className="flex min-w-[5.5rem] cursor-not-allowed flex-col items-center gap-1 opacity-90">
+              title={`${label} — band (${genderLabel}: ${admission?.patientName ?? ''})`}
+              className={cn(cellClass, 'cursor-not-allowed opacity-90')}>
               {content}
             </div>
           );
@@ -184,10 +250,10 @@ export default function RoomBedGrid({
             key={index}
             title={
               occupied ?
-                `${label}: ${admission?.patientName ?? 'Band'}`
+                `${label}: ${genderLabel} · ${admission?.patientName ?? 'Band'}`
               : `${label}: bo‘sh`
             }
-            className="flex min-w-[5.5rem] flex-col items-center gap-1">
+            className={cellClass}>
             {content}
           </div>
         );
