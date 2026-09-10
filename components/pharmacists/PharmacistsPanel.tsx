@@ -204,7 +204,7 @@ export default function PharmacistsPanel() {
     setFormError('');
     try {
       const res = await fetch('/api/pharmacists/staff', {
-        method: editingId ? 'PATCH' : 'POST',
+        method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(

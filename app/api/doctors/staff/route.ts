@@ -16,6 +16,22 @@ function canAccess(admin: Awaited<ReturnType<typeof getAdminSessionFromRequest>>
   return canManageDepartmentStaff(admin, 'clinical');
 }
 
+function doctorInputFromBody(body: Record<string, unknown>) {
+  return {
+    fullName: String(body?.fullName ?? ''),
+    specialty: String(body?.specialty ?? ''),
+    department: String(body?.department ?? ''),
+    contact: body?.contact ? String(body.contact) : undefined,
+    code: body?.code ? String(body.code) : undefined,
+    roomNumber: body?.roomNumber ? String(body.roomNumber) : undefined,
+    degree: body?.degree ? String(body.degree) : undefined,
+    position: body?.position ? String(body.position) : undefined,
+    login: String(body?.login ?? ''),
+    password: body?.password ? String(body.password) : undefined,
+    isActive: body?.isActive !== false,
+  };
+}
+
 export async function GET(request: NextRequest) {
   const admin = await getAdminSessionFromRequest(request);
   if (!canAccess(admin)) {
@@ -36,20 +52,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
-    const body = await request.json();
-    const item = await createDoctorStaffAccount({
-      fullName: String(body?.fullName ?? ''),
-      specialty: String(body?.specialty ?? ''),
-      department: String(body?.department ?? ''),
-      contact: body?.contact ? String(body.contact) : undefined,
-      code: body?.code ? String(body.code) : undefined,
-      roomNumber: body?.roomNumber ? String(body.roomNumber) : undefined,
-      degree: body?.degree ? String(body.degree) : undefined,
-      position: body?.position ? String(body.position) : undefined,
-      login: String(body?.login ?? ''),
-      password: body?.password ? String(body.password) : undefined,
-      isActive: body?.isActive !== false,
-    });
+    const body = (await request.json()) as Record<string, unknown>;
+    const id = String(body?.id ?? '').trim();
+    const input = doctorInputFromBody(body);
+    const item = id
+      ? await updateDoctorStaffAccount({ id, ...input })
+      : await createDoctorStaffAccount(input);
     return NextResponse.json({ item });
   } catch (e) {
     console.error('doctors/staff POST:', e);
@@ -63,24 +71,14 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
-    const body = await request.json();
+    const body = (await request.json()) as Record<string, unknown>;
     const id = String(body?.id ?? '').trim();
     if (!id) {
       return NextResponse.json({ error: 'ID majburiy' }, { status: 400 });
     }
     const item = await updateDoctorStaffAccount({
       id,
-      fullName: String(body?.fullName ?? ''),
-      specialty: String(body?.specialty ?? ''),
-      department: String(body?.department ?? ''),
-      contact: body?.contact ? String(body.contact) : undefined,
-      code: body?.code ? String(body.code) : undefined,
-      roomNumber: body?.roomNumber ? String(body.roomNumber) : undefined,
-      degree: body?.degree ? String(body.degree) : undefined,
-      position: body?.position ? String(body.position) : undefined,
-      login: String(body?.login ?? ''),
-      password: body?.password ? String(body.password) : undefined,
-      isActive: body?.isActive !== false,
+      ...doctorInputFromBody(body),
     });
     return NextResponse.json({ item });
   } catch (e) {

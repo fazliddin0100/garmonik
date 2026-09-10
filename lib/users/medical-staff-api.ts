@@ -99,7 +99,7 @@ export async function updateMedicalStaffAccount(
   payload: MedicalStaffPayload,
 ): Promise<{ error?: string }> {
   const res = await fetch(staffUrl(kind), {
-    method: 'PATCH',
+    method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id, ...buildBody(kind, payload) }),

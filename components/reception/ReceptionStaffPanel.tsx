@@ -240,7 +240,7 @@ export default function ReceptionStaffPanel() {
     setFormError('');
     try {
       const res = await fetch('/api/reception/staff', {
-        method: editingId ? 'PATCH' : 'POST',
+        method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(

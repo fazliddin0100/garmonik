@@ -281,7 +281,7 @@ export default function DoctorsPanel() {
 
     try {
       const res = await fetch('/api/doctors/staff', {
-        method: editingId ? 'PATCH' : 'POST',
+        method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(

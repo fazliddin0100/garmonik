@@ -231,7 +231,7 @@ export default function NursesPanel() {
     setFormError('');
     try {
       const res = await fetch('/api/nurses/staff', {
-        method: editingId ? 'PATCH' : 'POST',
+        method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingId ? { id: editingId, ...payload } : payload),

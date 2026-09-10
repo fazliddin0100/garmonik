@@ -208,7 +208,7 @@ export default function LaboratoryStaffPanel() {
     setFormError('');
     try {
       const res = await fetch('/api/laboratory/staff', {
-        method: editingId ? 'PATCH' : 'POST',
+        method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingId ? { id: editingId, ...payload } : payload),

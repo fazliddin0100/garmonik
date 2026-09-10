@@ -16,6 +16,17 @@ function canAccess(admin: Awaited<ReturnType<typeof getAdminSessionFromRequest>>
   return canManageDepartmentStaff(admin, 'reception');
 }
 
+function receptionInputFromBody(body: Record<string, unknown>) {
+  return {
+    fullName: String(body?.fullName ?? ''),
+    roleName: String(body?.roleName ?? ''),
+    department: body?.department ? String(body.department) : undefined,
+    login: String(body?.login ?? ''),
+    password: body?.password ? String(body.password) : undefined,
+    email: body?.email ? String(body.email) : undefined,
+  };
+}
+
 export async function GET(request: NextRequest) {
   const admin = await getAdminSessionFromRequest(request);
   if (!canAccess(admin)) {
@@ -36,15 +47,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
-    const body = await request.json();
-    const item = await createReceptionStaffAccount({
-      fullName: String(body?.fullName ?? ''),
-      roleName: String(body?.roleName ?? ''),
-      department: body?.department ? String(body.department) : undefined,
-      login: String(body?.login ?? ''),
-      password: body?.password ? String(body.password) : undefined,
-      email: body?.email ? String(body.email) : undefined,
-    });
+    const body = (await request.json()) as Record<string, unknown>;
+    const id = String(body?.id ?? '').trim();
+    const input = receptionInputFromBody(body);
+    const item = id
+      ? await updateReceptionStaffAccount({ id, ...input })
+      : await createReceptionStaffAccount(input);
     return NextResponse.json({ item });
   } catch (e) {
     console.error('reception/staff POST:', e);
@@ -58,19 +66,14 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
-    const body = await request.json();
+    const body = (await request.json()) as Record<string, unknown>;
     const id = String(body?.id ?? '').trim();
     if (!id) {
       return NextResponse.json({ error: 'ID majburiy' }, { status: 400 });
     }
     const item = await updateReceptionStaffAccount({
       id,
-      fullName: String(body?.fullName ?? ''),
-      roleName: String(body?.roleName ?? ''),
-      department: body?.department ? String(body.department) : undefined,
-      login: String(body?.login ?? ''),
-      password: body?.password ? String(body.password) : undefined,
-      email: body?.email ? String(body.email) : undefined,
+      ...receptionInputFromBody(body),
     });
     return NextResponse.json({ item });
   } catch (e) {

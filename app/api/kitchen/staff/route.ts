@@ -16,6 +16,17 @@ function canAccess(admin: Awaited<ReturnType<typeof getAdminSessionFromRequest>>
   return canManageDepartmentStaff(admin, 'kitchen');
 }
 
+function kitchenInputFromBody(body: Record<string, unknown>) {
+  return {
+    fullName: String(body?.fullName ?? ''),
+    specialty: String(body?.specialty ?? 'Oshpaz'),
+    department: String(body?.department ?? ''),
+    login: String(body?.login ?? ''),
+    password: body?.password ? String(body.password) : undefined,
+    isActive: body?.isActive !== false,
+  };
+}
+
 export async function GET(request: NextRequest) {
   const admin = await getAdminSessionFromRequest(request);
   if (!canAccess(admin)) {
@@ -36,15 +47,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
-    const body = await request.json();
-    const item = await createKitchenStaffAccount({
-      fullName: String(body?.fullName ?? ''),
-      specialty: String(body?.specialty ?? 'Oshpaz'),
-      department: String(body?.department ?? ''),
-      login: String(body?.login ?? ''),
-      password: body?.password ? String(body.password) : undefined,
-      isActive: body?.isActive !== false,
-    });
+    const body = (await request.json()) as Record<string, unknown>;
+    const id = String(body?.id ?? '').trim();
+    const input = kitchenInputFromBody(body);
+    const item = id
+      ? await updateKitchenStaffAccount({ id, ...input })
+      : await createKitchenStaffAccount(input);
     return NextResponse.json({ item });
   } catch (e) {
     console.error('kitchen/staff POST:', e);
@@ -58,19 +66,14 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Ruxsat yo‘q' }, { status: 403 });
   }
   try {
-    const body = await request.json();
+    const body = (await request.json()) as Record<string, unknown>;
     const id = String(body?.id ?? '').trim();
     if (!id) {
       return NextResponse.json({ error: 'ID majburiy' }, { status: 400 });
     }
     const item = await updateKitchenStaffAccount({
       id,
-      fullName: String(body?.fullName ?? ''),
-      specialty: String(body?.specialty ?? 'Oshpaz'),
-      department: String(body?.department ?? ''),
-      login: String(body?.login ?? ''),
-      password: body?.password ? String(body.password) : undefined,
-      isActive: body?.isActive !== false,
+      ...kitchenInputFromBody(body),
     });
     return NextResponse.json({ item });
   } catch (e) {
