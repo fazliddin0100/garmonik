@@ -233,13 +233,13 @@ export function UsersStaffDepartmentSelect({
 }: {
   value: string;
   onChange: (departmentId: string) => void;
-  /** Masalan `laboratory` — faqat shu rolli bo‘limlar */
+  /** Masalan `laboratory` — faqat shu rolli bo‘limlar. Bo‘sh bo‘lsa Dashboard → Bo‘limlar ro‘yxati. */
   roleKey?: string;
   className?: string;
   optional?: boolean;
 }) {
   const { departments, forRoleKey, loading } = useClinicDepartments();
-  const options = roleKey ? forRoleKey(roleKey) : departments.filter((d) => d.roleKey);
+  const options = roleKey ? forRoleKey(roleKey) : departments;
 
   return (
     <Select
@@ -255,7 +255,7 @@ export function UsersStaffDepartmentSelect({
           }
         />
       </SelectTrigger>
-      <SelectContent className="max-h-72">
+      <SelectContent position="popper" className="z-[200] max-h-72">
         {options.length === 0 ?
           <div className="px-2 py-3 text-xs text-slate-500">
             Mos bo‘lim yo‘q. Avval Dashboard → Bo‘limlar ro‘yxatida yarating.

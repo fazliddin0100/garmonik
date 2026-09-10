@@ -74,7 +74,7 @@ public class RawPrinterHelper {
   [DllImport("winspool.drv", SetLastError = true)]
   public static extern bool WritePrinter(IntPtr hPrinter, byte[] pBytes, int dwCount, out int dwWritten);
 
-  public static string SendBytes(string printerName, byte[] bytes) {
+  public static string SendOnce(string printerName, byte[] bytes, string datatype) {
     IntPtr hPrinter;
     if (!OpenPrinter(printerName, out hPrinter, IntPtr.Zero)) {
       return "OpenPrinter: " + Marshal.GetLastWin32Error();
@@ -84,11 +84,11 @@ public class RawPrinterHelper {
       var di = new DOCINFO {
         pDocName = "Garmonik Chek",
         pOutputFile = null,
-        pDatatype = "RAW"
+        pDatatype = datatype
       };
 
       if (!StartDocPrinter(hPrinter, 1, ref di)) {
-        return "StartDocPrinter: " + Marshal.GetLastWin32Error();
+        return "StartDocPrinter/" + (datatype == null ? "default" : datatype) + ": " + Marshal.GetLastWin32Error();
       }
 
       try {
@@ -101,7 +101,7 @@ public class RawPrinterHelper {
           return "WritePrinter: " + Marshal.GetLastWin32Error();
         }
 
-        if (written -ne bytes.Length) {
+        if (written != bytes.Length) {
           return "WritePrinter: faqat " + written + " / " + bytes.Length + " bayt yozildi";
         }
 
@@ -113,6 +113,17 @@ public class RawPrinterHelper {
     } finally {
       ClosePrinter(hPrinter);
     }
+  }
+
+  public static string SendBytes(string printerName, byte[] bytes) {
+    string[] types = new string[] { "RAW", "TEXT", null };
+    string last = "noma'lum";
+    for (int i = 0; i < types.Length; i++) {
+      string err = SendOnce(printerName, bytes, types[i]);
+      if (err == null) return null;
+      last = err;
+    }
+    return last;
   }
 }
 "@

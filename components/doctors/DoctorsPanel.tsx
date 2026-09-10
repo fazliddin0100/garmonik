@@ -594,7 +594,6 @@ export default function DoctorsPanel() {
                       </Label>
                       <UsersStaffDepartmentSelect
                         value={form.department}
-                        roleKey="shifokor"
                         className={doctorFieldInputClass}
                         onChange={(department) =>
                           setForm((f) => ({ ...f, department }))

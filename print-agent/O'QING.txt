@@ -3,9 +3,9 @@ GARMONIK KASSA — Chek chop etish (har bir kompyuter uchun)
 === TAVSIYA (terminal ochiq qolmaydi) ===
 
 1. Node.js LTS o'rnating: https://nodejs.org  (v18+ tavsiya)
-2. config.txt ni oching:
-     PRINTER_NAME=XP-80C
-   (Get-Printer dagi ANIQ nom, copy/копия emas)
+2. config.txt ni oching — Windows dagi ANIQ nom (Get-Printer):
+     PRINTER_NAME=Xprinter XP-80
+   (XP-80C emas, agar printer ro'yxatida Xprinter XP-80 bo'lsa)
 3. Bir marta: install-autostart.bat
    → Kompyuter yoqilganda agent avtomatik fon rejimida ishlaydi
 
@@ -18,13 +18,13 @@ agent.log          — xato yozuvlari
 === MUAMMOLAR ===
 
 Printer "Error" holati:
-  - control printers → XP-80C navbati → Cancel All Documents
+  - control printers → Xprinter XP-80 navbati → Cancel All Documents
   - USB qayta ulang, printerni o'chirib-yoqing
-  - Settings → XP-80C → Print test page
+  - Settings → Xprinter XP-80 → Print test page
 
 "(copy 2)" yoki noto'g'ri printer:
-  - config.txt → PRINTER_NAME=XP-80C (aniq nom)
-  - Dublikat printerni Windows dan o'chiring
+  - config.txt → PRINTER_NAME=Xprinter XP-80 (Windows dagi aniq nom)
+  - Dublikat / eski XP-80C printerni Windows dan o'chiring
 
 Tarmoq printer (Ethernet, IP 192.168.x.x):
   - USE_TCP=1

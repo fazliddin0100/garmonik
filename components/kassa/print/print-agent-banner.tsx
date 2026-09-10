@@ -61,7 +61,7 @@ export function PrintAgentBanner({
             </p>
             <p className="text-xs text-amber-800">
               <code className="rounded bg-amber-100 px-1">print-agent/config.txt</code> →{" "}
-              <code className="rounded bg-amber-100 px-1">PRINTER_NAME=XP-80C</code>
+              <code className="rounded bg-amber-100 px-1">PRINTER_NAME=Xprinter XP-80</code>
             </p>
           </div>
         </div>

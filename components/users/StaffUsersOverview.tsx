@@ -91,6 +91,9 @@ import {
   HeartPulse,
   Laptop,
   Loader2,
+  Copy,
+  Eye,
+  EyeOff,
   Pencil,
   Pill,
   Plus,
@@ -157,7 +160,7 @@ function emptyCreateForm(): CreateForm {
     age: 25,
     username: '',
     phone: '',
-    password: '',
+    password: generateStaffPassword(),
   };
 }
 
@@ -329,6 +332,12 @@ export default function StaffUsersOverview() {
   const [createForm, setCreateForm] = useState<CreateForm>(emptyCreateForm);
   const [createError, setCreateError] = useState('');
   const [createSaving, setCreateSaving] = useState(false);
+  const [showCreatePassword, setShowCreatePassword] = useState(true);
+  const [savedCredentials, setSavedCredentials] = useState<{
+    login: string;
+    password: string;
+    roleName: string;
+  } | null>(null);
   const [deleteMember, setDeleteMember] = useState<StaffTeamMember | null>(null);
   const [deleteSaving, setDeleteSaving] = useState(false);
 
@@ -557,6 +566,7 @@ export default function StaffUsersOverview() {
     setEditingLogin('');
     setCreateRoleLabel(team.roleLabel);
     setCreateForm(emptyCreateForm());
+    setShowCreatePassword(true);
     setCreateError('');
     setCreateOpen(true);
   }
@@ -646,6 +656,7 @@ export default function StaffUsersOverview() {
       phone: admin?.phone || member.contact || '',
       password: '',
     });
+    setShowCreatePassword(false);
     setCreateError('');
     setCreateOpen(true);
   }
@@ -771,7 +782,7 @@ export default function StaffUsersOverview() {
     const age = Math.round(Number(createForm.age));
     const loginInput = createForm.username.trim();
     const phone = createForm.phone.trim();
-    const password = createForm.password;
+    const password = createForm.password.trim();
     const roleName = createRoleLabel.trim();
     const isEdit = Boolean(editingMemberId || editingLogin);
 
@@ -945,8 +956,13 @@ export default function StaffUsersOverview() {
       setAdmins(nextAdmins);
       refreshSelectedTeamMembers(nextAdmins);
 
-      toast.success('Xodim qo‘shildi');
       setCreateOpen(false);
+      setSavedCredentials({
+        login: resolvedLogin,
+        password,
+        roleName: nextAdmin.roleName,
+      });
+      toast.success('Xodim qo‘shildi — login va parolni saqlab qo‘ying');
     } catch {
       setCreateError('Tarmoq xatoligi');
       toast.error('Tarmoq xatoligi');
@@ -1352,6 +1368,8 @@ export default function StaffUsersOverview() {
               <Input
                 id="sa-login"
                 className="font-mono"
+                autoComplete="off"
+                name="staff-portal-login"
                 value={createForm.username}
                 onChange={(e) =>
                   setCreateForm((f) => ({ ...f, username: e.target.value }))
@@ -1364,19 +1382,55 @@ export default function StaffUsersOverview() {
                   'Yangi parol (ixtiyoriy)'
                 : 'Parol'}
               </Label>
-              <Input
-                id="sa-pass"
-                type="password"
-                placeholder={
-                  editingMemberId || editingLogin ?
-                    'O‘zgartirmasangiz bo‘sh qoldiring'
-                  : undefined
-                }
-                value={createForm.password}
-                onChange={(e) =>
-                  setCreateForm((f) => ({ ...f, password: e.target.value }))
-                }
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="sa-pass"
+                  type={showCreatePassword ? 'text' : 'password'}
+                  className="font-mono"
+                  autoComplete="new-password"
+                  name="staff-portal-password"
+                  placeholder={
+                    editingMemberId || editingLogin ?
+                      'O‘zgartirmasangiz bo‘sh qoldiring'
+                    : undefined
+                  }
+                  value={createForm.password}
+                  onChange={(e) =>
+                    setCreateForm((f) => ({ ...f, password: e.target.value }))
+                  }
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0"
+                  onClick={() => setShowCreatePassword((v) => !v)}
+                  aria-label={showCreatePassword ? 'Parolni yashirish' : 'Parolni ko‘rsatish'}>
+                  {showCreatePassword ?
+                    <EyeOff className="size-4" />
+                  : <Eye className="size-4" />}
+                </Button>
+                {!editingMemberId && !editingLogin ?
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="shrink-0"
+                    onClick={() =>
+                      setCreateForm((f) => ({
+                        ...f,
+                        password: generateStaffPassword(),
+                      }))
+                    }>
+                    Yangilash
+                  </Button>
+                : null}
+              </div>
+              {!editingMemberId && !editingLogin ?
+                <p className="text-xs text-slate-500">
+                  Parol avtomatik yaratildi. Kirishda shu login/paroldan foydalaning
+                  (`/auth/login`).
+                </p>
+              : null}
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label>Telefon</Label>
@@ -1414,6 +1468,82 @@ export default function StaffUsersOverview() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={!!savedCredentials}
+        onOpenChange={(open) => {
+          if (!open) setSavedCredentials(null);
+        }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xodim bazaga yozildi</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm text-slate-600">
+                <p>
+                  {savedCredentials?.roleName} hisobi yaratildi. Kirish:{' '}
+                  <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-slate-800">
+                    /auth/login
+                  </code>
+                </p>
+                <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span>
+                      Login:{' '}
+                      <code className="font-mono font-semibold text-slate-900">
+                        {savedCredentials?.login}
+                      </code>
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => {
+                        void navigator.clipboard.writeText(
+                          savedCredentials?.login || '',
+                        );
+                        toast.success('Login nusxalandi');
+                      }}>
+                      <Copy className="mr-1 size-3.5" />
+                      Nusxa
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span>
+                      Parol:{' '}
+                      <code className="font-mono font-semibold text-slate-900">
+                        {savedCredentials?.password}
+                      </code>
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => {
+                        void navigator.clipboard.writeText(
+                          savedCredentials?.password || '',
+                        );
+                        toast.success('Parol nusxalandi');
+                      }}>
+                      <Copy className="mr-1 size-3.5" />
+                      Nusxa
+                    </Button>
+                  </div>
+                </div>
+                <p className="text-xs text-amber-700">
+                  Parolni hozir yozib oling — keyin ro‘yxatda ko‘rinmaydi.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setSavedCredentials(null)}>
+              Tushundim
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog
         open={medicalCreateOpen}

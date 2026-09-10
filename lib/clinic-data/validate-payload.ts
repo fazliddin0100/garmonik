@@ -8,6 +8,7 @@ const SERVICE_PRICE_GROUPS: ReadonlySet<ServiceGroupKey> = new Set([
   'pullik-xizmat',
   'shifokor-korigi',
   'uzi',
+  'boshqa',
 ]);
 
 const MAX_ARRAY_LEN = 50_000;

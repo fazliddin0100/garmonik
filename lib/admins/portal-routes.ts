@@ -308,6 +308,7 @@ export function adminCanAccessClinicResource(
     return (
       key === 'contracts' ||
       key === 'service-prices' ||
+      key === 'service-types' ||
       key === 'patients' ||
       key === 'pharmacy-products'
     );
@@ -322,7 +323,8 @@ export function adminCanAccessClinicResource(
     return (
       key === 'patients' ||
       key === 'queue' ||
-      key === 'service-prices'
+      key === 'service-prices' ||
+      key === 'service-types'
     );
   }
   if (rg === 'laboratory') {
@@ -330,6 +332,7 @@ export function adminCanAccessClinicResource(
       key === 'patients' ||
       key === 'queue' ||
       key === 'service-prices' ||
+      key === 'service-types' ||
       key === 'lab-catalog'
     );
   }

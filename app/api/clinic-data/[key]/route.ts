@@ -32,6 +32,7 @@ function canAccessResource(
         key === 'lab-catalog' ||
         key === 'queue' ||
         key === 'service-prices' ||
+        key === 'service-types' ||
         (key === 'inpatient-admissions' &&
           (session.role === 'doctor' || session.role === 'shifokor')) ||
         (key === 'pharmacy-products' &&

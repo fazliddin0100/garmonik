@@ -4,7 +4,8 @@ export type ServiceGroupKey =
   | 'laboratoriya'
   | 'pullik-xizmat'
   | 'shifokor-korigi'
-  | 'uzi';
+  | 'uzi'
+  | 'boshqa';
 
 export type ServicePriceRow = {
   id: string;
@@ -55,4 +56,5 @@ export const SERVICE_GROUPS: { key: ServiceGroupKey; label: string }[] = [
   { key: 'pullik-xizmat', label: 'Pullik xizmatlar' },
   { key: 'shifokor-korigi', label: "Shifokor ko'rigi" },
   { key: 'uzi', label: 'UZI' },
+  { key: 'boshqa', label: 'Boshqa' },
 ];

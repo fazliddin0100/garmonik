@@ -65,7 +65,7 @@ export async function PATCH(request: NextRequest) {
     const newLogin =
       typeof body.newLogin === 'string' ? body.newLogin.trim().toLowerCase() : '';
     const password =
-      typeof body.password === 'string' ? body.password : '';
+      typeof body.password === 'string' ? body.password.trim() : '';
 
     if (phone !== undefined && phone && !PHONE_UZ.test(phone)) {
       return NextResponse.json(

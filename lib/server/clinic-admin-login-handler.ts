@@ -3,7 +3,10 @@ import {
   adminRoleLabelToJwtRouteGroup,
   isAdminJwtRouteGroup,
 } from '@/lib/admins/portal-routes';
-import { authenticatePortalCredentials } from '@/lib/auth/portal-session';
+import {
+  authenticatePortalCredentials,
+  updatePortalAuthPassword,
+} from '@/lib/auth/portal-session';
 import { attachSessionCookie } from '@/lib/auth/session-cookie';
 import { SUPERADMIN_LOGIN_REDIRECT } from '@/lib/auth/superadmin';
 import {
@@ -12,13 +15,17 @@ import {
   updateProfileLastLogin,
 } from '@/lib/db/portal-profiles';
 import {
+  authenticateKassaUser,
   ensureKassaPortalUser,
   isKassaPortalRole,
   isKassaPortalRouteGroup,
   kassaHomePathForBridgeRole,
   resolveKassaBridgeRole,
 } from '@/lib/kassa/portal-cashier-bridge';
-import { sessionUserToVerifiedSession } from '@/lib/kassa/unified-session';
+import {
+  sessionUserToVerifiedSession,
+  type SessionUser,
+} from '@/lib/kassa/unified-session';
 import {
   authRateLimitKey,
   checkAuthRateLimit,
@@ -31,6 +38,43 @@ import { NextRequest, NextResponse } from 'next/server';
 
 function loginEquals(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+function isKassaPortalProfile(profile: {
+  role_label?: string | null;
+  admin_route_group?: string | null;
+}): boolean {
+  return (
+    isKassaPortalRole(profile.role_label) ||
+    isKassaPortalRouteGroup(profile.admin_route_group)
+  );
+}
+
+async function kassaSessionResponse(
+  request: NextRequest,
+  logTarget: string,
+  rateKey: string,
+  kassaUser: SessionUser,
+): Promise<NextResponse> {
+  clearAuthRateLimit(rateKey);
+  const kassaSession = sessionUserToVerifiedSession(kassaUser);
+  const jsonRes = NextResponse.json(
+    {
+      message: 'Muvaffaqiyatli kirildi',
+      redirect: kassaHomePathForBridgeRole(
+        kassaUser.role === 'ADMIN' ? 'ADMIN' : 'CASHIER',
+      ),
+    },
+    { status: 200 },
+  );
+  await attachSessionCookie(jsonRes, kassaSession);
+  await logSecurityEvent({
+    request,
+    session: kassaSession,
+    eventType: 'admin_login_success',
+    target: logTarget,
+  });
+  return jsonRes;
 }
 
 /** Barcha adminlar — PostgreSQL `app_users` + JWT sessiya. */
@@ -70,9 +114,15 @@ export async function handleClinicAdminLogin(
       );
     }
 
+    const passwordStr =
+      typeof password === 'string' ? password.trim() : '';
     const profile = await findAdminProfileByLogin(loginNorm);
 
     if (!profile) {
+      const kassaOnly = await authenticateKassaUser(loginTrim, passwordStr);
+      if (kassaOnly) {
+        return kassaSessionResponse(request, logTarget, rateKey, kassaOnly);
+      }
       const fail = recordAuthFailure(rateKey);
       await logSecurityEvent({
         request,
@@ -87,10 +137,24 @@ export async function handleClinicAdminLogin(
       );
     }
 
-    const passwordStr = typeof password === 'string' ? password : '';
     const verified = await authenticatePortalCredentials(profile, passwordStr);
 
     if (!verified || verified.kind !== 'admin') {
+      if (isKassaPortalProfile(profile)) {
+        const kassaUser = await authenticateKassaUser(
+          profile.staff_login || loginTrim,
+          passwordStr,
+        );
+        if (kassaUser) {
+          try {
+            await updatePortalAuthPassword(profile.user_id, passwordStr);
+          } catch {
+            /* kassa session still valid */
+          }
+          await updateProfileLastLogin(profile.user_id);
+          return kassaSessionResponse(request, logTarget, rateKey, kassaUser);
+        }
+      }
       const fail = recordAuthFailure(rateKey);
       await logSecurityEvent({
         request,

@@ -52,9 +52,9 @@ async function detectWindowsPrinterName() {
         "Bypass",
         "-Command",
         "$exclude = '(copy|копия|OneNote|PDF|Fax|XPS|Microsoft|Send to|Wondershare|FineReader|Canon|EPSON)'; " +
-          "Get-Printer | Where-Object { $_.Name -notmatch $exclude -and $_.Name -match 'XP|XPrinter|POS|E200|Receipt|Chek|80C|80' } " +
+          "Get-Printer | Where-Object { $_.Name -notmatch $exclude -and $_.Name -match 'XP|XPrinter|Xprinter|POS|E200|Receipt|Chek|80C|80' } " +
           "| Sort-Object @{ Expression = { " +
-          "  $s = 0; if ($_.Name -eq 'XP-80C') { $s += 120 }; if ($_.Name -match '^XP-80') { $s += 80 }; " +
+          "  $s = 0; if ($_.Name -match 'Xprinter XP-80') { $s += 150 }; if ($_.Name -eq 'XP-80C') { $s += 70 }; if ($_.Name -match '^XP-80') { $s += 50 }; " +
           "  if ([string]$_.PrinterStatus -eq 'Normal') { $s += 60 }; if ([string]$_.PrinterStatus -eq 'Error') { $s -= 40 }; -$s " +
           "} } | Select-Object -First 1 -ExpandProperty Name",
       ],

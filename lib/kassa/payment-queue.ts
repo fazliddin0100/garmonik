@@ -47,6 +47,8 @@ import {
 import type { LabCategory } from '@/lib/laboratory/catalog-types';
 
 import type { ServicePriceRow } from '@/lib/services/pricing-data';
+import type { ServiceTypeRow } from '@/lib/service-types/types';
+import { serviceTypesToPriceRows } from '@/lib/services/service-types-to-prices';
 
 import { getDefaultClinicId } from '@/lib/server/default-clinic';
 
@@ -120,11 +122,18 @@ async function readClinicalPatients(clinicId: string): Promise<Map<string, Patie
 
 
 async function readPriceRows(clinicId: string): Promise<ServicePriceRow[]> {
-
-  const payload = await readClinicResourcePayload(clinicId, 'service-prices');
-
-  return Array.isArray(payload) ? (payload as ServicePriceRow[]) : [];
-
+  const [pricesPayload, typesPayload] = await Promise.all([
+    readClinicResourcePayload(clinicId, 'service-prices'),
+    readClinicResourcePayload(clinicId, 'service-types'),
+  ]);
+  const stored = Array.isArray(pricesPayload) ? (pricesPayload as ServicePriceRow[]) : [];
+  const types = Array.isArray(typesPayload) ? (typesPayload as ServiceTypeRow[]) : [];
+  const fromTypes = serviceTypesToPriceRows(types);
+  const byKey = new Map(stored.map((row) => [`${row.id}-${row.code}`, row] as const));
+  for (const row of fromTypes) {
+    byKey.set(`${row.id}-${row.code}`, row);
+  }
+  return [...byKey.values()];
 }
 
 

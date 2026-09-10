@@ -42,8 +42,8 @@ export function useClinicDepartments() {
 
   function forRoleKey(roleKey: string): DepartmentGroup[] {
     const key = roleKey.trim();
-    if (!key) return departments.filter((d) => d.roleKey);
-    return departments.filter((d) => d.roleKey === key);
+    if (!key) return departments;
+    return departments.filter((d) => !d.roleKey || d.roleKey === key);
   }
 
   return { departments, byId, loading, labelFor, forRoleKey };

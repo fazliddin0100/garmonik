@@ -1,8 +1,9 @@
 # Garmonik Kassa — printer sozlamalari (har bir kassir kompyuterida)
 #
-# Windows printer nomi — Get-Printer natijasidagi ANIQ nom (masalan XP-80C)
+# Windows printer nomi — Get-Printer dagi ANIQ nom (bo'shliqlar ham yoziladi)
+# Masalan: Xprinter XP-80   yoki   XP-80C
 # Bo'sh qoldirsangiz agent avtomatik qidiradi (copy/копия nusxalarini o'tkazib yuboradi)
-PRINTER_NAME=XP-80C
+PRINTER_NAME=Xprinter XP-80
 
 # Agent porti
 AGENT_PORT=17888

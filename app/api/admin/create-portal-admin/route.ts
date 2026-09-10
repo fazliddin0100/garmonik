@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
       : NaN;
     const roleName = typeof body.roleName === 'string' ? body.roleName.trim() : '';
     const loginRaw = typeof body.login === 'string' ? body.login.trim() : '';
-    const password = typeof body.password === 'string' ? body.password : '';
+    const password =
+      typeof body.password === 'string' ? body.password.trim() : '';
     const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
     const department =
       typeof body.department === 'string' ? body.department.trim() : '';

@@ -187,32 +187,25 @@ export function useLogin() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          const loginNorm = data.login.trim().toLowerCase();
-          if (
-            loginNorm === 'admin@klinika' ||
-            loginNorm === 'kassir1' ||
-            loginNorm.endsWith('@klinika')
-          ) {
-            const kr = await fetch('/api/kassa/auth/login', {
-              method: 'POST',
-              credentials: 'include',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                login: data.login,
-                password: data.password,
-              }),
-            });
-            const kassaJson = (await kr.json().catch(() => ({}))) as {
-              role?: string;
-              error?: string;
-            };
-            if (kr.ok) {
-              toast.success('Kassa tizimiga muvaffaqiyatli kirdingiz!');
-              navigateAfterLogin(
-                kassaJson.role === 'ADMIN' ? '/kassa-admin' : '/kassa',
-              );
-              return true;
-            }
+          const kr = await fetch('/api/kassa/auth/login', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              login: data.login,
+              password: data.password,
+            }),
+          });
+          const kassaJson = (await kr.json().catch(() => ({}))) as {
+            role?: string;
+            error?: string;
+          };
+          if (kr.ok) {
+            toast.success('Kassa tizimiga muvaffaqiyatli kirdingiz!');
+            navigateAfterLogin(
+              kassaJson.role === 'ADMIN' ? '/kassa-admin' : '/kassa',
+            );
+            return true;
           }
 
           const sr = await fetch('/api/auth/staff-login', {

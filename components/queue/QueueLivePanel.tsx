@@ -45,7 +45,6 @@ import { suggestedCatalogRefs } from '@/lib/laboratory/catalog-suggestions';
 import {
   catalogRef,
   findCatalogItem,
-  parseCatalogRef,
   type LabCategory,
 } from '@/lib/laboratory/catalog-types';
 import {
@@ -69,14 +68,17 @@ import { suggestedLabServiceKeys } from '@/lib/queue/suggested-labs';
 import { healQueueRows, getQueuePatientLocationMeta } from '@/lib/queue/patient-location';
 import { QUEUE_PER_PAGE, normalizeQueueRow, type QueueRow } from '@/lib/queue/types';
 import type { DoctorQueueItem } from '@/lib/queue/doctor-queue';
+import type { ServiceTypeRow } from '@/lib/service-types/types';
 import {
   filterLaboratoryPriceRows,
-  filterQueueOrderablePriceRows,
-  isQueueOrderablePriceRow,
   priceRowByServiceKey,
-  servicePriceKey,
   type ServicePriceRow,
 } from '@/lib/services/pricing-data';
+import {
+  serviceTypeByOrderKey,
+  serviceTypesToPriceRows,
+  priceRowsToServiceTypeRows,
+} from '@/lib/services/service-types-to-prices';
 import {
   Activity,
   ArrowLeft,
@@ -94,6 +96,7 @@ import Link from 'next/link';
 import { startTransition, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import LaboratoryCatalogEditor from './LaboratoryCatalogEditor';
+import QueueServiceTypesPicker from './QueueServiceTypesPicker';
 
 const normalizeStoredPatient = normalizePatientRow;
 
@@ -168,6 +171,7 @@ export default function QueueLivePanel({
   const [labCatalog, setLabCatalog] = useState<LabCategory[]>([]);
   const [catalogEditorOpen, setCatalogEditorOpen] = useState(false);
   const [priceRows, setPriceRows] = useState<ServicePriceRow[]>([]);
+  const [serviceTypes, setServiceTypes] = useState<ServiceTypeRow[]>([]);
   const [doctorNameById, setDoctorNameById] = useState<Record<string, string>>(
     {},
   );
@@ -185,11 +189,6 @@ export default function QueueLivePanel({
 
   const laboratoryPriceRows = useMemo(
     () => filterLaboratoryPriceRows(priceRows),
-    [priceRows],
-  );
-
-  const queueOrderablePriceRows = useMemo(
-    () => filterQueueOrderablePriceRows(priceRows),
     [priceRows],
   );
 
@@ -320,7 +319,7 @@ export default function QueueLivePanel({
     queueMicrotask(() => {
       void (async () => {
         try {
-          const [patientsRes, parsedQueue, parsedPrices, jsonPatientsRaw, admissionsRaw] =
+          const [patientsRes, parsedQueue, parsedPrices, parsedServiceTypes, jsonPatientsRaw, admissionsRaw] =
             await Promise.all([
             fetch('/api/patients', {
               credentials: 'include',
@@ -330,6 +329,11 @@ export default function QueueLivePanel({
             listOnly ?
               Promise.resolve([] as ServicePriceRow[])
             : fetchClinicResource<ServicePriceRow[]>('service-prices').catch(
+                () => [],
+              ),
+            listOnly ?
+              Promise.resolve([] as ServiceTypeRow[])
+            : fetchClinicResource<ServiceTypeRow[]>('service-types').catch(
                 () => [],
               ),
             fetchClinicResource<PatientRow[]>('patients').catch(() => []),
@@ -404,7 +408,20 @@ export default function QueueLivePanel({
             void saveClinicResource('queue', healedQueue);
           }
           const queueToShow = healedQueue;
-          const prices = Array.isArray(parsedPrices) ? parsedPrices : [];
+          const storedTypes = Array.isArray(parsedServiceTypes) ? parsedServiceTypes : [];
+          const storedPrices = Array.isArray(parsedPrices) ? parsedPrices : [];
+          const fromTypes = serviceTypesToPriceRows(storedTypes);
+          const byKey = new Map(
+            storedPrices.map((row) => [`${row.id}-${row.code}`, row] as const),
+          );
+          for (const row of fromTypes) {
+            byKey.set(`${row.id}-${row.code}`, row);
+          }
+          const prices = [...byKey.values()];
+          const types =
+            storedTypes.length > 0 ?
+              storedTypes
+            : priceRowsToServiceTypeRows(prices);
           startTransition(() => {
             if (cancelled) return;
             setPatients(next);
@@ -413,6 +430,7 @@ export default function QueueLivePanel({
             setPatientCardNoById(cardNoMap);
             setApiPatientsById(apiById);
             setPriceRows(prices);
+            setServiceTypes(types);
             setHydrated(true);
           });
         } catch {
@@ -423,6 +441,7 @@ export default function QueueLivePanel({
             setPatientCardNoById({});
             setApiPatientsById({});
             setPriceRows([]);
+            setServiceTypes([]);
             setHydrated(true);
           });
         }
@@ -658,11 +677,12 @@ export default function QueueLivePanel({
     setLabSearch('');
     const suggestedCat = suggestedCatalogRefs(p.diseaseType, labCatalog);
     const labRows = filterLaboratoryPriceRows(priceRows);
-    const orderableRows = filterQueueOrderablePriceRows(priceRows);
     const suggestedPricing = suggestedLabServiceKeys(p.diseaseType, labRows);
     const prevLabKeys =
       p.previousPaidServiceKeys?.filter(
-        (k) => priceRowByServiceKey(k, orderableRows) !== undefined,
+        (k) =>
+          priceRowByServiceKey(k, priceRows) !== undefined ||
+          serviceTypeByOrderKey(k, serviceTypes) !== undefined,
       ) ?? [];
     const saved = p.orderedLaboratoryKeys ?? [];
     if (saved.length > 0) {
@@ -726,8 +746,8 @@ export default function QueueLivePanel({
         .filter((k) => {
           if (k.startsWith('cat:'))
             return findCatalogItem(labCatalog, k) !== null;
-          const row = priceRowByServiceKey(k, priceRows);
-          return row !== undefined && isQueueOrderablePriceRow(row);
+          if (priceRowByServiceKey(k, priceRows)) return true;
+          return serviceTypeByOrderKey(k, serviceTypes) !== undefined;
         })
         .sort((a, b) => a.localeCompare(b, 'uz'));
       const queueRow = queueData.find((q) => q.patientId === id);
@@ -839,11 +859,12 @@ export default function QueueLivePanel({
     if (!activePatient?.previousPaidServiceKeys?.length) return [];
     return activePatient.previousPaidServiceKeys.map((k) => {
       const row = priceRowByServiceKey(k, priceRows);
-      return row ?
-          { key: k, label: `${row.groupLabel}: ${row.name}` }
-        : { key: k, label: k };
+      if (row) return { key: k, label: `${row.groupLabel}: ${row.name}` };
+      const st = serviceTypeByOrderKey(k, serviceTypes);
+      if (st) return { key: k, label: `${st.group}: ${st.name}` };
+      return { key: k, label: k };
     });
-  }, [activePatient, priceRows]);
+  }, [activePatient, priceRows, serviceTypes]);
 
   const suggestedCatalogRefList = useMemo(
     () =>
@@ -852,36 +873,6 @@ export default function QueueLivePanel({
       : [],
     [activePatient, labCatalog],
   );
-
-  const suggestedPricingKeys = useMemo(
-    () =>
-      activePatient ?
-        suggestedLabServiceKeys(activePatient.diseaseType, laboratoryPriceRows)
-      : [],
-    [activePatient, laboratoryPriceRows],
-  );
-
-  const selectedLabsPanelBreakdown = useMemo(() => {
-    const byCat = new Map<
-      string,
-      { category: LabCategory; selectedItemIds: Set<string> }
-    >();
-    for (const key of selectedLabKeys) {
-      const p = parseCatalogRef(key);
-      if (!p) continue;
-      const category = labCatalog.find((c) => c.id === p.categoryId);
-      if (!category) continue;
-      const ex = byCat.get(category.id) ?? {
-        category,
-        selectedItemIds: new Set<string>(),
-      };
-      ex.selectedItemIds.add(p.itemId);
-      byCat.set(category.id, ex);
-    }
-    return [...byCat.values()].sort((a, b) =>
-      a.category.title.localeCompare(b.category.title, 'uz'),
-    );
-  }, [selectedLabKeys, labCatalog]);
 
   return (
     <div className="space-y-5 mt-3">
@@ -1227,196 +1218,14 @@ export default function QueueLivePanel({
                   </div>
                 </div>
 
-                {(
-                  selectedLabsPanelBreakdown.length > 0 ||
-                  queueOrderablePriceRows.length > 0
-                ) ?
-                  <div className="space-y-3 rounded-2xl border border-violet-200/70 bg-violet-50/40 p-4">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        Buyurtma qilingan tahlillar va blanka tarkibi
-                      </p>
-                      <p className="mt-1 text-xs text-slate-600">
-                        To‘liq blanka: barcha parametrlar ko‘rinadi. Belgilang —
-                        bemor qaysi tahlil / parametrlarni topshirishini
-                        aniqlaysiz. Pastdagi ro‘yxat bilan bir xil tanlov
-                        saqlanadi.
-                      </p>
-                    </div>
-                    {selectedLabsPanelBreakdown.length > 0 ?
-                      <Accordion
-                        type="multiple"
-                        className="w-full rounded-xl border border-slate-200/90 bg-white"
-                        defaultValue={selectedLabsPanelBreakdown.map(
-                          (x) => x.category.id,
-                        )}>
-                        {selectedLabsPanelBreakdown.map(
-                          ({ category, selectedItemIds }) => (
-                            <AccordionItem
-                              key={category.id}
-                              value={category.id}
-                              className="border-slate-100 px-2">
-                              <AccordionTrigger className="py-3 text-sm hover:no-underline">
-                                <span className="min-w-0 flex-1 text-left font-medium text-slate-800">
-                                  {category.title}
-                                  <span className="ml-2 text-xs font-normal text-violet-700">
-                                    {selectedItemIds.size} tanlangan · jami{' '}
-                                    {category.items.length} parametr
-                                  </span>
-                                </span>
-                              </AccordionTrigger>
-                              <AccordionContent className="pb-3">
-                                <div className="max-h-[min(280px,40vh)] overflow-auto rounded-lg border border-slate-100">
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow className="hover:bg-transparent">
-                                        <TableHead className="h-9 text-xs">
-                                          Parametr
-                                        </TableHead>
-                                        <TableHead className="h-9 text-xs">
-                                          Me&apos;yor
-                                        </TableHead>
-                                        <TableHead className="h-9 text-xs">
-                                          Birlik
-                                        </TableHead>
-                                        <TableHead className="h-9 w-28 text-xs">
-                                          Topshirish
-                                        </TableHead>
-                                      </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      {category.items.map((it) => {
-                                        const ref = catalogRef(
-                                          category.id,
-                                          it.id,
-                                        );
-                                        const sel = selectedLabKeys.has(ref);
-                                        return (
-                                          <TableRow
-                                            key={it.id}
-                                            className={`text-xs ${sel ? 'bg-violet-50/80' : 'text-slate-700'}`}>
-                                            <TableCell className="font-medium">
-                                              {it.name}
-                                            </TableCell>
-                                            <TableCell>
-                                              {it.norm ?? '—'}
-                                            </TableCell>
-                                            <TableCell>
-                                              {it.unit ?? '—'}
-                                            </TableCell>
-                                            <TableCell>
-                                              <Checkbox
-                                                checked={sel}
-                                                onCheckedChange={(v) =>
-                                                  toggleLab(ref, v === true)
-                                                }
-                                                className="mt-0.5"
-                                                aria-label={`${it.name} — topshirish kerak`}
-                                              />
-                                            </TableCell>
-                                          </TableRow>
-                                        );
-                                      })}
-                                    </TableBody>
-                                  </Table>
-                                </div>
-                              </AccordionContent>
-                            </AccordionItem>
-                          ),
-                        )}
-                      </Accordion>
-                    : null}
-                    {queueOrderablePriceRows.length > 0 ?
-                      <div className="rounded-xl border border-slate-200 bg-white/90 p-3">
-                        <p className="text-xs font-medium text-slate-700">
-                          Narx ro&apos;yxati — laboratoriya, shifokor
-                          ko&apos;rigi, UZI
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500">
-                          Kerakli xizmatlarni belgilang; katalog parametrlari
-                          yuqoridagi jadvalda.
-                        </p>
-                        <div className="mt-2 max-h-[min(260px,36vh)] space-y-3 overflow-auto pr-1">
-                          {(
-                            [
-                              {
-                                group: 'laboratoriya' as const,
-                                heading: 'Laboratoriya tahlillari',
-                              },
-                              {
-                                group: 'shifokor-korigi' as const,
-                                heading: 'Shifokor ko‘rigi',
-                              },
-                              { group: 'uzi' as const, heading: 'UZI' },
-                            ] as const
-                          ).map(({ group, heading }) => {
-                            const rows = queueOrderablePriceRows.filter(
-                              (r) => r.group === group,
-                            );
-                            if (rows.length === 0) return null;
-                            return (
-                              <div key={group} className="space-y-1">
-                                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                  {heading}
-                                </p>
-                                {rows.map((lab) => {
-                                  const key = servicePriceKey(lab);
-                                  const isSuggested =
-                                    group === 'laboratoriya' && activePatient ?
-                                      suggestedPricingKeys.includes(key)
-                                    : false;
-                                  const fromPrev =
-                                    activePatient?.previousPaidServiceKeys?.includes(
-                                      key,
-                                    );
-                                  return (
-                                    <label
-                                      key={key}
-                                      className={`flex cursor-pointer items-start gap-3 rounded-lg px-2 py-1.5 text-sm ${
-                                        isSuggested || fromPrev ?
-                                          'bg-violet-50/60'
-                                        : ''
-                                      }`}>
-                                      <Checkbox
-                                        checked={selectedLabKeys.has(key)}
-                                        onCheckedChange={(v) =>
-                                          toggleLab(key, v === true)
-                                        }
-                                        className="mt-0.5"
-                                      />
-                                      <span className="min-w-0 flex-1">
-                                        <span className="font-medium text-slate-800">
-                                          {lab.name}
-                                        </span>
-                                        <span className="mt-0.5 block text-xs text-slate-500">
-                                          {lab.groupLabel} ·{' '}
-                                          {lab.price.toLocaleString('uz-UZ')}{' '}
-                                          so&apos;m
-                                          {isSuggested ?
-                                            <span className="text-violet-700">
-                                              {' '}
-                                              · tavsiya
-                                            </span>
-                                          : null}
-                                          {fromPrev ?
-                                            <span className="text-amber-800">
-                                              {' '}
-                                              · oldingi to‘lov
-                                            </span>
-                                          : null}
-                                        </span>
-                                      </span>
-                                    </label>
-                                  );
-                                })}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    : null}
-                  </div>
-                : null}
+                <div className="space-y-3 rounded-2xl border border-violet-200/70 bg-violet-50/40 p-4">
+                  <QueueServiceTypesPicker
+                    rows={serviceTypes}
+                    labCatalog={labCatalog}
+                    selectedKeys={selectedLabKeys}
+                    onToggle={toggleLab}
+                  />
+                </div>
 
                 {onOpenPatients || patientsBasePath ?
                   <div className="flex flex-wrap gap-2">

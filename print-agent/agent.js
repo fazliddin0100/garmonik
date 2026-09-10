@@ -195,14 +195,17 @@ function detectWindowsPrinterName(preferredName) {
     preferred +
     "'; " +
     "$all = Get-Printer | Where-Object { $_.Name -notmatch $exclude }; " +
-    "$candidates = $all | Where-Object { $_.Name -match 'XP|XPrinter|POS|E200|Receipt|Chek|80C|80' }; " +
+    "$candidates = $all | Where-Object { $_.Name -match 'XP|XPrinter|Xprinter|POS|E200|Receipt|Chek|80C|80' }; " +
     "if (-not $candidates) { $candidates = $all }; " +
     "$best = $candidates | Sort-Object @{ Expression = { " +
     "  $score = 0; " +
     "  if ($preferred -and $_.Name -eq $preferred) { $score += 200 }; " +
-    "  if ($_.Name -eq 'XP-80C') { $score += 120 }; " +
-    "  if ($_.Name -match '^XP-80') { $score += 80 }; " +
-    "  if ($_.Name -match 'XP|XPrinter') { $score += 40 }; " +
+    "  if ($preferred -and $_.Name -like ('*' + $preferred + '*')) { $score += 80 }; " +
+    "  if ($_.Name -eq 'Xprinter XP-80' -or $_.Name -eq 'XPrinter XP-80') { $score += 150 }; " +
+    "  if ($_.Name -match 'Xprinter XP-80') { $score += 90 }; " +
+    "  if ($_.Name -eq 'XP-80C' -or $_.Name -eq 'POS-80C') { $score += 70 }; " +
+    "  if ($_.Name -match '^XP-80') { $score += 50 }; " +
+    "  if ($_.Name -match 'XP|XPrinter|Xprinter') { $score += 40 }; " +
     "  if ($_.Name -match '\\(copy|копия') { $score -= 200 }; " +
     "  switch ([string]$_.PrinterStatus) { " +
     "    'Normal' { $score += 60 }; " +
@@ -232,17 +235,28 @@ function resolveWindowsPrinter(cfg) {
   if (cfg.PRINTER_NAME) {
     return queryWindowsPrinter(cfg.PRINTER_NAME).then(function (info) {
       if (info.exists) return info;
-      throw new Error(
-        "config.txt dagi PRINTER_NAME topilmadi: '" +
-          cfg.PRINTER_NAME +
-          "'. PowerShell: Get-Printer | Format-Table Name, PrinterStatus"
-      );
+      return detectWindowsPrinterName(cfg.PRINTER_NAME).then(function (detected) {
+        if (detected && detected.name) {
+          appendAgentLog(
+            "PRINTER_NAME='" +
+              cfg.PRINTER_NAME +
+              "' topilmadi, avtomatik: " +
+              detected.name
+          );
+          return detected;
+        }
+        throw new Error(
+          "config.txt dagi PRINTER_NAME topilmadi: '" +
+            cfg.PRINTER_NAME +
+            "'. Windows nomi boshqacha bo'lishi mumkin (masalan Xprinter XP-80). PowerShell: Get-Printer | Format-Table Name, PrinterStatus"
+        );
+      });
     });
   }
   return detectWindowsPrinterName("").then(function (info) {
     if (info && info.name) return info;
     throw new Error(
-      "Chek printeri topilmadi. config.txt ga PRINTER_NAME=XP-80C yozing (Get-Printer bilan tekshiring)."
+      "Chek printeri topilmadi. config.txt ga PRINTER_NAME=Xprinter XP-80 yozing (Get-Printer bilan tekshiring)."
     );
   });
 }

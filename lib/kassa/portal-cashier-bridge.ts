@@ -104,6 +104,40 @@ export async function ensureKassaPortalUser(input: {
   };
 }
 
+/** Kassa jadvalidagi login/parol — portal hash mos kelmasa ham Kassir kira oladi. */
+export async function authenticateKassaUser(
+  login: string,
+  password: string,
+): Promise<SessionUser | null> {
+  const normalized = login.trim();
+  if (!normalized || !password) return null;
+
+  try {
+    const user = await prisma.user.findFirst({
+      where: { login: { equals: normalized, mode: 'insensitive' } },
+    });
+    if (!user || !user.isActive) return null;
+    if (user.lockedUntil && user.lockedUntil > new Date()) return null;
+
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) return null;
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { failedLoginCount: 0, lockedUntil: null },
+    });
+
+    return {
+      id: user.id,
+      login: user.login,
+      fullName: user.fullName,
+      role: user.role,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /** @deprecated ensureKassaPortalUser({ role: 'CASHIER' }) ishlating */
 export async function ensureKassaCashierUser(input: {
   login: string;
