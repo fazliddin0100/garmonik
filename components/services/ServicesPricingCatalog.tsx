@@ -55,6 +55,7 @@ const groupIconByKey: Record<
   'pullik-xizmat': Ticket,
   'shifokor-korigi': Stethoscope,
   uzi: Search,
+  boshqa: Layers,
 };
 
 function formatUzs(value: number) {
