@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Cable, PlusCircle, Settings2 } from "lucide-react";
+import { Cable, Minus, Plus, PlusCircle, Settings2 } from "lucide-react";
 import { Button } from "@/components/kassa/ui/button";
 import { PageHeader } from "@/components/kassa/ui/page-header";
 import { Input } from "@/components/kassa/ui/input";
@@ -21,10 +21,17 @@ type Service = {
 
 type ServicesTab = "services" | "payments";
 
+const PRICE_STEP = 1000;
+
 const TABS: { id: ServicesTab; label: string; icon: typeof PlusCircle }[] = [
   { id: "services", label: "Yangi xizmat qo'shish", icon: PlusCircle },
   { id: "payments", label: "To'lov terminali integratsiyasi", icon: Cable },
 ];
+
+function bumpPrice(current: string, delta: number) {
+  const n = Number.parseFloat(current) || 0;
+  return String(Math.max(0, n + delta));
+}
 
 export function ServicesView() {
   const [tab, setTab] = useState<ServicesTab>("services");
@@ -149,6 +156,7 @@ export function ServicesView() {
                   <Input
                     type="number"
                     min={0}
+                    step={PRICE_STEP}
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     placeholder="0 = kelishilgan narx"
@@ -179,14 +187,40 @@ export function ServicesView() {
                           <Label className="text-xs">Nomi</Label>
                           <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
                         </div>
-                        <div className="w-36 space-y-1">
-                          <Label className="text-xs">Narx</Label>
-                          <Input
-                            type="number"
-                            min={0}
-                            value={editPrice}
-                            onChange={(e) => setEditPrice(e.target.value)}
-                          />
+                        <div className="w-[220px] space-y-1">
+                          <Label className="text-xs">Narx (UZS)</Label>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="h-11 w-11 shrink-0"
+                              disabled={saving}
+                              aria-label="1000 kamaytirish"
+                              onClick={() => setEditPrice((p) => bumpPrice(p, -PRICE_STEP))}
+                            >
+                              <Minus />
+                            </Button>
+                            <Input
+                              type="number"
+                              min={0}
+                              step={PRICE_STEP}
+                              value={editPrice}
+                              onChange={(e) => setEditPrice(e.target.value)}
+                              className="text-center"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="h-11 w-11 shrink-0"
+                              disabled={saving}
+                              aria-label="1000 oshirish"
+                              onClick={() => setEditPrice((p) => bumpPrice(p, PRICE_STEP))}
+                            >
+                              <Plus />
+                            </Button>
+                          </div>
                         </div>
                         <Button
                           type="button"
