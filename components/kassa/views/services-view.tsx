@@ -34,6 +34,8 @@ export function ServicesView() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editPrice, setEditPrice] = useState("");
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   function load() {
     fetch("/api/kassa/services")
@@ -51,28 +53,47 @@ export function ServicesView() {
 
   async function addService(e: React.FormEvent) {
     e.preventDefault();
-    await fetch("/api/kassa/services", {
+    setError("");
+    const res = await fetch("/api/kassa/services", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, price: parseFloat(price) || 0 }),
     });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setError(data.error || "Xizmat qo'shib bo'lmadi");
+      return;
+    }
     setName("");
     setPrice("");
     load();
   }
 
   async function saveService(id: string) {
-    await fetch("/api/kassa/services", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id,
-        name: editName,
-        price: parseFloat(editPrice) || 0,
-      }),
-    });
-    setEditId(null);
-    load();
+    setError("");
+    setSaving(true);
+    try {
+      const res = await fetch("/api/kassa/services", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          name: editName.trim(),
+          price: parseFloat(editPrice) || 0,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || "Narxni saqlab bo'lmadi");
+        return;
+      }
+      setEditId(null);
+      load();
+    } catch {
+      setError("Server bilan aloqa yo'q");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -146,6 +167,9 @@ export function ServicesView() {
               <CardTitle>Xizmatlar ro&apos;yxati</CardTitle>
             </CardHeader>
             <CardContent>
+              {error ? (
+                <p className="mb-3 text-sm text-rose-600">{error}</p>
+              ) : null}
               <ul className="divide-y">
                 {services.map((s) => (
                   <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
@@ -164,10 +188,21 @@ export function ServicesView() {
                             onChange={(e) => setEditPrice(e.target.value)}
                           />
                         </div>
-                        <Button size="sm" onClick={() => saveService(s.id)}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={saving}
+                          onClick={() => saveService(s.id)}
+                        >
                           Saqlash
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setEditId(null)}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          disabled={saving}
+                          onClick={() => setEditId(null)}
+                        >
                           Bekor
                         </Button>
                       </div>
